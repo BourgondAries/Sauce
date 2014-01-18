@@ -1,9 +1,14 @@
+package sauce;
+
+import ttl.Ips;
 import java.util.*;
 import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+
+
 
 
 public class Main extends JFrame
@@ -28,7 +33,7 @@ public class Main extends JFrame
 			System.out.println("heelosaouce!!!");
 	//		new Main();
 			
-			ttl.Ips ips = new ttl.Ips(30.f);
+			Ips ips = new Ips(30.f);
 			
 			long x = Calendar.getInstance().get(Calendar.MILLISECOND);
 			for (int i = 0; i < 100; ++i)
