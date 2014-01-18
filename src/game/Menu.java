@@ -3,6 +3,8 @@ package game;
 //Standard import
 import static org.lwjgl.opengl.GL11.*;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Calendar;
 
 import org.jsfml.graphics.RenderWindow;
@@ -12,7 +14,10 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.input.Keyboard;
 import org.jsfml.graphics.*;
 import org.jsfml.window.*;
+import org.jsfml.audio.*;
 import org.jsfml.window.event.Event;
+
+import engine.MusicManager;
 
 public class Menu
 {
@@ -24,13 +29,33 @@ public class Menu
 	
 	public void run()
 	{
+		MusicManager mu = new MusicManager();
+		
 		Main.wnd.setFramerateLimit(30);
+		
+//		Music ms = new Music();
+//		try {
+//			ms.openFromFile(Paths.get("Rayman_2_music_sample.ogg"));
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		ms.play();
+		boolean x = false;
 		while (true)
 		{
 			for (Event event : Main.wnd.pollEvents())
 			{
 				switch (event.type)
 				{
+					case KEY_PRESSED:
+					{
+						x = !x;
+						if (x)
+							mu.fade("res/Rayman_2_music_sample.ogg");
+						else
+							mu.fade("res/Tromboon-sample.ogg");
+					} break;
 					case CLOSED:
 					{
 						Main.game_state = Main.states.scoreboard;
