@@ -1,3 +1,4 @@
+package sauce;
 import javax.swing.JPanel; // Panel/Frame er et nytt vindu
 import java.awt.BasicStroke;
 import java.awt.Color;
