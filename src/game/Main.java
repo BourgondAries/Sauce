@@ -13,9 +13,6 @@
 package game;
 
 // Standard import
-import static org.lwjgl.opengl.GL11.*;
-import org.lwjgl.opengl.*;
-import org.lwjgl.*;
 import org.jsfml.graphics.*;
 import org.jsfml.window.*;
 
@@ -36,7 +33,8 @@ public class Main
 	
 	private void init()
 	{	
-		game_state = states.menu;
+		game_state = states.core;
+		Main.wnd.setFramerateLimit(60);
 	}
 	
 	private void run()
@@ -58,6 +56,7 @@ public class Main
 				case surface:
 					break;
 				case core:
+					new Core();
 					break;
 				case game:
 					break;
@@ -69,10 +68,8 @@ public class Main
 		}
 	}
 	
-	private void dispose() {
-		// Remove the window
-		Display.destroy();
-		
+	private void dispose() 
+	{
 		// Exit the system
 		System.exit(0);
 	}
