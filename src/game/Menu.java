@@ -3,15 +3,13 @@ package game;
 //Class-specific import
 import org.jsfml.graphics.*;
 import org.jsfml.window.event.Event;
-
 import engine.MusicManager;
 
 public class Menu
 {
-	// Constructor
 	public Menu()
 	{
-		
+		run();
 	}
 	
 	public void run()
