@@ -3,8 +3,11 @@ package game;
 import org.jsfml.graphics.*;
 import org.jsfml.system.Vector2f;
 import org.jsfml.window.*;
+import org.jsfml.window.Keyboard.Key;
 import org.jsfml.audio.*;
-import org.jsfml.window.event.Event;
+import org.jsfml.window.event.*;
+
+import java.util.Random;
 
 
 public class Core
@@ -16,6 +19,7 @@ public class Core
 		m_rs.setSize(new Vector2f(10, 10));
 		
 		m_items.add(m_rs);
+		m_items.add(m_player);
 		
 		run();
 	}
@@ -38,21 +42,57 @@ public class Core
 			{
 				case KEY_PRESSED:
 				{
-					System.out.println("Pressed a key!");
+					KeyEvent keyev = event.asKeyEvent();
+					switch (keyev.key)
+					{
+						case UP:
+							m_player.jump();
+							break;
+						case ESCAPE:
+							Main.game_state = Main.states.menu;
+							return;
+						default:
+							break;
+					
+					}
+					System.out.println(keyev.key);
 					m_rs.move(new Vector2f(0.f, -1.f));
 				} break;
+				case CLOSED:
+				{
+					Main.game_state = Main.states.menu;
+					return;
+				}
+				default:
+					break;
 			}
+		}
+		
+		
+		if (Keyboard.isKeyPressed(Keyboard.Key.LEFT))
+		{
+			m_player.move(-7.f, 0.f);
+		}
+		else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT))
+		{
+			m_player.move(7.f, 0.f);
 		}
 	}
 	
 	private void runGameLogic()
 	{
 		m_rs.move(new Vector2f(0.f, 1.f));
+		m_player.logic();
+		
+		View v = Main.view;
+		v = new View(Main.wnd.getDefaultView().getCenter(), Main.wnd.getDefaultView().getSize());
+		v.move(m_rng.nextInt() % 30 - 15, m_rng.nextInt() % 30 - 15);
+		Main.wnd.setView(v);
 	}
 	
 	private void render()
 	{
-		Main.wnd.clear();
+		Main.wnd.clear(new Color(m_rng.nextInt() % 255, m_rng.nextInt() % 255, m_rng.nextInt() % 255));
 		
 		for (Drawable x : m_items)
 		{
@@ -66,4 +106,6 @@ public class Core
 	private final float m_gravity = -9.81f;
 	
 	private RectangleShape m_rs = new RectangleShape();
+	private Player m_player = new Player();
+	private Random m_rng = new Random(System.currentTimeMillis());
 }

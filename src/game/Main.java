@@ -20,11 +20,8 @@ public class Main
 {
 	
 	public static RenderWindow wnd = new RenderWindow(new VideoMode(800, 600, 32), "Sauce");
-	// Constructor
-//	public static int screen_width;
-//	public static int screen_height;
-//	public static String game_title;
 	public static states game_state;
+	public static View view = null;
 	
 	public enum states
 	{
@@ -35,6 +32,9 @@ public class Main
 	{	
 		game_state = states.core;
 		Main.wnd.setFramerateLimit(60);
+		
+		view = new View(wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize());
+		wnd.setView(view);
 	}
 	
 	private void run()
