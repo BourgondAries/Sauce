@@ -7,6 +7,7 @@ import org.jsfml.system.Vector2f;
 public class Player implements Transformable, Drawable
 {
 	private float dY = 0.f;
+	private boolean m_lastin = false; // Last in the air, true = magma
 	
 	public Player()
 	{
@@ -17,15 +18,31 @@ public class Player implements Transformable, Drawable
 	
 	public void logic()
 	{
-		if (m_rs.getPosition().y < 600.f - m_rs.getSize().y)
+		if (Main.START_OF_MAGMA < m_rs.getPosition().y && m_rs.getPosition().y < Main.BOTTOM_OF_THE_WORLD - m_rs.getSize().y)
 		{
+			if (m_lastin == false)
+			{
+				dY = 0.f;
+				m_lastin = true;
+			}
+			dY += 0.04f;
+			m_rs.move(0, dY);
+//			System.out.println("Magma");
+		}
+		else if (m_rs.getPosition().y < Main.BOTTOM_OF_THE_WORLD - m_rs.getSize().y)
+		{
+			if (m_lastin == true)
+			{
+				m_lastin = false;
+			}
 			dY += 0.0981f;
 			m_rs.move(0, dY);
+//			System.out.println("air");
 		}
 		else
 		{
 			dY = 0.f;
-			m_rs.setPosition(m_rs.getPosition().x, 600.f - m_rs.getSize().y);
+			m_rs.setPosition(m_rs.getPosition().x, Main.BOTTOM_OF_THE_WORLD - m_rs.getSize().y);
 		}
 	}
 	

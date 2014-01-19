@@ -18,6 +18,8 @@ import org.jsfml.window.*;
 
 public class Main
 {
+	public final static float BOTTOM_OF_THE_WORLD = 530.f;
+	public final static float START_OF_MAGMA = 0.f;
 	
 	public static RenderWindow wnd = new RenderWindow(new VideoMode(800, 600, 32), "Sauce");
 	public static states game_state;

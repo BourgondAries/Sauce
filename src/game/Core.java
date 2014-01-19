@@ -20,6 +20,8 @@ public class Core
 		
 		m_items.add(m_rs);
 		m_items.add(m_player);
+		m_items.add(m_bedrock);
+		m_items.add(m_magma);
 		
 		run();
 	}
@@ -85,7 +87,7 @@ public class Core
 		m_player.logic();
 		
 		View v = Main.view;
-		v = new View(Main.wnd.getDefaultView().getCenter(), Main.wnd.getDefaultView().getSize());
+		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
 		v.move(m_rng.nextInt() % 30 - 15, m_rng.nextInt() % 30 - 15);
 		Main.wnd.setView(v);
 	}
@@ -108,4 +110,7 @@ public class Core
 	private RectangleShape m_rs = new RectangleShape();
 	private Player m_player = new Player();
 	private Random m_rng = new Random(System.currentTimeMillis());
+	
+	private BottomOfTheWorld m_bedrock = new BottomOfTheWorld();
+	private MagmaOfTheWorld m_magma = new MagmaOfTheWorld();
 }
