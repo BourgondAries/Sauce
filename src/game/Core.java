@@ -7,6 +7,8 @@ import org.jsfml.window.Keyboard.Key;
 import org.jsfml.audio.*;
 import org.jsfml.window.event.*;
 
+import engine.Player;
+
 import java.util.Random;
 
 

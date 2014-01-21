@@ -1,12 +1,15 @@
-package game;
+package engine;
+
+import game.Main;
 
 import org.jsfml.graphics.*;
 import org.jsfml.system.Vector2f;
 
+// Kunne du gjøre variabelnavnene litt mer selv-forklarende? aner ikke hva m_rs er, ellers liker jeg det jeg ser :)
 
 public class Player implements Transformable, Drawable
 {
-	private float dY = 0.f;
+	private float dY = 0.f; //Og er ikke dette litt smør på flesk? :P
 	
 	public Player()
 	{
