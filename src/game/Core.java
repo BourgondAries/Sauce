@@ -7,11 +7,15 @@ import org.jsfml.window.Keyboard.Key;
 import org.jsfml.audio.*;
 import org.jsfml.window.event.*;
 
+import engine.Player;
+
+import java.util.ArrayList;
 import java.util.Random;
 
 
 public class Core
 {
+	
 	public Core()
 	{
 		System.out.println("CORE\n");
@@ -62,7 +66,8 @@ public class Core
 				} break;
 				case CLOSED:
 				{
-					Main.game_state = Main.states.menu;
+//					Main.game_state = Main.states.menu;
+					Main.dispose();
 					return;
 				}
 				default:
@@ -88,8 +93,9 @@ public class Core
 		
 		View v = Main.view;
 		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
-		v.move(m_rng.nextInt() % 30 - 15, m_rng.nextInt() % 30 - 15);
+		v.move(m_rng.nextInt() % 300 - 150, m_rng.nextInt() % 300 - 150);
 		Main.wnd.setView(v);
+		
 	}
 	
 	private void render()
@@ -113,4 +119,5 @@ public class Core
 	
 	private BottomOfTheWorld m_bedrock = new BottomOfTheWorld();
 	private MagmaOfTheWorld m_magma = new MagmaOfTheWorld();
+
 }
