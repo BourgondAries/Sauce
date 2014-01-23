@@ -1,7 +1,11 @@
 package engine;
 
-public class PathedTextures {
-	public PathedTextures() {
+public class PathedTextures
+{
+	
+	public PathedTextures()
+	{
 		
 	}
+	
 }
