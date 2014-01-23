@@ -6,16 +6,13 @@ import org.jsfml.window.*;
 
 public class Main
 {
-	public final static float BOTTOM_OF_THE_WORLD = 530.f;
-	public final static float START_OF_MAGMA = 0.f;
-	
-	public static RenderWindow wnd = new RenderWindow(new VideoMode(800, 600, 32), "Sauce");
-
 	// Setup variables
-	// Dette er allerede lagret i JSFML.RenderWindow
 	public static states game_state;
 	public static View view;
-	public static ArrayList<Texture> textures; // Bra
+	public final static float BOTTOM_OF_THE_WORLD = 530.f;
+	public final static float START_OF_MAGMA = 0.f;
+	public static RenderWindow wnd;
+
 	
 	// Setup states in the game
 	public enum states
@@ -49,6 +46,7 @@ public class Main
 					return;
 			}
 		}
+		dispose();
 	}
 	
 	public static void dispose() 
@@ -73,8 +71,6 @@ public class Main
 	
 	public static void main(String[] args)
 	{
-		Main main = new Main(); // Main har ingen Ctor
-		main.run(); // Vi kan calle run fra ctor...
-		main.dispose(); // Dette kan vere lurt, dersom vi vil exitte programmet utenfra; MEN, vi har ingen referanse til main pointer. :( Cri evertim
+		new Main();
 	}
 }
