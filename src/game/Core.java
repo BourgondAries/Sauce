@@ -26,6 +26,9 @@ public class Core
 		m_items.add(m_player);
 		m_items.add(m_bedrock);
 		m_items.add(m_magma);
+		m_items.add(m_rockceiling);
+		
+		m_bedrock.generateTiles();
 		
 		run();
 	}
@@ -54,6 +57,9 @@ public class Core
 						case UP:
 							m_player.jump();
 							break;
+						case RETURN:
+							m_bedrock.eraseRandomTileAtTheTop();
+							break;
 						case ESCAPE:
 							Main.game_state = Main.states.menu;
 							return;
@@ -78,29 +84,59 @@ public class Core
 		
 		if (Keyboard.isKeyPressed(Keyboard.Key.LEFT))
 		{
-			m_player.move(-7.f, 0.f);
+			m_player.getQueryMovement().setX(-7.f);
 		}
 		else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT))
 		{
-			m_player.move(7.f, 0.f);
+			m_player.getQueryMovement().setX(7.f);
 		}
 	}
 	
 	private void runGameLogic()
 	{
+		if (Math.random() > 0.95)
+			m_bedrock.eraseRandomTileAtTheTop();
+		
 		m_rs.move(new Vector2f(0.f, 1.f));
+		System.out.println(m_player);
+		Vector2f tmp = new Vector2f(m_player.getPosition().x + 33, m_player.getPosition().y);
+		m_bedrock.getCollisionTilePosition(m_player.getPosition());
+		if (m_bedrock.doesATileExistHere(m_player.getPosition()) && m_bedrock.doesATileExistHere(tmp))
+			m_player.getQueryMovement().setY(m_player.getQueryMovement().getY() + 0.5f);
+		else
+			m_player.getQueryMovement().setY(0);
+		
+		// Perform movement additions. (Gravity changes the actual position
 		m_player.logic();
+		
+		// If the new position is a collision, we must find the maximum allowed dX and dY
+		if (m_player.getPosition().y + Player.CM_HEIGHT > m_bedrock.getCollisionTilePosition(m_player.getPosition()).y)
+		{
+			m_player.setPosition(new Vector2f(m_player.getPosition().x, m_bedrock.getCollisionTilePosition(m_player.getPosition()).y - Player.CM_HEIGHT));
+		}
+		Vector2f right_point_of_player = new Vector2f(m_player.getPosition().x + Player.CM_WIDTH, m_player.getPosition().y);
+		if (right_point_of_player.y + Player.CM_HEIGHT > m_bedrock.getCollisionTilePosition(right_point_of_player).y)
+			m_player.setPosition(new Vector2f(m_player.getPosition().x, m_bedrock.getCollisionTilePosition(right_point_of_player).y - Player.CM_HEIGHT));
+		
+		// Reset movement on the x-axis, because that mostly comes from user input
+		m_player.getQueryMovement().setX(0.f);
 		
 		View v = Main.view;
 		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
-		v.move(m_rng.nextInt() % 300 - 150, m_rng.nextInt() % 300 - 150);
+		v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
 		Main.wnd.setView(v);
+		
+	}
+	
+	private void runCollisionTestsOnPlayer()
+	{
 		
 	}
 	
 	private void render()
 	{
-		Main.wnd.clear(new Color(m_rng.nextInt() % 255, m_rng.nextInt() % 255, m_rng.nextInt() % 255));
+//		Main.wnd.clear(new Color(m_rng.nextInt() % 255, m_rng.nextInt() % 255, m_rng.nextInt() % 255));
+		Main.wnd.clear();
 		
 		for (Drawable x : m_items)
 		{
@@ -111,7 +147,6 @@ public class Core
 	}
 	
 	private java.util.ArrayList<Drawable> m_items = new java.util.ArrayList<>();
-	private final float m_gravity = -9.81f;
 	
 	private RectangleShape m_rs = new RectangleShape();
 	private Player m_player = new Player();
@@ -119,5 +154,6 @@ public class Core
 	
 	private BottomOfTheWorld m_bedrock = new BottomOfTheWorld();
 	private MagmaOfTheWorld m_magma = new MagmaOfTheWorld();
+	private RockCeiling m_rockceiling = new RockCeiling();
 
 }

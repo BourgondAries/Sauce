@@ -11,51 +11,66 @@ import org.jsfml.system.Vector2f;
 public class Player implements Transformable, Drawable
 {
 	private boolean m_was_in_lava_past_iteration = false; // Last in the air, true = magma er på jordoverflaten >.<
-	private float dY = 0.f; //Og er ikke dette litt smør på flesk? :P - Fuuuuuuuuu
+	private XYAxes m_change_in_position = new XYAxes(0.f, 0.f);
+	
+	// CM: C stands for "Constant", M stands for "Class Member"
+	public static final float CM_HEIGHT = 50.f, CM_WIDTH = 30.f, CM_JUMPFORCE = -50.f;
 	
 	public Player()
 	{
-		m_rectangle_shape.setSize(new Vector2f(30, 50));
+		m_rectangle_shape.setSize(new Vector2f(CM_WIDTH, CM_HEIGHT));
 		m_rectangle_shape.setFillColor(new Color(230, 200, 150));
 		m_rectangle_shape.setPosition(Main.wnd.getSize().x / 2.f, Main.wnd.getSize().y / 2.f);
 	}
 	
+	public XYAxes getQueryMovement()
+	{
+		return m_change_in_position;
+	}
+	
+	public String toString()
+	{
+		return "Player position: (" + m_rectangle_shape.getPosition().x + ", " + m_rectangle_shape.getPosition().y + ")"; 
+	}
+
+	
 	public void logic()
 	{
-		if (Main.START_OF_MAGMA < m_rectangle_shape.getPosition().y && m_rectangle_shape.getPosition().y < Main.BOTTOM_OF_THE_WORLD - m_rectangle_shape.getSize().y)
-		{
-			if (m_was_in_lava_past_iteration == false)
-			{
-				dY = 0.f;
-				m_was_in_lava_past_iteration = true;
-			}
-			dY += 0.04f;
-			m_rectangle_shape.move(0, dY);
-//			System.out.println("Magma");
-		}
-		else if (m_rectangle_shape.getPosition().y < Main.BOTTOM_OF_THE_WORLD - m_rectangle_shape.getSize().y)
-		{
-			if (m_was_in_lava_past_iteration == true)
-			{
-				m_was_in_lava_past_iteration = false;
-			}
-			dY += 0.0981f;
-			m_rectangle_shape.move(0, dY);
-//			System.out.println("air");
-		}
-		else
-		{
-			dY = 0.f;
-			m_rectangle_shape.setPosition(m_rectangle_shape.getPosition().x, Main.BOTTOM_OF_THE_WORLD - m_rectangle_shape.getSize().y);
-		}
+		m_rectangle_shape.move(m_change_in_position.getX(), m_change_in_position.getY());
+//		if (Main.START_OF_MAGMA < m_rectangle_shape.getPosition().y && m_rectangle_shape.getPosition().y < Main.BOTTOM_OF_THE_WORLD - m_rectangle_shape.getSize().y)
+//		{
+//			if (m_was_in_lava_past_iteration == false)
+//			{
+//				dY = 0.f;
+//				m_was_in_lava_past_iteration = true;
+//			}
+//			dY += 0.04f;
+//			m_rectangle_shape.move(0, dY);
+////			System.out.println("Magma");
+//		}
+//		else if (m_rectangle_shape.getPosition().y < Main.BOTTOM_OF_THE_WORLD - m_rectangle_shape.getSize().y)
+//		{
+//			if (m_was_in_lava_past_iteration == true)
+//			{
+//				m_was_in_lava_past_iteration = false;
+//			}
+//			dY += 0.0981f;
+//			m_rectangle_shape.move(0, dY);
+////			System.out.println("air");
+//		}
+//		else
+//		{
+//			dY = 0.f;
+//			m_rectangle_shape.setPosition(m_rectangle_shape.getPosition().x, Main.BOTTOM_OF_THE_WORLD - m_rectangle_shape.getSize().y);
+//		}
 	}
 	
 	public void jump()
 	{
-		if (dY == 0.f)
+		if (m_change_in_position.getY() == 0.f)
 		{
-			dY = -10.f;
-			m_rectangle_shape.move(0, dY);
+			m_change_in_position.setY(CM_JUMPFORCE);
+			m_rectangle_shape.move(0, m_change_in_position.getY());
 		}
 	}
 		

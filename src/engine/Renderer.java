@@ -1,5 +1,6 @@
 package engine;
 
+import Player;
 import game.Main;
 
 import java.util.ArrayList;
@@ -7,7 +8,8 @@ import java.util.Random;
 
 import org.jsfml.graphics.*;
 
-public class Renderer {
+public class Renderer
+{
 	// Setup the player's camera
 	private float cam_x;
 	private float cam_y;
@@ -83,7 +85,7 @@ public class Renderer {
 			cam_y -= (cam_y - (target_player.getPosition().y + target_player.getScale().y / 2)) * cam_transitionspeed;
 			cam_z -= (cam_z - distance_from_target) * cam_transitionspeed;
 		} else if (target_object != null) {
-			cam_x -= (cam_x - (target_object.getX() + target_object.getWidth() / 2)) * cam_transitionspeed;
+			cam_x -= (cam_x - (target_object.() + target_object.getWidth() / 2)) * cam_transitionspeed;
 			cam_y -= (cam_y - (target_object.getY() + target_object.getHeight() / 2)) * cam_transitionspeed;
 			cam_z -= (cam_z - (target_object.getZ() + distance_from_target)) * cam_transitionspeed;
 		}
