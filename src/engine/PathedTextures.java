@@ -8,13 +8,14 @@ import org.jsfml.graphics.Sprite;
 import org.jsfml.graphics.Texture;
 
 public class PathedTextures {
-	private static ArrayList<Texture> textures;
-	private static ArrayList<Path> pathes;
+	private static ArrayList<Texture> textures = new ArrayList<Texture>();
+	private static ArrayList<Path> pathes = new ArrayList<Path>();
 	
 	public static Sprite addImage(Path path) throws IOException {
+		
 		// Check if the image is already loaded
 		for (int i = 0; i < pathes.size(); i++) {
-			if (pathes.get(i) == path) {
+			if (pathes.get(i).equals(path)) {
 				return new Sprite(textures.get(i));
 			}
 		}

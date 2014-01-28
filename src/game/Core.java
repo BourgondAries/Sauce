@@ -88,6 +88,7 @@ public class Core
 	
 	private void runGameLogic()
 	{
+		// Add forces applying all dynamics, add update dynamic objects, make an array for all dynamics, make static add automatically to cam-queue, make cam have speed instead
 		m_rs.move(new Vector2f(0.f, 1.f));
 		m_player.logic();
 		

@@ -1,6 +1,5 @@
 package game;
 
-import java.util.ArrayList;
 import org.jsfml.graphics.*;
 import org.jsfml.window.*;
 
@@ -36,11 +35,12 @@ public class Main
 				case surface:
 					break;
 				case core:
-					new Core();
+					//new Core();
 					break;
 				case game:
 					break;
 				case scoreboard:
+					new Scoreboard();
 					break;
 				default:
 					return;
@@ -60,7 +60,7 @@ public class Main
 
 	public Main()
 	{
-		game_state = states.core;
+		game_state = states.scoreboard;
 		wnd = new RenderWindow(new VideoMode(800, 600, 32), "Sauce");
 		view = new View(wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize());
 		wnd.setFramerateLimit(60);

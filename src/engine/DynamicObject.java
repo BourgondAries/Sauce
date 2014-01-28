@@ -2,60 +2,165 @@ package engine;
 
 import java.io.IOException;
 
-import org.jsfml.system.Vector2f;
-import org.jsfml.system.Vector3f;
-
 public class DynamicObject extends StaticObject {
 	
 	// Setup movement
 	protected float mass;
-	protected Vector3f speed;
-	protected float speed_cv;
-	protected Vector3f force;
-	protected float force_cv;
+	protected XYZRAxes speed;
+	protected XYZRAxes force;
 
-	public DynamicObject(String image_path, Vector3f position, Vector2f size, float rotation_cv, float mass, Vector3f speed, float speed_cv) throws IOException, IllegalArgumentException {
-		super(image_path, position, size, rotation_cv);
+	public DynamicObject(String image_path, XYZRAxes position, float mass) throws IOException, IllegalArgumentException {
+		
+		super(image_path, position);
+		
 		if (mass<=0) throw new IllegalArgumentException("Mass cannot be less than or equal to zero"); //IllegalArgumentException, IllegalStateEx, NumberFormatEx, NullPointerEx, IndexOutOfBoundsEx, StringIndexOutOfBoundsEx, ArrayIndexOutOfBoundsEx, RuntimeEx
+		
 		this.mass = mass;
-		this.speed = speed;
-		this.speed_cv = speed_cv;
-		this.force = Vector3f.ZERO;
-		this.force_cv = 0;
+		this.speed = new XYZRAxes(0,0,0,0);
+		force = new XYZRAxes(0,0,0,0);
 	}
 	
+	// Mass
 	public float getMass() {
 		return mass;
 	}
-
-	public void addForce(Vector3f force, float force_cv) {
-		this.force = Vector3f.add(this.force, force);
-		this.force_cv += force_cv;
+	
+	public void setMass(float mass) throws IllegalArgumentException {
+		if (mass<=0) throw new IllegalArgumentException("Mass cannot be less than or equal to zero");
+		this.mass = mass;
+	}
+	
+	// Speed
+	public void setSpeed(XYZRAxes speed) {
+		this.speed.setX(speed.getX());
+		this.speed.setY(speed.getY());
+		this.speed.setZ(speed.getZ());
+		this.speed.setRotation(speed.getRotation());
+	}
+	
+	public float getSpeedX() {
+		return speed.getX();
+	}
+	
+	public void setSpeedX(float speed_x) {
+		speed.setX(speed_x);
+	}
+	
+	public void addSpeedX(float speed_x) {
+		speed.addX(speed_x);
+	}
+	
+	public float getSpeedY() {
+		return speed.getY();
+	}
+	
+	public void setSpeedY(float speed_y) {
+		speed.setY(speed_y);
+	}
+	
+	public void addSpeedY(float speed_y) {
+		speed.addY(speed_y);
+	}
+	
+	public float getSpeedZ() {
+		return speed.getZ();
+	}
+	
+	public void setSpeedZ(float speed_z) {
+		speed.setZ(speed_z);
+	}
+	
+	public void addSpeedZ(float speed_z) {
+		speed.addZ(speed_z);
+	}
+	
+	public float getSpeedRotation() {
+		return speed.getRotation();
+	}
+	
+	public void setSpeedRotation(float speed_cw) {
+		speed.setRotation(speed_cw);
+	}
+	
+	public void addSpeedRotation(float speed_cw) {
+		speed.addRotation(speed_cw);
+	}
+	
+	// Force
+	public void setForce(XYZRAxes force) {
+		this.force.setX(force.getX());
+		this.force.setY(force.getY());
+		this.force.setZ(force.getZ());
+		this.force.setRotation(force.getRotation());
+	}
+	
+	public float getForceX() {
+		return force.getX();
+	}
+	
+	public void setForceX(float force_x) {
+		force.setX(force_x);
+	}
+	
+	public void addForceX(float force_x) {
+		force.addX(force_x);
+	}
+	
+	public float getForceY() {
+		return force.getY();
+	}
+	
+	public void setForceY(float force_y) {
+		force.setY(force_y);
+	}
+	
+	public void addForceY(float force_y) {
+		force.addY(force_y);
+	}
+	
+	public float getForceZ() {
+		return force.getZ();
+	}
+	
+	public void setForceZ(float force_z) {
+		force.setZ(force_z);
+	}
+	
+	public void addForceZ(float force_z) {
+		force.addZ(force_z);
+	}
+	
+	public float getForceRotation() {
+		return force.getRotation();
+	}
+	
+	public void setForceRotation(float force_cw) {
+		force.setRotation(force_cw);
+	}
+	
+	public void addForceRotation(float force_cw) {
+		force.addRotation(force_cw);
 	}
 
 	// Update object position and speed
 	public void update() {
 		
 		// Update speed
-		speed = Vector3f.add(speed, Vector3f.div(force, mass));
-		speed_cv = force_cv/mass;
+		addSpeedX(getForceX()/getMass());
+		addSpeedY(getForceY()/getMass());
+		addSpeedZ(getForceZ()/getMass());
+		addSpeedRotation(getForceRotation()/getMass());
 		
 		// Reset forces
-		force = Vector3f.ZERO;
-		force_cv = 0;
+		setForceX(0);
+		setForceY(0);
+		setForceZ(0);
+		setForceRotation(0);
 		
 		// Update position
-		position = Vector3f.add(position, speed);
-		
-		// Update rotation
-		rotation_cv += speed_cv;
-		
-		while (rotation_cv > 2*Math.PI) {
-			rotation_cv -= 2*Math.PI;
-		}
-		
-		while (rotation_cv < 0) {
-			rotation_cv += 2*Math.PI;
-		}
+		addX(getSpeedX());
+		addY(getSpeedY());
+		addZ(getSpeedZ());
+		addRotation(getSpeedRotation());
 	}
 }
