@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import org.jsfml.graphics.*;
+import org.jsfml.system.Vector2f;
 
-public class StaticObject implements Drawable {
+public class StaticObject implements Drawable
+{
 	
 	// Setup data
 	protected Sprite sprite;
+	protected RectangleShape rectangle;
+	protected boolean renderable;
 	
 	// Setup position, size and orientation
 	protected XYZRAxes position;
@@ -22,6 +26,7 @@ public class StaticObject implements Drawable {
 	
 	public StaticObject(String image_path, XYZRAxes position) throws IOException {
 		this.sprite = PathedTextures.addImage(Paths.get(image_path));
+		setRenderable(true);
 		
 		this.position = new XYZRAxes(
 			position.getX(),
@@ -39,36 +44,120 @@ public class StaticObject implements Drawable {
 		updateCornerCoordinates();
 	}
 	
+	public StaticObject(XYZRAxes position, XYAxes size) {
+		setRenderable(true);
+		
+		this.position = new XYZRAxes(
+			position.getX(),
+			position.getY(),
+			position.getZ(),
+			position.getRotation()
+		);
+		
+		scale = new XYAxes(1,1);
+		rectangle = new RectangleShape();
+		rectangle.setSize(new Vector2f(size.getX(),size.getY()));
+		setColor(new Color(100,100,100));
+		
+		top_left = new XYAxes(0,0);
+		top_right = new XYAxes(0,0);
+		bottom_left = new XYAxes(0,0);
+		bottom_right = new XYAxes(0,0);
+		updateCornerCoordinates();
+	}
+	
+	// Render-style
+	public void setTexture(String image_path) throws IOException {
+		sprite = PathedTextures.addImage(Paths.get(image_path));
+		sprite.setRotation(position.getRotation());
+		setWidth(rectangle.getLocalBounds().width*getScaleWidth());
+		setHeight(rectangle.getLocalBounds().height*getScaleHeight());
+		rectangle = null;
+	}
+	
+	public void removeTexture() {
+		rectangle = new RectangleShape();
+		rectangle.setSize(new Vector2f(sprite.getLocalBounds().width*getScaleWidth(),sprite.getLocalBounds().height*getScaleHeight()));
+		rectangle.setRotation(position.getRotation());
+		setScaleHeight(1);
+		setScaleWidth(1);
+		sprite = null;
+		setColor(new Color(100,100,100));
+	}
+	
+	public void setColor(Color color) {
+		if (sprite==null) {
+			rectangle.setFillColor(color);
+		}
+	}
+	
 	// Render
 	public void draw(RenderTarget target, RenderStates states) {
-		target.draw(sprite);
+		if (!isRenderable()) return;
+		if (sprite==null) {
+			target.draw(rectangle);
+		} else {
+			target.draw(sprite);
+		}
 	}
 	
 	public void setRenderPosition(float x, float y) {
-		sprite.setPosition(x, y);
+		if (sprite==null) {
+			rectangle.setPosition(x, y);
+		} else {
+			sprite.setPosition(x, y);
+		}
 	}
 	
 	public void setRenderScale(float x, float y) {
-		sprite.setScale(x, y);
+		if (sprite==null) {
+			rectangle.setScale(x, y);
+		} else {
+			sprite.setScale(x, y);
+		}
+	}
+	
+	public void setRenderable(boolean render_object) {
+		renderable = render_object;
+	}
+	
+	public boolean isRenderable() {
+		return renderable;
 	}
 	
 	// Origin
 	public void setOriginCenter() {
-		this.sprite.setOrigin(getOrginalWidth()/2,getOrginalHeight()/2);
+		if (sprite==null) {
+			rectangle.setOrigin(getOrginalWidth()/2,getOrginalHeight()/2);
+		} else {
+			sprite.setOrigin(getOrginalWidth()/2,getOrginalHeight()/2);
+		}
 		updateCornerCoordinates();
 	}
 	
 	public void setOrigin(float x, float y) {
-		this.sprite.setOrigin(x,y);
+		if (sprite==null) {
+			rectangle.setOrigin(x, y);
+		} else {
+			sprite.setOrigin(x,y);
+		}
 		updateCornerCoordinates();
 	}
 	
 	public float getOriginX() {
-		return sprite.getOrigin().x;
+		if (sprite==null) {
+			return rectangle.getOrigin().x;
+		} else {
+			return sprite.getOrigin().x;
+		}
 	}
 	
 	public float getOriginY() {
-		return sprite.getOrigin().y;
+		if (sprite==null) {
+			return rectangle.getOrigin().y;
+		} else {
+			return sprite.getOrigin().y;
+		}
 	}
 	
 	// Position
@@ -122,41 +211,57 @@ public class StaticObject implements Drawable {
 	
 	public void setRotation(float rotation_cw) {
 		position.setRotation(rotation_cw);
-		sprite.setRotation(rotation_cw);
+		if (sprite==null) {
+			rectangle.setRotation(position.getRotation());
+		} else {
+			sprite.setRotation(position.getRotation());
+		}
 		updateCornerCoordinates();
 	}
 	
 	public void addRotation(float rotation_cw) {
 		position.addRotation(rotation_cw);
-		sprite.setRotation(sprite.getRotation() + rotation_cw);
+		if (sprite==null) {
+			rectangle.setRotation(position.getRotation());
+		} else {
+			sprite.setRotation(position.getRotation());
+		}
 		updateCornerCoordinates();
 	}
 	
 	// Scale
 	public float getHeight() {
-		return sprite.getLocalBounds().height*scale.getY();
+		return getOrginalHeight()*getScaleHeight();
 	}
 	
 	public float getWidth() {
-		return sprite.getLocalBounds().width*scale.getX();
+		return getOrginalWidth()*getScaleWidth();
 	}
 	
 	public void setHeight(float height) {
-		scale.setY(height/sprite.getLocalBounds().height);
+		scale.setY(height/getOrginalHeight());
 		updateCornerCoordinates();
 	}
 	
 	public void setWidth(float width) {
-		scale.setX(width/sprite.getLocalBounds().width);
+		scale.setX(width/getOrginalWidth());
 		updateCornerCoordinates();
 	}
 	
 	public float getOrginalHeight() {
-		return sprite.getLocalBounds().height;
+		if (sprite==null) {
+			return rectangle.getLocalBounds().height;
+		} else {
+			return sprite.getLocalBounds().height;
+		}
 	}
 	
 	public float getOrginalWidth() {
-		return sprite.getLocalBounds().width;
+		if (sprite==null) {
+			return rectangle.getLocalBounds().width;
+		} else {
+			return sprite.getLocalBounds().width;
+		}
 	}
 	
 	public float getScaleHeight() {

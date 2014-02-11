@@ -27,21 +27,24 @@ public class Scoreboard {
 	DynamicObject L;
 	DynamicObject B;
 	DynamicObject push;
+	InfiniteBox box;
 	
 	public Scoreboard() {
 		try {
-			target = new DynamicObject("res/basic_sprite.png",new XYZRAxes(0,0,0,0),10);
+			target = new Player("res/basic_sprite.png",new XYZRAxes(0,0,0,0),10);
 			StaticObject obj = new StaticObject("res/basic_sprite.png",new XYZRAxes(1000,1000,5000,0));
 			push = new  DynamicObject("res/basic_sprite.png",new XYZRAxes(target.getX(),target.getY()+10,target.getZ(),0), 10);
-			//target.setOrigin(0, 0);
+			target.setOriginCenter();
 			L = new  DynamicObject("res/cross.png",new XYZRAxes(target.getBoundLeft(),target.getY(),target.getZ(),0),10);
 			R = new  DynamicObject("res/cross.png",new XYZRAxes(target.getBoundRight(),target.getY(),target.getZ(),0),10);
 			T = new  DynamicObject("res/cross.png",new XYZRAxes(target.getX(),target.getBoundTop(),target.getZ(),0),10);
-			B = new  DynamicObject("res/cross.png",new XYZRAxes(target.getX(),target.getBoundBottom(),target.getZ(),0),10);
-			System.out.println(T.getX());
-			System.out.println(T.getY());
+			B = new  DynamicObject(new XYZRAxes(target.getX(),target.getBoundBottom(),target.getZ(),0),new XYAxes(10,10),10);
+			T.removeTexture();
 			
-			RenderCam render_cam = new RenderCam(obj, 1000, 0.01f);
+			RenderCam render_cam = new RenderCam(obj, 1000, 1f);
+			//render_cam.setTransitionspeed(0.5f);
+			box = new InfiniteBox(10,0,false,true,render_cam);
+			render_cam.makeDrawable(box);
 			render_cam.makeDrawable(T);
 			render_cam.makeDrawable(R);
 			render_cam.makeDrawable(L);
@@ -49,28 +52,41 @@ public class Scoreboard {
 			render_cam.makeDrawable(target);
 			render_cam.makeDrawable(push);
 			render_cam.makeDrawable(obj); //new Date() --dagens dato, new Date(year,month, day) --år starter på 1900 (nå:114)
-			render_cam.setTarget(target, 1000f, 0.01f);
+			render_cam.setTarget(target, 1000f, 0.1f);
 //			render_cam.enableFollowTargetRotation();
 			
 		while (Main.game_state == Main.states.scoreboard) {
+			if (Keyboard.isKeyPressed(Keyboard.Key.E))
+			{
+				//target.addRotation(-10f);
+				render_cam.addDistance(30f);
+			}
+			if (Keyboard.isKeyPressed(Keyboard.Key.Q))
+			{
+				//target.addRotation(-10f);
+				render_cam.addDistance(-30f);
+			}
 			if (Keyboard.isKeyPressed(Keyboard.Key.LEFT))
 			{
-				target.addRotation(-10f);
-				target.addX(10f);
-				updat();
+				//target.addRotation(-10f);
+				target.addImpulseX(-10f);
 			}
-			else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT))
-			{
-				target.addRotation(10f);
-				target.addX(-10f);
-				updat();
-			} else if (Keyboard.isKeyPressed(Keyboard.Key.UP)) {
-				target.setScaleWidth(target.getScaleWidth() + 0.1f);
-				updat();
-			} else if (Keyboard.isKeyPressed(Keyboard.Key.DOWN)) {
-				target.setHeight(target.getHeight()+100);
-				updat();
+			if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT)) {
+				//target.addRotation(10f);
+				target.addImpulseX(10f);
 			}
+			if (Keyboard.isKeyPressed(Keyboard.Key.UP)) {
+				//target.setScaleWidth(target.getScaleWidth() + 0.1f);
+				target.addImpulseY(-10f);
+			}
+			if (Keyboard.isKeyPressed(Keyboard.Key.DOWN)) {
+				//target.setHeight(target.getHeight()+100);
+				target.addImpulseY(10f);
+			}
+			target.addImpulseX(-target.getSpeedX()/2);
+			target.addImpulseY(-target.getSpeedY()/2);
+			target.update();
+			updat();
 			render_cam.renderFrame();
 		}
 		} catch (Exception e) {

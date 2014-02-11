@@ -1,5 +1,6 @@
 package engine;
 
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -27,4 +28,5 @@ public class PathedTextures {
 		pathes.add(path);
 		return new Sprite(textures.get(textures.size()-1));
 	}
+	
 }

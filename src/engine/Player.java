@@ -2,47 +2,39 @@ package engine;
 
 import java.io.IOException;
 
-import game.Main;
-
 public class Player extends DynamicObject {
 	
-	public worldStates world_state;
-	public gunStates gun_state;
+	private gunStates gun_state;
 	
-	public enum worldStates {
-		inAir, onGround, inMagma;
-	}
+	// CM: C stands for "Constant", M stands for "Class Member"
+	public static float CM_JUMPFORCE = -50.f;
 	
-	public enum gunStates {
+	private enum gunStates {
 		reloading, shooting, idle, outOfBullets;
 	}
 	
-	public Player(String image_path, XYZRAxes position, XYAxes size, float mass) throws IOException {
+	public Player(String image_path, XYZRAxes position, float mass) throws IOException {
 		super(image_path, position, mass);
 		setOriginCenter();
-		world_state = worldStates.onGround;
 		gun_state = gunStates.idle;
 	}
-	
-	public void logic() {
-		if (getBoundBottom() + getY() > Main.START_OF_MAGMA) {
-			world_state = worldStates.inAir;
-			force.addY(-0.01f);
-		} else if (Main.START_OF_MAGMA > getBoundBottom() + getY() && getBoundBottom() + getY() > Main.BOTTOM_OF_THE_WORLD - getHeight()/2) {
-			world_state = worldStates.inMagma;
-			force.addY(0.04f);
-		} else {
-			world_state = worldStates.onGround;
-			speed.setY(0);
-			position.setY(Main.BOTTOM_OF_THE_WORLD - getHeight()/2);
-		}
+
+	public String toString() {
+		return "Player position: (" + getX() + ", " + getY() + ", " + getZ() + ")"; 
+	}
+
+	@Override
+	public void update() {
+		super.update();
+		
+		//Gun, animation, osv logic
 	}
 	
 	public void jump() {
 		if (world_state == worldStates.onGround) {
-			force.addY(10);
+			addImpulseY(CM_JUMPFORCE);
 		} else if (world_state == worldStates.inMagma) {
-			force.addY(5);
+			addImpulseY(CM_JUMPFORCE/2);
 		}
 	}
 }

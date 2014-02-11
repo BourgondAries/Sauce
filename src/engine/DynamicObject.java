@@ -7,7 +7,8 @@ public class DynamicObject extends StaticObject {
 	// Setup movement
 	protected float mass;
 	protected XYZRAxes speed;
-	protected XYZRAxes force;
+	protected XYZRAxes impulse;
+	protected worldStates world_state;
 
 	public DynamicObject(String image_path, XYZRAxes position, float mass) throws IOException, IllegalArgumentException {
 		
@@ -17,7 +18,49 @@ public class DynamicObject extends StaticObject {
 		
 		this.mass = mass;
 		this.speed = new XYZRAxes(0,0,0,0);
-		force = new XYZRAxes(0,0,0,0);
+		this.impulse = new XYZRAxes(0,0,0,0);
+		this.world_state = worldStates.inAir;
+	}
+	
+	public DynamicObject(XYZRAxes position, XYAxes size, float mass) throws IllegalArgumentException {
+		
+		super(position, size);
+		
+		if (mass<=0) throw new IllegalArgumentException("Mass cannot be less than or equal to zero"); //IllegalArgumentException, IllegalStateEx, NumberFormatEx, NullPointerEx, IndexOutOfBoundsEx, StringIndexOutOfBoundsEx, ArrayIndexOutOfBoundsEx, RuntimeEx
+		
+		this.mass = mass;
+		this.speed = new XYZRAxes(0,0,0,0);
+		this.impulse = new XYZRAxes(0,0,0,0);
+		this.world_state = worldStates.inAir;
+	}
+	
+	// States
+	public static enum worldStates {
+		inAir, onGround, inMagma;
+	}
+	
+	public void inAir() {
+		world_state = worldStates.inAir;
+	}
+	
+	public void inMagma() {
+		world_state = worldStates.inMagma;
+	}
+	
+	public void onGround() {
+		world_state = worldStates.onGround;
+	}
+	
+	public boolean isInAir() {
+		return world_state == worldStates.inAir;
+	}
+	
+	public boolean isInMagma() {
+		return world_state == worldStates.inMagma;
+	}
+	
+	public boolean isOnGround() {
+		return world_state == worldStates.onGround;
 	}
 	
 	// Mass
@@ -86,81 +129,81 @@ public class DynamicObject extends StaticObject {
 		speed.addRotation(speed_cw);
 	}
 	
-	// Force
-	public void setForce(XYZRAxes force) {
-		this.force.setX(force.getX());
-		this.force.setY(force.getY());
-		this.force.setZ(force.getZ());
-		this.force.setRotation(force.getRotation());
+	// Impulse
+	public void setImpulse(XYZRAxes impulse) {
+		this.impulse.setX(impulse.getX());
+		this.impulse.setY(impulse.getY());
+		this.impulse.setZ(impulse.getZ());
+		this.impulse.setRotation(impulse.getRotation());
 	}
 	
-	public float getForceX() {
-		return force.getX();
+	public float getImpulseX() {
+		return impulse.getX();
 	}
 	
-	public void setForceX(float force_x) {
-		force.setX(force_x);
+	public void setImpulseX(float impulse_x) {
+		impulse.setX(impulse_x);
 	}
 	
-	public void addForceX(float force_x) {
-		force.addX(force_x);
+	public void addImpulseX(float impulse_x) {
+		impulse.addX(impulse_x);
 	}
 	
-	public float getForceY() {
-		return force.getY();
+	public float getImpulseY() {
+		return impulse.getY();
 	}
 	
-	public void setForceY(float force_y) {
-		force.setY(force_y);
+	public void setImpulseY(float impulse_y) {
+		impulse.setY(impulse_y);
 	}
 	
-	public void addForceY(float force_y) {
-		force.addY(force_y);
+	public void addImpulseY(float impulse_y) {
+		impulse.addY(impulse_y);
 	}
 	
-	public float getForceZ() {
-		return force.getZ();
+	public float getImpulseZ() {
+		return impulse.getZ();
 	}
 	
-	public void setForceZ(float force_z) {
-		force.setZ(force_z);
+	public void setImpulseZ(float impulse_z) {
+		impulse.setZ(impulse_z);
 	}
 	
-	public void addForceZ(float force_z) {
-		force.addZ(force_z);
+	public void addImpulseZ(float impulse_z) {
+		impulse.addZ(impulse_z);
 	}
 	
-	public float getForceRotation() {
-		return force.getRotation();
+	public float getImpulseRotation() {
+		return impulse.getRotation();
 	}
 	
-	public void setForceRotation(float force_cw) {
-		force.setRotation(force_cw);
+	public void setImpulseRotation(float impulse_cw) {
+		impulse.setRotation(impulse_cw);
 	}
 	
-	public void addForceRotation(float force_cw) {
-		force.addRotation(force_cw);
+	public void addImpulseRotation(float impulse_cw) {
+		impulse.addRotation(impulse_cw);
 	}
 
 	// Update object position and speed
 	public void update() {
-		
-		// Update speed
-		addSpeedX(getForceX()/getMass());
-		addSpeedY(getForceY()/getMass());
-		addSpeedZ(getForceZ()/getMass());
-		addSpeedRotation(getForceRotation()/getMass());
-		
-		// Reset forces
-		setForceX(0);
-		setForceY(0);
-		setForceZ(0);
-		setForceRotation(0);
 		
 		// Update position
 		addX(getSpeedX());
 		addY(getSpeedY());
 		addZ(getSpeedZ());
 		addRotation(getSpeedRotation());
+		
+		// Update speed
+		addSpeedX(getImpulseX()/getMass());
+		addSpeedY(getImpulseY()/getMass());
+		addSpeedZ(getImpulseZ()/getMass());
+		addSpeedRotation(getImpulseRotation()/getMass());
+		
+		// Reset impulses
+		setImpulseX(0);
+		setImpulseY(0);
+		setImpulseZ(0);
+		setImpulseRotation(0);
 	}
 }

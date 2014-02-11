@@ -1,14 +1,18 @@
 package game;
 
+import java.io.IOException;
+
 import org.jsfml.graphics.*;
 import org.jsfml.window.*;
 
 public class Main
 {
+	
 	// Setup variables
 	public static states game_state;
 	public static View view;
 	public final static float BOTTOM_OF_THE_WORLD = 530.f;
+	public final static float BOTTOM_OF_THE_WORLD_CEILING = -350.f;
 	public final static float START_OF_MAGMA = 0.f;
 	public static RenderWindow wnd;
 
@@ -20,7 +24,9 @@ public class Main
 	}
 
 	private void run()
-	{		
+	{
+		try {
+		
 		// Run program until close
 		while (wnd.isOpen())
 		{		
@@ -35,7 +41,7 @@ public class Main
 				case surface:
 					break;
 				case core:
-					//new Core();
+					new Core();
 					break;
 				case game:
 					break;
@@ -47,6 +53,10 @@ public class Main
 			}
 		}
 		dispose();
+		
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	public static void dispose() 

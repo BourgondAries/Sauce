@@ -1,7 +1,6 @@
 package engine;
 
 import game.Main;
-
 import java.util.ArrayList;
 
 public class RenderCam {
@@ -172,6 +171,16 @@ public class RenderCam {
 		}
 	}
 	
+	public float[] getRenderView(float z) {
+		float relation = calculateRelation(z);
+		return new float[]{cam_position.getX()-Main.wnd.getSize().x/(2*relation), cam_position.getY()-Main.wnd.getSize().y/(2*relation), Main.wnd.getSize().x/relation, Main.wnd.getSize().y/relation};
+	}
+	
+	private float calculateRelation(float z) {
+		return (float) (Main.wnd.getSize().x / (2 * (cam_position.getZ() - z) * Math.tan(Math.toRadians(cam_fov) / 2)));
+
+	}
+	
 	// Update camera position relative to target's position.
 	private void updateCam() {
 		if (cam_target != null) {
@@ -228,8 +237,8 @@ public class RenderCam {
 			if (object.getZ() >= cam_position.getZ()-cam_clip) continue;
 			
 			// Calculate the relation between the object's layer and the screen
-			float relation = (float) (Main.wnd.getSize().x / (2 * (cam_position.getZ() - object.getZ()) * Math.tan(Math.toRadians(cam_fov) / 2)));
-
+			float relation = calculateRelation(object.getZ());
+			
 			// Update the position of the sprite relative to camera
 			object.setRenderPosition(
 				(object.getX()-cam_position.getX())*relation+Main.wnd.getSize().x/2,
