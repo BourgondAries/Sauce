@@ -16,7 +16,7 @@ import java.util.Random;
 
 public class Core {
 	private Player m_player;
-	static RenderCam render_cam;
+	static 	RenderCam render_cam;
 	
 	private BottomOfTheWorld m_bedrock;
 	private InfiniteBox m_magma;
@@ -27,7 +27,6 @@ public class Core {
 	public Core() throws IOException
 	{
 		m_player = new Player("res/drop2.png", new XYZRAxes(0,0,0,0), 10f);
-		render_cam = new RenderCam(m_player, 1000, 0.01f);
 		
 		m_bedrock = new BottomOfTheWorld ( );
 		m_magma = new InfiniteBox(Main.START_OF_MAGMA,0,false,true,render_cam);
@@ -124,18 +123,20 @@ public class Core {
 		Main.wnd.setView(v);
 	}
 	
-	private void runCollisionTestsOnPlayer()
-	{
-		if (Math.random() > 0.95)
-			m_bedrock.eraseRandomTileAtTheTop();
-		
-		m_rs.move(new Vector2f(0.f, 1.f));
-//		System.out.println(m_player);
-		Vector2f tmp = new Vector2f(m_player.getPosition().x + 33, m_player.getPosition().y);
-		m_bedrock.getCollisionTilePosition(m_player.getPosition());
-		if (m_bedrock.doesATileExistHere(m_player.getPosition()) && m_bedrock.doesATileExistHere(tmp))
-			m_player.getQueryMovement().setY(m_player.getQueryMovement().getY() + 0.5f);
-=======
+//	private void runCollisionTestsOnPlayer()
+//	{
+//		if (Math.random() > 0.95)
+//			m_bedrock.eraseRandomTileAtTheTop();
+//		
+//		m_rs.move(new Vector2f(0.f, 1.f));
+////		System.out.println(m_player);
+//		Vector2f tmp = new Vector2f(m_player.getPosition().x + 33, m_player.getPosition().y);
+//		m_bedrock.getCollisionTilePosition(m_player.getPosition());
+//		if (m_bedrock.doesATileExistHere(m_player.getPosition()) && m_bedrock.doesATileExistHere(tmp))
+//			m_player.getQueryMovement().setY(m_player.getQueryMovement().getY() + 0.5f);
+//		
+//	}
+	
 	private void runGameLogic() {
 
 		// Add impulses applying all dynamics, add update dynamic objects, make an array for all dynamics, make static add automatically to cam-queue, make cam have speed instead
@@ -145,7 +146,6 @@ public class Core {
 		m_bedrock.getCollisionTilePosition(m_player.getX(),m_player.getY(),m_player.getZ());
 		if (m_bedrock.doesATileExistHere(m_player.getX(),m_player.getY(),m_player.getZ()) && m_bedrock.doesATileExistHere(m_player.getX()+33,m_player.getY(),m_player.getZ()))
 			m_player.setY(m_player.getY()+m_player.getSpeedY() + 0.5f);
->>>>>>> 4e2e69cf4250dccc12428b2d0fadeddcc1999783
 		else
 			m_player.setY(0);
 		
@@ -158,9 +158,6 @@ public class Core {
 			m_player.setY(m_bedrock.getCollisionTilePosition(m_player.getX() + m_player.getBoundRight(),m_player.getY(),m_player.getZ()).getY() - m_player.getBoundBottom());
 		
 		// Reset movement on the x-axis, because that mostly comes from user input
-<<<<<<< HEAD
-		m_player.getQueryMovement().setX(0.f);
-=======
 		m_player.setSpeedX(0.f);
 		
 		//View v = Main.view;
@@ -173,14 +170,13 @@ public class Core {
 	{
 		for (int i = 0; i < physical_objects.size(); i++)
 		{
-			physical_objects.get(i).addImpulseY(2*physical_objects.get(i).getMass());
-			physical_objects.get(i).update();
+			physical_objects.get(i).addImpulseY(2 * physical_objects.get(i).getMass());
+			physical_objects.get(i).update(); 
 		}
->>>>>>> 4e2e69cf4250dccc12428b2d0fadeddcc1999783
 	}
 	
-	private void runCollisionTestsOnPlayer()
-	{
-		
-	}
+//	private void runCollisionTestsOnPlayer()
+//	{
+//		
+//	}
 }

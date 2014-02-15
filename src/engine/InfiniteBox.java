@@ -2,6 +2,7 @@ package engine;
 
 import org.jsfml.graphics.RenderStates;
 import org.jsfml.graphics.RenderTarget;
+import org.jsfml.graphics.Shape;
 
 import game.Main;
 
@@ -11,7 +12,7 @@ import game.Main;
  * @author 
  *
  */
-public class InfiniteBox extends StaticObject
+public class InfiniteBox extends Shape
 {
 	private float 		stopline;
 	private boolean 	fill_top_or_left;
@@ -96,5 +97,23 @@ public class InfiniteBox extends StaticObject
 				setWidth(view[2]-(getX()-view[0]));
 			}
 		}
+	}
+
+	@Override
+	protected long nativeCreate() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	protected void nativeDelete() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void nativeSetExPtr() {
+		// TODO Auto-generated method stub
+		
 	}
 }

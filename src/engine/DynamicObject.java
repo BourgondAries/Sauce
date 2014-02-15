@@ -1,209 +1,190 @@
 package engine;
 
-import java.io.IOException;
 
-public class DynamicObject extends StaticObject {
+import javax.vecmath.Vector3f;
+
+import org.jsfml.graphics.RectangleShape;
+
+
+/**
+ * An object that can experience newtonian forces (impulses).
+ * These forces are used to calculate speed.
+ * 
+ * @author Thormod Myrvang og Kevin R. Stravers
+ *
+ */
+public class DynamicObject extends RectangleShape
+{
+	private static final float CM_FULL_CIRCLE_DEGREES = 360.f;
 	
 	// Setup movement
-	protected float mass;
-	protected XYZRAxes speed;
-	protected XYZRAxes impulse;
-	protected worldStates world_state;
+	protected float 		m_mass = 1.f; 			/// Mass of the Dynamic Object, used in physics calculations.
+	protected Vector3f 		m_speed, m_impulse; 	/// Speed and impulse (delta-speed / 1 frame), z is the rotation, counter clockwise.
+	protected Environment 	m_world_state;			/// State that the object is in, affects physics.
+	
+	
+	/**
+	 * Constant return value references.
+	 */
+	private Final<Vector3f> 
+		m_const_speed, m_const_impulse;
 
-	public DynamicObject(String image_path, XYZRAxes position, float mass) throws IOException, IllegalArgumentException {
+	/**
+	 * Standard constructor; initializes the data members and
+	 * makes sure the constant references are also initialized.
+	 */
+	public DynamicObject () 
+	{
+		m_speed = new Vector3f(0.f ,0.f ,0.f);
+		m_impulse = new Vector3f(0.f ,0.f ,0.f);
+		m_world_state = Environment.inAir;
 		
-		super(image_path, position);
-		
-		if (mass<=0) throw new IllegalArgumentException("Mass cannot be less than or equal to zero"); //IllegalArgumentException, IllegalStateEx, NumberFormatEx, NullPointerEx, IndexOutOfBoundsEx, StringIndexOutOfBoundsEx, ArrayIndexOutOfBoundsEx, RuntimeEx
-		
-		this.mass = mass;
-		this.speed = new XYZRAxes(0,0,0,0);
-		this.impulse = new XYZRAxes(0,0,0,0);
-		this.world_state = worldStates.inAir;
+		m_const_speed = new Final<>(m_speed);
+		m_const_impulse = new Final<>(m_impulse);
 	}
 	
-	public DynamicObject(XYZRAxes position, XYAxes size, float mass) throws IllegalArgumentException {
-		
-		super(position, size);
-		
-		if (mass<=0) throw new IllegalArgumentException("Mass cannot be less than or equal to zero"); //IllegalArgumentException, IllegalStateEx, NumberFormatEx, NullPointerEx, IndexOutOfBoundsEx, StringIndexOutOfBoundsEx, ArrayIndexOutOfBoundsEx, RuntimeEx
-		
-		this.mass = mass;
-		this.speed = new XYZRAxes(0,0,0,0);
-		this.impulse = new XYZRAxes(0,0,0,0);
-		this.world_state = worldStates.inAir;
-	}
 	
-	// States
-	public static enum worldStates {
+	public static enum Environment
+	{
 		inAir, onGround, inMagma;
 	}
 	
-	public void inAir() {
-		world_state = worldStates.inAir;
+	public void inAir()
+	{
+		m_world_state = Environment.inAir;
 	}
 	
-	public void inMagma() {
-		world_state = worldStates.inMagma;
+	public void inMagma() 
+	{
+		m_world_state = Environment.inMagma;
 	}
 	
-	public void onGround() {
-		world_state = worldStates.onGround;
+	public void onGround() 
+	{
+		m_world_state = Environment.onGround;
 	}
 	
-	public boolean isInAir() {
-		return world_state == worldStates.inAir;
+	public boolean isInAir() 
+	{
+		return m_world_state == Environment.inAir;
 	}
 	
-	public boolean isInMagma() {
-		return world_state == worldStates.inMagma;
+	public boolean isInMagma() 
+	{
+		return m_world_state == Environment.inMagma;
 	}
 	
-	public boolean isOnGround() {
-		return world_state == worldStates.onGround;
+	public boolean isOnGround ( ) 
+	{
+		return m_world_state == Environment.onGround;
 	}
 	
-	// Mass
-	public float getMass() {
-		return mass;
+	/**
+	 * This method returns a POD; thus a copy; of the mass of the object.
+	 * @return the mass of this object.
+	 */
+	public float getMass ( ) 
+	{
+		return m_mass;
 	}
 	
-	public void setMass(float mass) throws IllegalArgumentException {
-		if (mass<=0) throw new IllegalArgumentException("Mass cannot be less than or equal to zero");
-		this.mass = mass;
+	/**
+	 * We can set the mass to any positive value.
+	 * The mass of an object is important in calculating its acceleration.
+	 * We have F = m * a, however, We are working with impulses which take the
+	 * form N / s. The increment in speed is given by: impulse / mass.
+	 * @param mass The mass to assign to the DynamicObject.
+	 * @throws IllegalArgumentException when the mass is negative or 0.
+	 */
+	public void setMass ( final float mass ) throws IllegalArgumentException
+	{
+		if (mass <= 0.f) 
+			throw new IllegalArgumentException("DynamicObject.setMass(" + mass + "): Mass cannot be less than or equal to zero");
+		m_mass = mass;
 	}
 	
-	// Speed
-	public void setSpeed(XYZRAxes speed) {
-		this.speed.setX(speed.getX());
-		this.speed.setY(speed.getY());
-		this.speed.setZ(speed.getZ());
-		this.speed.setRotation(speed.getRotation());
+	/**
+	 * The speed of the object is computed after update();
+	 * when all impulses have been nullified.
+	 * The speed is given in pixels per iteration.
+	 * @return the speed of the object.
+	 */
+	public Final<Vector3f> getSpeed ( )
+	{
+		return m_const_speed;
 	}
 	
-	public float getSpeedX() {
-		return speed.getX();
+	/**
+	 * Speed can be set to any other speed.
+	 * This method can be used in conjunction with getSpeed and a
+	 * Vector3f variable. Example:
+	 * 
+	 * DynamicObject b = new DynamicObject();
+	 * Vector3f i = new Vector3f(1.f, 5.f, -4.f);
+	 * i.add(b.getSpeed().data);
+	 * b.setSpeed(i);
+	 * 
+	 * This algorithm adds a speed to the existing speed.
+	 * 
+	 * @param speed the speed to replace by.
+	 */
+	public void setSpeed ( final Vector3f speed )
+	{
+		m_speed.x = speed.x;
+		m_speed.y = speed.y;
+		m_speed.z = speed.z;
 	}
 	
-	public void setSpeedX(float speed_x) {
-		speed.setX(speed_x);
+	/**
+	 * The impulse is the force that is applied in the frame.
+	 * It will be converted to speed after the current speed
+	 * has been applied to the position of the object.
+	 * @return The current impulse applied to the object.
+	 */
+	public Final<Vector3f> getImpulse ( ) 
+	{
+		return m_const_impulse;
 	}
 	
-	public void addSpeedX(float speed_x) {
-		speed.addX(speed_x);
+	/**
+	 * The impulse is set to a new impulse by using this method.
+	 * @param impulse the impulse replace by.
+	 */
+	public void setImpulse ( final Vector3f impulse )
+	{
+		m_impulse.x = impulse.x;
+		m_impulse.y = impulse.y;
+		m_impulse.z = impulse.z;
 	}
 	
-	public float getSpeedY() {
-		return speed.getY();
-	}
-	
-	public void setSpeedY(float speed_y) {
-		speed.setY(speed_y);
-	}
-	
-	public void addSpeedY(float speed_y) {
-		speed.addY(speed_y);
-	}
-	
-	public float getSpeedZ() {
-		return speed.getZ();
-	}
-	
-	public void setSpeedZ(float speed_z) {
-		speed.setZ(speed_z);
-	}
-	
-	public void addSpeedZ(float speed_z) {
-		speed.addZ(speed_z);
-	}
-	
-	public float getSpeedRotation() {
-		return speed.getRotation();
-	}
-	
-	public void setSpeedRotation(float speed_cw) {
-		speed.setRotation(speed_cw);
-	}
-	
-	public void addSpeedRotation(float speed_cw) {
-		speed.addRotation(speed_cw);
-	}
-	
-	// Impulse
-	public void setImpulse(XYZRAxes impulse) {
-		this.impulse.setX(impulse.getX());
-		this.impulse.setY(impulse.getY());
-		this.impulse.setZ(impulse.getZ());
-		this.impulse.setRotation(impulse.getRotation());
-	}
-	
-	public float getImpulseX() {
-		return impulse.getX();
-	}
-	
-	public void setImpulseX(float impulse_x) {
-		impulse.setX(impulse_x);
-	}
-	
-	public void addImpulseX(float impulse_x) {
-		impulse.addX(impulse_x);
-	}
-	
-	public float getImpulseY() {
-		return impulse.getY();
-	}
-	
-	public void setImpulseY(float impulse_y) {
-		impulse.setY(impulse_y);
-	}
-	
-	public void addImpulseY(float impulse_y) {
-		impulse.addY(impulse_y);
-	}
-	
-	public float getImpulseZ() {
-		return impulse.getZ();
-	}
-	
-	public void setImpulseZ(float impulse_z) {
-		impulse.setZ(impulse_z);
-	}
-	
-	public void addImpulseZ(float impulse_z) {
-		impulse.addZ(impulse_z);
-	}
-	
-	public float getImpulseRotation() {
-		return impulse.getRotation();
-	}
-	
-	public void setImpulseRotation(float impulse_cw) {
-		impulse.setRotation(impulse_cw);
-	}
-	
-	public void addImpulseRotation(float impulse_cw) {
-		impulse.addRotation(impulse_cw);
-	}
-
-	// Update object position and speed
-	public void update() {
-		
+	/**
+	 * Update moves the object according to its speed vectors.
+	 * It then rotates the object by the rotation vector.
+	 * 
+	 * After this, impulses are added to the speed, and then
+	 * the impulses are nullified.
+	 */
+	public void update ( ) 
+	{
 		// Update position
-		addX(getSpeedX());
-		addY(getSpeedY());
-		addZ(getSpeedZ());
-		addRotation(getSpeedRotation());
+		super.move(m_speed.x, m_speed.y);
+		super.rotate(m_speed.z);
+		clampRotation();
 		
 		// Update speed
-		addSpeedX(getImpulseX()/getMass());
-		addSpeedY(getImpulseY()/getMass());
-		addSpeedZ(getImpulseZ()/getMass());
-		addSpeedRotation(getImpulseRotation()/getMass());
+		m_speed.x += m_impulse.x / getMass();
+		m_speed.y += m_impulse.y / getMass();
+		m_speed.z += m_impulse.z / getMass();
 		
 		// Reset impulses
-		setImpulseX(0);
-		setImpulseY(0);
-		setImpulseZ(0);
-		setImpulseRotation(0);
+		m_impulse.set(0.f, 0.f, 0.f);
 	}
+	
+	private void clampRotation ()
+	{
+		super.setRotation(super.getRotation() % CM_FULL_CIRCLE_DEGREES);
+		if ( super.getRotation() < 0.f )
+			super.setRotation( super.getRotation() + CM_FULL_CIRCLE_DEGREES );
+	}
+	
 }

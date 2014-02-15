@@ -146,6 +146,7 @@ public class BottomOfTheWorld implements Drawable
 		}
 		
 		m_x_bounds.first = (int) m_tiles.get(0).get(0).getPosition().x;
+		m_x_bounds.second = (int) m_tiles.get(m_tiles.size() - 1).get(0).getPosition().x;
 		
 	}
 	

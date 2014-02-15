@@ -1,5 +1,11 @@
 package engine;
 
+
+/**
+ * 
+ * @author Thormod Myrvang
+ *
+ */
 public class XYZRAxes extends XYZAxes {
 	protected float rotation_cw;
 	

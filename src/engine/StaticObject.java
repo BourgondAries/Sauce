@@ -10,8 +10,7 @@ public class StaticObject implements Drawable
 {
 	
 	// Setup data
-	protected Sprite sprite;
-	protected RectangleShape rectangle;
+	protected Shape sprite;
 	protected boolean renderable;
 	
 	// Setup position, size and orientation
@@ -94,9 +93,7 @@ public class StaticObject implements Drawable
 	// Render
 	public void draw(RenderTarget target, RenderStates states) {
 		if (!isRenderable()) return;
-		if (sprite==null) {
-			target.draw(rectangle);
-		} else {
+		if (sprite!=null) {
 			target.draw(sprite);
 		}
 	}
@@ -110,9 +107,8 @@ public class StaticObject implements Drawable
 	}
 	
 	public void setRenderScale(float x, float y) {
-		if (sprite==null) {
-			rectangle.setScale(x, y);
-		} else {
+		if (sprite!=null)
+		{
 			sprite.setScale(x, y);
 		}
 	}

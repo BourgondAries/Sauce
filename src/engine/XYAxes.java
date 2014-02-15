@@ -1,42 +1,56 @@
 package engine;
 
-public class XYAxes {
-	protected float x;
-	protected float y;
+
+/**
+ * 
+ * @author Thormod Myrvang
+ *
+ */
+public class XYAxes 
+{
+	protected float x, y;
 	
-	public XYAxes(float x, float y) {
+	public XYAxes (float x, float y)
+	{
 		setX(x);
 		setY(y);
 	}
 	
-	public void add(XYAxes axel) {
-		setX(x+axel.getX());
-		setY(y+axel.getY());
+	public void add ( XYAxes axel )
+	{
+		setX( x + axel.getX() );
+		setY( y + axel.getY() );
 	}
 	
-	public void div(float value) {
-		setX(x/value);
-		setY(y/value);
+	public void div ( float value )
+	{
+		setX ( x / value );
+		setY ( y / value );
 	}
 	
-	public void reset() {
-		setX(0);
-		setY(0);
+	public void reset()
+	{
+		setX (0);
+		setY (0);
 	}
 	
-	public float getX() {
+	public float getX()
+	{
 		return x;
 	}
 	
-	public void setX(float x) {
+	public void setX(float x)
+	{
 		this.x = x;
 	}
 	
-	public void addX(float x) {
+	public void addX(float x)
+	{
 		this.x += x;
 	}
 	
-	public float getY() {
+	public float getY()
+	{
 		return y;
 	}
 	
