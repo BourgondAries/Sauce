@@ -67,7 +67,7 @@ public class Core
 							break;
 					
 					}
-					System.out.println(keyev.key);
+//					System.out.println(keyev.key);
 					m_rs.move(new Vector2f(0.f, -1.f));
 				} break;
 				case CLOSED:
@@ -92,13 +92,41 @@ public class Core
 		}
 	}
 	
+	private void performCollisionTestsAndCorrections()
+	{
+		
+	}
+	
 	private void runGameLogic()
+	{
+		runCollisionTestsOnPlayer();
+		setViewToPlayer();
+		applyTerrainRegenerationIfNecessary();
+	}
+	
+	private void applyTerrainRegenerationIfNecessary()
+	{
+//		if ( m_player.getPosition().x < (m_bedrock.getXBounds().first + 20) )
+//		{
+//			m_bedrock.regenerateAround((int) m_player.getPosition().x - 100);
+//		}
+	}
+	
+	private void setViewToPlayer()
+	{
+		View v = Main.view;
+		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
+		v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
+		Main.wnd.setView(v);
+	}
+	
+	private void runCollisionTestsOnPlayer()
 	{
 		if (Math.random() > 0.95)
 			m_bedrock.eraseRandomTileAtTheTop();
 		
 		m_rs.move(new Vector2f(0.f, 1.f));
-		System.out.println(m_player);
+//		System.out.println(m_player);
 		Vector2f tmp = new Vector2f(m_player.getPosition().x + 33, m_player.getPosition().y);
 		m_bedrock.getCollisionTilePosition(m_player.getPosition());
 		if (m_bedrock.doesATileExistHere(m_player.getPosition()) && m_bedrock.doesATileExistHere(tmp))
@@ -120,17 +148,6 @@ public class Core
 		
 		// Reset movement on the x-axis, because that mostly comes from user input
 		m_player.getQueryMovement().setX(0.f);
-		
-		View v = Main.view;
-		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
-		v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
-		Main.wnd.setView(v);
-		
-	}
-	
-	private void runCollisionTestsOnPlayer()
-	{
-		
 	}
 	
 	private void render()

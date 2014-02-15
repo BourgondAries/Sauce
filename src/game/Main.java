@@ -14,7 +14,6 @@ public class Main
 	public final static float START_OF_MAGMA = 0.f;
 	public static RenderWindow wnd;
 
-	
 	// Setup states in the game
 	public enum states
 	{
@@ -23,7 +22,6 @@ public class Main
 
 	private void run()
 	{		
-		// Run program until close
 		while (wnd.isOpen())
 		{		
 			// Initialize and run a state in the game
