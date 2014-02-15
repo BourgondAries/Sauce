@@ -7,26 +7,34 @@ import org.jsfml.window.Keyboard.Key;
 import org.jsfml.audio.*;
 import org.jsfml.window.event.*;
 
-import engine.Player;
+import engine.*;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
 
-public class Core
-{
+public class Core {
+	private Player m_player;
+	static RenderCam render_cam;
 	
-	public Core()
+	private BottomOfTheWorld m_bedrock;
+	private InfiniteBox m_magma;
+	
+	static ArrayList<DynamicObject> physical_objects;
+	//private RockCeiling m_rockceiling = new RockCeiling();
+	
+	public Core() throws IOException
 	{
-		System.out.println("CORE\n");
-		m_rs.setFillColor(new Color(200, 200, 200));
-		m_rs.setSize(new Vector2f(10, 10));
+		m_player = new Player("res/drop2.png", new XYZRAxes(0,0,0,0), 10f);
+		render_cam = new RenderCam(m_player, 1000, 0.01f);
 		
-		m_items.add(m_rs);
-		m_items.add(m_player);
-		m_items.add(m_bedrock);
-		m_items.add(m_magma);
-		m_items.add(m_rockceiling);
+		m_bedrock = new BottomOfTheWorld ( );
+		m_magma = new InfiniteBox(Main.START_OF_MAGMA,0,false,true,render_cam);
+		m_magma.setColor(new Color(200,150,0));
+		physical_objects = new ArrayList<DynamicObject>();
+		
+		System.out.println("CORE\n");
 		
 		m_bedrock.generateTiles();
 		
@@ -39,7 +47,8 @@ public class Core
 		{
 			handleEvents();
 			runGameLogic();
-			render();
+			addImpulses();
+			render_cam.renderFrame();
 		}
 	}
 	
@@ -68,27 +77,26 @@ public class Core
 					
 					}
 //					System.out.println(keyev.key);
-					m_rs.move(new Vector2f(0.f, -1.f));
+//					m_player.move(new Vector2f(0.f, -1.f));
 				} break;
-				case CLOSED:
-				{
-//					Main.game_state = Main.states.menu;
-					Main.dispose();
-					return;
-				}
-				default:
-					break;
 			}
 		}
 		
-		
-		if (Keyboard.isKeyPressed(Keyboard.Key.LEFT))
+		if (Keyboard.isKeyPressed(Keyboard.Key.LEFT)) 
 		{
-			m_player.getQueryMovement().setX(-7.f);
-		}
-		else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT))
+			m_player.addImpulseX(-7.f);
+		} else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT)) 
 		{
-			m_player.getQueryMovement().setX(7.f);
+			m_player.addImpulseX(7.f);
+		} else if (Keyboard.isKeyPressed(Keyboard.Key.SPACE)) 
+		{
+			m_player.jump();
+		} else if (Keyboard.isKeyPressed(Keyboard.Key.RETURN)) 
+		{
+			m_bedrock.eraseRandomTileAtTheTop();
+		} else if (Keyboard.isKeyPressed(Keyboard.Key.ESCAPE)) 
+		{
+			Main.game_state = Main.states.menu;
 		}
 	}
 	
@@ -106,10 +114,6 @@ public class Core
 	
 	private void applyTerrainRegenerationIfNecessary()
 	{
-//		if ( m_player.getPosition().x < (m_bedrock.getXBounds().first + 20) )
-//		{
-//			m_bedrock.regenerateAround((int) m_player.getPosition().x - 100);
-//		}
 	}
 	
 	private void setViewToPlayer()
@@ -131,46 +135,52 @@ public class Core
 		m_bedrock.getCollisionTilePosition(m_player.getPosition());
 		if (m_bedrock.doesATileExistHere(m_player.getPosition()) && m_bedrock.doesATileExistHere(tmp))
 			m_player.getQueryMovement().setY(m_player.getQueryMovement().getY() + 0.5f);
+=======
+	private void runGameLogic() {
+
+		// Add impulses applying all dynamics, add update dynamic objects, make an array for all dynamics, make static add automatically to cam-queue, make cam have speed instead
+
+		if (Math.random() > 0.95) m_bedrock.eraseRandomTileAtTheTop();
+
+		m_bedrock.getCollisionTilePosition(m_player.getX(),m_player.getY(),m_player.getZ());
+		if (m_bedrock.doesATileExistHere(m_player.getX(),m_player.getY(),m_player.getZ()) && m_bedrock.doesATileExistHere(m_player.getX()+33,m_player.getY(),m_player.getZ()))
+			m_player.setY(m_player.getY()+m_player.getSpeedY() + 0.5f);
+>>>>>>> 4e2e69cf4250dccc12428b2d0fadeddcc1999783
 		else
-			m_player.getQueryMovement().setY(0);
-		
-		// Perform movement additions. (Gravity changes the actual position
-		m_player.logic();
+			m_player.setY(0);
 		
 		// If the new position is a collision, we must find the maximum allowed dX and dY
-		if (m_player.getPosition().y + Player.CM_HEIGHT > m_bedrock.getCollisionTilePosition(m_player.getPosition()).y)
+		if (m_player.getY() + m_player.getBoundBottom() > m_bedrock.getCollisionTilePosition(m_player.getX(),m_player.getY(),m_player.getZ()).getY())
 		{
-			m_player.setPosition(new Vector2f(m_player.getPosition().x, m_bedrock.getCollisionTilePosition(m_player.getPosition()).y - Player.CM_HEIGHT));
+			m_player.setY(m_bedrock.getCollisionTilePosition(m_player.getX(),m_player.getY() + m_player.getBoundBottom(),m_player.getZ()).getY());
 		}
-		Vector2f right_point_of_player = new Vector2f(m_player.getPosition().x + Player.CM_WIDTH, m_player.getPosition().y);
-		if (right_point_of_player.y + Player.CM_HEIGHT > m_bedrock.getCollisionTilePosition(right_point_of_player).y)
-			m_player.setPosition(new Vector2f(m_player.getPosition().x, m_bedrock.getCollisionTilePosition(right_point_of_player).y - Player.CM_HEIGHT));
+		if (m_player.getY() + m_player.getBoundBottom() > m_bedrock.getCollisionTilePosition(m_player.getX() + m_player.getBoundRight(),m_player.getY(),m_player.getZ()).getY())
+			m_player.setY(m_bedrock.getCollisionTilePosition(m_player.getX() + m_player.getBoundRight(),m_player.getY(),m_player.getZ()).getY() - m_player.getBoundBottom());
 		
 		// Reset movement on the x-axis, because that mostly comes from user input
+<<<<<<< HEAD
 		m_player.getQueryMovement().setX(0.f);
+=======
+		m_player.setSpeedX(0.f);
+		
+		//View v = Main.view;
+		//v = new View(m_player, Main.wnd.getDefaultView().getSize());
+		//v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
+		//Main.wnd.setView(v);
 	}
 	
-	private void render()
+	private void addImpulses() 
 	{
-//		Main.wnd.clear(new Color(m_rng.nextInt() % 255, m_rng.nextInt() % 255, m_rng.nextInt() % 255));
-		Main.wnd.clear();
-		
-		for (Drawable x : m_items)
+		for (int i = 0; i < physical_objects.size(); i++)
 		{
-			Main.wnd.draw(x);
+			physical_objects.get(i).addImpulseY(2*physical_objects.get(i).getMass());
+			physical_objects.get(i).update();
 		}
-		
-		Main.wnd.display();
+>>>>>>> 4e2e69cf4250dccc12428b2d0fadeddcc1999783
 	}
 	
-	private java.util.ArrayList<Drawable> m_items = new java.util.ArrayList<>();
-	
-	private RectangleShape m_rs = new RectangleShape();
-	private Player m_player = new Player();
-	private Random m_rng = new Random(System.currentTimeMillis());
-	
-	private BottomOfTheWorld m_bedrock = new BottomOfTheWorld();
-	private MagmaOfTheWorld m_magma = new MagmaOfTheWorld();
-	private RockCeiling m_rockceiling = new RockCeiling();
-
+	private void runCollisionTestsOnPlayer()
+	{
+		
+	}
 }

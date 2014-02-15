@@ -21,31 +21,40 @@ public class Main
 	}
 
 	private void run()
-	{		
-		while (wnd.isOpen())
-		{		
-			// Initialize and run a state in the game
-			switch (game_state)
-			{
-				case menu:
-					new Menu();
-					break;
-				case tutorial:
-					break;
-				case surface:
-					break;
-				case core:
-					new Core();
-					break;
-				case game:
-					break;
-				case scoreboard:
-					break;
-				default:
-					return;
+	{
+		try {
+		
+			// Run program until close
+			while (wnd.isOpen())
+			{		
+				// Initialize and run a state in the game
+				switch (game_state)
+				{
+					case menu:
+						new Menu();
+						break;
+					case tutorial:
+						break;
+					case surface:
+						break;
+					case core:
+						new Core();
+						break;
+					case game:
+						break;
+					case scoreboard:
+						new Scoreboard();
+						break;
+					default:
+						return;
+				}
 			}
+			dispose();
+		
+		} catch (Exception exc_obj)
+		{
+			exc_obj.printStackTrace();
 		}
-		dispose();
 	}
 	
 	public static void dispose() 

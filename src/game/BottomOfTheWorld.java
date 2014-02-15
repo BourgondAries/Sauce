@@ -6,7 +6,6 @@ import org.jsfml.system.*;
 import java.util.ArrayList;
 
 import engine.Pair;
-import engine.Utilities;
 
 
 /**
@@ -26,6 +25,7 @@ public class BottomOfTheWorld implements Drawable
 	private final static float
 		CM_TILE_WIDTH = 33.f,
 		CM_TILE_HEIGHT = 33.f;
+	
 	private final static int
 		CM_TILE_COUNT_X = 30,
 		CM_TILE_COUNT_Y = 10;
@@ -50,6 +50,7 @@ public class BottomOfTheWorld implements Drawable
 	 */
 	private Pair<Integer> 
 		m_x_bounds = new Pair<>(0, (int) (((float) CM_TILE_COUNT_X) * CM_TILE_WIDTH));
+		
 	
 	/**
 	 * Empty default constructor. Nothing to construct.
@@ -89,12 +90,9 @@ public class BottomOfTheWorld implements Drawable
 				);
 				temporary_rectangleshape.setOutlineColor(new Color(1, 0, 255));
 				temporary_rectangleshape.setOutlineThickness(1.f);
-				
-				m_tiles.get(x).add(temporary_rectangleshape);
 			}
 		}
 	}
-	
 	
 	/**
 	 * \brief Function regenerates the floor around this x-axis.
@@ -179,9 +177,9 @@ public class BottomOfTheWorld implements Drawable
 			else
 				++x_pos_to_erase;
 		}
-		Vector2f x = m_tiles.get(x_pos_to_erase).get(0).getPosition();
+		Vector2f tmp_pos = m_tiles.get(x_pos_to_erase).get(0).getPosition();
 		m_tiles.get(x_pos_to_erase).remove(0);
-		return x;
+		return tmp_pos;
 	}
 	
 	/**
@@ -197,6 +195,7 @@ public class BottomOfTheWorld implements Drawable
 		return x_position;
 	}
 	
+	
 	/**
 	 * Checks whether a tile exists at a specified position.
 	 * If the function goes out of bounds, it will
@@ -208,8 +207,6 @@ public class BottomOfTheWorld implements Drawable
 	{
 		int x_index_to_check = getTheTopOfTheTileLine((int) position.x);
 		int height = 0;
-		
-		
 		if (x_index_to_check <= 0 || x_index_to_check >= m_tiles.size() - 2)
 		{
 			// Need to regenerate the tile set.
@@ -237,14 +234,13 @@ public class BottomOfTheWorld implements Drawable
 	}
 	
 	// Returns the position of the nearest, top tile
-	public Vector2f getCollisionTilePosition(Vector2f position)
+	public Vector2f getCollisionTilePosition(int x)
 	{
-		int x_index_to_check = getTheTopOfTheTileLine((int) position.x);
+		int x_index_to_check = getTheTopOfTheTileLine((int) x);
 		
 		if (m_tiles.get(x_index_to_check).size() > 0 == false)
 			return new Vector2f(0.f, 0.f);
-		int height = (int) m_tiles.get(x_index_to_check).get(0).getPosition().y;
-//		System.out.println(height);
+//		int height = (int) m_tiles.get(x_index_to_check).get(0).getPosition().y;
 		return  m_tiles.get(x_index_to_check).get(0).getPosition();
 	}
 	
@@ -261,7 +257,7 @@ public class BottomOfTheWorld implements Drawable
 	 * I therefore propose a limit of 30x10 (x, y respectively).
 	 * which is 300 tiles.
 	 */
-	public void draw(RenderTarget rendertarget, RenderStates renderstates)
+	public void draw ( RenderTarget rendertarget, RenderStates renderstates )
 	{
 		for (int x = 0; x < m_tiles.size(); ++x)
 		{
