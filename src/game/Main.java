@@ -1,27 +1,20 @@
 package game;
 
-import javax.vecmath.Vector3f;
-
 import org.jsfml.graphics.*;
-import org.jsfml.system.Vector2f;
 import org.jsfml.window.*;
 
-import engine.DynamicObject;
-import engine.Final;
-import engine.Layer;
-import engine.LayerCollection;
-import engine.Pair;
 
 public class Main
 {
 	
 	// Setup variables
-	public static states game_state;
-	public static View view;
-	public final static float BOTTOM_OF_THE_WORLD = 530.f;
-	public final static float BOTTOM_OF_THE_WORLD_CEILING = -350.f;
-	public final static float START_OF_MAGMA = 0.f;
-	public static RenderWindow wnd;
+	public static states 		game_state;
+	public static View 			view;
+//	public final static float 	BOTTOM_OF_THE_WORLD = 530.f;
+	public final static float 	BOTTOM_OF_THE_WORLD = 0.f;
+	public final static float 	BOTTOM_OF_THE_WORLD_CEILING = -350.f;
+	public final static float 	START_OF_MAGMA = 0.f;
+	public static RenderWindow 	wnd;
 
 	// Setup states in the game
 	public enum states
@@ -90,29 +83,7 @@ public class Main
 	
 	public static void main(String[] args)
 	{
-		DynamicObject b = new DynamicObject();
-		b.setSize(new Vector2f(30, 30));
-		b.setRotation(30.f);
-		Vector3f i = new Vector3f(0.f, 0.f, -40.001f);
-		i.add(b.getSpeed().data);
-		b.setSpeed(i);
-		b.setOrigin(new Vector2f(15, 15));
-		b.setPosition( 300, 300 );
-		b.update();
-		
-		RenderWindow wnd = new RenderWindow(new VideoMode(800, 600, 32), "Title");
-		wnd.setFramerateLimit(60);
-		
-		while (true)
-		{ 
-			wnd.clear();
-			wnd.draw(b);
-			wnd.display();
-	
-			
-			b.update();
-		}
-//		new Main();
+		new Main();
 	}
 }
 

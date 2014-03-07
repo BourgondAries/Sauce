@@ -18,16 +18,9 @@ public class DynamicObject extends RectangleShape
 	private static final float CM_FULL_CIRCLE_DEGREES = 360.f;
 	
 	// Setup movement
-	protected float 		m_mass = 1.f; 			/// Mass of the Dynamic Object, used in physics calculations.
+	protected Float 		m_mass = 1.f; 			/// Mass of the Dynamic Object, used in physics calculations.
 	protected Vector3f 		m_speed, m_impulse; 	/// Speed and impulse (delta-speed / 1 frame), z is the rotation, counter clockwise.
 	protected Environment 	m_world_state;			/// State that the object is in, affects physics.
-	
-	
-	/**
-	 * Constant return value references.
-	 */
-	private Final<Vector3f> 
-		m_const_speed, m_const_impulse;
 
 	/**
 	 * Standard constructor; initializes the data members and
@@ -38,9 +31,6 @@ public class DynamicObject extends RectangleShape
 		m_speed = new Vector3f(0.f ,0.f ,0.f);
 		m_impulse = new Vector3f(0.f ,0.f ,0.f);
 		m_world_state = Environment.inAir;
-		
-		m_const_speed = new Final<>(m_speed);
-		m_const_impulse = new Final<>(m_impulse);
 	}
 	
 	
@@ -85,6 +75,15 @@ public class DynamicObject extends RectangleShape
 	 */
 	public float getMass ( ) 
 	{
+		return new Float( m_mass );
+	}
+	
+	/**
+	 * This method returns a POD; thus a copy; of the mass of the object.
+	 * @return the mass of this object.
+	 */
+	public float fetchMass ( ) 
+	{
 		return m_mass;
 	}
 	
@@ -109,9 +108,20 @@ public class DynamicObject extends RectangleShape
 	 * The speed is given in pixels per iteration.
 	 * @return the speed of the object.
 	 */
-	public Final<Vector3f> getSpeed ( )
+	public Vector3f getSpeed ( )
 	{
-		return m_const_speed;
+		return new Vector3f( m_speed );
+	}
+	
+	/**
+	 * The speed of the object is computed after update();
+	 * when all impulses have been nullified.
+	 * The speed is given in pixels per iteration.
+	 * @return the speed of the object.
+	 */
+	public Vector3f fetchSpeed ( )
+	{
+		return m_speed;
 	}
 	
 	/**
@@ -139,11 +149,22 @@ public class DynamicObject extends RectangleShape
 	 * The impulse is the force that is applied in the frame.
 	 * It will be converted to speed after the current speed
 	 * has been applied to the position of the object.
+	 * @return The a copy of the current impulse applied to the object.
+	 */
+	public Vector3f getImpulse ( ) 
+	{
+		return new Vector3f( m_impulse );
+	}
+	
+	/**
+	 * The impulse is the force that is applied in the frame.
+	 * It will be converted to speed after the current speed
+	 * has been applied to the position of the object.
 	 * @return The current impulse applied to the object.
 	 */
-	public Final<Vector3f> getImpulse ( ) 
+	public Vector3f fetchImpulse ( ) 
 	{
-		return m_const_impulse;
+		return m_impulse;
 	}
 	
 	/**

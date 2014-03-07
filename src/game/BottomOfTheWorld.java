@@ -48,7 +48,7 @@ public class BottomOfTheWorld implements Drawable
 	 *  - or nearly - bounds, and we need to regenerate the terrain
 	 *  in a certain direction.
 	 */
-	private Pair<Integer> 
+	private Pair<Integer, Integer> 
 		m_x_bounds = new Pair<>(0, (int) (((float) CM_TILE_COUNT_X) * CM_TILE_WIDTH));
 		
 	
@@ -90,6 +90,7 @@ public class BottomOfTheWorld implements Drawable
 				);
 				temporary_rectangleshape.setOutlineColor(new Color(1, 0, 255));
 				temporary_rectangleshape.setOutlineThickness(1.f);
+				m_tiles.get(x).add(temporary_rectangleshape);
 			}
 		}
 	}
@@ -155,7 +156,7 @@ public class BottomOfTheWorld implements Drawable
 		
 	}
 	
-	public Pair<Integer> getXBounds ( )
+	public Pair<Integer, Integer> getXBounds ( )
 	{
 		return m_x_bounds;
 	}

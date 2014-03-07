@@ -1,5 +1,13 @@
 package game;
 
+
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Random;
+
+import javax.vecmath.Vector3f;
+
 import org.jsfml.graphics.*;
 import org.jsfml.system.Vector2f;
 import org.jsfml.window.*;
@@ -9,33 +17,41 @@ import org.jsfml.window.event.*;
 
 import engine.*;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Random;
 
-
-public class Core {
+public class Core 
+{
+	private Layer m_layer;
 	private Player m_player;
-	static 	RenderCam render_cam;
 	
 	private BottomOfTheWorld m_bedrock;
 	private InfiniteBox m_magma;
 	
+	private Random m_rng = new Random();
+	
 	static ArrayList<DynamicObject> physical_objects;
-	//private RockCeiling m_rockceiling = new RockCeiling();
 	
 	public Core() throws IOException
 	{
-		m_player = new Player("res/drop2.png", new XYZRAxes(0,0,0,0), 10f);
+		m_player = new Player();
+		m_player.setSize(new Vector2f(30, 30));
+		m_player.setTexture(PathedTextures.addImage(Paths.get("res/drop2.png")));
+		m_player.setOrigin(5, 5);
+		m_player.setPosition(Main.wnd.getSize().x / 2, Main.wnd.getSize().y);
+		m_player.setMass(10.f);
 		
 		m_bedrock = new BottomOfTheWorld ( );
-		m_magma = new InfiniteBox(Main.START_OF_MAGMA,0,false,true,render_cam);
-		m_magma.setColor(new Color(200,150,0));
 		physical_objects = new ArrayList<DynamicObject>();
 		
 		System.out.println("CORE\n");
 		
 		m_bedrock.generateTiles();
+		
+		m_layer = new Layer();
+		m_layer.add(m_player);
+		m_layer.add(m_bedrock);
+		
+		m_player.setPosition(new Vector2f(0.f, 0.f));
+//		m_layer.add(m_magma);
 		
 		run();
 	}
@@ -46,8 +62,8 @@ public class Core {
 		{
 			handleEvents();
 			runGameLogic();
-			addImpulses();
-			render_cam.renderFrame();
+			updateObjects();
+			drawFrame();
 		}
 	}
 	
@@ -75,108 +91,63 @@ public class Core {
 							break;
 					
 					}
-//					System.out.println(keyev.key);
-//					m_player.move(new Vector2f(0.f, -1.f));
 				} break;
+			default:
+				break;
 			}
 		}
 		
 		if (Keyboard.isKeyPressed(Keyboard.Key.LEFT)) 
 		{
-			m_player.addImpulseX(-7.f);
-		} else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT)) 
+			m_player.fetchSpeed().x -= 7.f;
+		} 
+		else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT)) 
 		{
-			m_player.addImpulseX(7.f);
-		} else if (Keyboard.isKeyPressed(Keyboard.Key.SPACE)) 
+			m_player.fetchSpeed().x += 7.f;
+		} 
+		else if (Keyboard.isKeyPressed(Keyboard.Key.SPACE)) 
 		{
 			m_player.jump();
-		} else if (Keyboard.isKeyPressed(Keyboard.Key.RETURN)) 
+		} 
+		else if (Keyboard.isKeyPressed(Keyboard.Key.RETURN)) 
 		{
 			m_bedrock.eraseRandomTileAtTheTop();
-		} else if (Keyboard.isKeyPressed(Keyboard.Key.ESCAPE)) 
+		} 
+		else if (Keyboard.isKeyPressed(Keyboard.Key.ESCAPE)) 
 		{
 			Main.game_state = Main.states.menu;
 		}
-	}
-	
-	private void performCollisionTestsAndCorrections()
-	{
-		
+		System.out.println(m_player);
+		System.out.println(m_bedrock);
 	}
 	
 	private void runGameLogic()
 	{
-		runCollisionTestsOnPlayer();
+		// Effect of gravity on the player
+		m_player.fetchImpulse().y += 1.f;
+	}
+
+	private void updateObjects() 
+	{
+		m_player.update();
+		m_player.fetchSpeed().x = 0.f;
+		
 		setViewToPlayer();
-		applyTerrainRegenerationIfNecessary();
 	}
 	
-	private void applyTerrainRegenerationIfNecessary()
-	{
-	}
-	
-	private void setViewToPlayer()
-	{
-		View v = Main.view;
-		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
-		v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
-		Main.wnd.setView(v);
-	}
-	
-//	private void runCollisionTestsOnPlayer()
-//	{
-//		if (Math.random() > 0.95)
-//			m_bedrock.eraseRandomTileAtTheTop();
-//		
-//		m_rs.move(new Vector2f(0.f, 1.f));
-////		System.out.println(m_player);
-//		Vector2f tmp = new Vector2f(m_player.getPosition().x + 33, m_player.getPosition().y);
-//		m_bedrock.getCollisionTilePosition(m_player.getPosition());
-//		if (m_bedrock.doesATileExistHere(m_player.getPosition()) && m_bedrock.doesATileExistHere(tmp))
-//			m_player.getQueryMovement().setY(m_player.getQueryMovement().getY() + 0.5f);
-//		
-//	}
-	
-	private void runGameLogic() {
-
-		// Add impulses applying all dynamics, add update dynamic objects, make an array for all dynamics, make static add automatically to cam-queue, make cam have speed instead
-
-		if (Math.random() > 0.95) m_bedrock.eraseRandomTileAtTheTop();
-
-		m_bedrock.getCollisionTilePosition(m_player.getX(),m_player.getY(),m_player.getZ());
-		if (m_bedrock.doesATileExistHere(m_player.getX(),m_player.getY(),m_player.getZ()) && m_bedrock.doesATileExistHere(m_player.getX()+33,m_player.getY(),m_player.getZ()))
-			m_player.setY(m_player.getY()+m_player.getSpeedY() + 0.5f);
-		else
-			m_player.setY(0);
-		
-		// If the new position is a collision, we must find the maximum allowed dX and dY
-		if (m_player.getY() + m_player.getBoundBottom() > m_bedrock.getCollisionTilePosition(m_player.getX(),m_player.getY(),m_player.getZ()).getY())
+		private void setViewToPlayer()
 		{
-			m_player.setY(m_bedrock.getCollisionTilePosition(m_player.getX(),m_player.getY() + m_player.getBoundBottom(),m_player.getZ()).getY());
+			View v = Main.view;
+			v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
+			v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
+			Main.wnd.setView(v);
 		}
-		if (m_player.getY() + m_player.getBoundBottom() > m_bedrock.getCollisionTilePosition(m_player.getX() + m_player.getBoundRight(),m_player.getY(),m_player.getZ()).getY())
-			m_player.setY(m_bedrock.getCollisionTilePosition(m_player.getX() + m_player.getBoundRight(),m_player.getY(),m_player.getZ()).getY() - m_player.getBoundBottom());
-		
-		// Reset movement on the x-axis, because that mostly comes from user input
-		m_player.setSpeedX(0.f);
-		
-		//View v = Main.view;
-		//v = new View(m_player, Main.wnd.getDefaultView().getSize());
-		//v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
-		//Main.wnd.setView(v);
-	}
 	
-	private void addImpulses() 
+	private void drawFrame ( )
 	{
-		for (int i = 0; i < physical_objects.size(); i++)
-		{
-			physical_objects.get(i).addImpulseY(2 * physical_objects.get(i).getMass());
-			physical_objects.get(i).update(); 
-		}
+		Main.wnd.clear();
+		Main.wnd.draw(m_layer);
+		Main.wnd.draw(m_bedrock);
+		Main.wnd.display();
 	}
-	
-//	private void runCollisionTestsOnPlayer()
-//	{
-//		
-//	}
 }

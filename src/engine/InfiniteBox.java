@@ -1,33 +1,33 @@
 package engine;
 
+import javax.vecmath.Vector2f;
+
 import org.jsfml.graphics.RenderStates;
 import org.jsfml.graphics.RenderTarget;
-import org.jsfml.graphics.Shape;
+import org.jsfml.graphics.RectangleShape;
 
 import game.Main;
 
 
 /**
- * Needs documentation on usage and how it works.
- * @author 
+ * This class represents an "infinite box"; which means that one can have a textures
+ * rectangle which - if the screen moves - correctly maps the texture to the end points.
+ * When we move even further, the part at the end is moved forward; thus giving the illusion
+ * of an infinite texture. This is much more efficient than drawing an arbitrarily large
+ * rectangleshape. (Seriously, it's a resource hog).
+ * 
+ * @author Thormod Myrvang
  *
  */
-public class InfiniteBox extends Shape
+public class InfiniteBox extends RectangleShape
 {
-	private float 		stopline;
-	private boolean 	fill_top_or_left;
-	private boolean 	horizontal;
-	private boolean 	too_small_for_render;
-	private RenderCam 	render_cam;
+	private float 		stopline;				// X/Y-stop position in global coordinates
+	private boolean 	fill_top_or_left;		// Top of the Y or left of the X line, yes, or no?
+	private boolean 	horizontal;				// Whether the stopline is horiz or vertic.
+	private boolean 	too_small_for_render;	// If it's outside of bounds.
+	private RenderCam 	render_cam; 			// Doubting if needed.
+	private Vector2f 	m_offset_from_center;	// Position from the center when re-calibrating the infinite box.
 	
-	/**
-	 * 
-	 * @param x_or_y - What is this?
-	 * @param z - What is this?
-	 * @param is_roof_or_left_wall - What is a "left wall"?
-	 * @param is_horizontal - What does this imply?
-	 * @param render_cam - Why is this incorporated?
-	 */
 	public InfiniteBox ( float x_or_y, float z, boolean is_roof_or_left_wall, boolean is_horizontal, RenderCam render_cam ) 
 	{
 		super(new XYZRAxes(0, 0, z, 0),new XYAxes(Main.wnd.getSize().x, Main.wnd.getSize().y));
@@ -38,16 +38,26 @@ public class InfiniteBox extends Shape
 	}
 	
 	/**
-	 * Draw the box onto the screen.
+	 * 
+	 * @param position
 	 */
-	@Override
-	public void draw(RenderTarget target, RenderStates states)
+	public void centreAround ( Vector2f position )
 	{
-		updateBox(); // Put this elsewhere, draw should not modify its source.
-		if (too_small_for_render) return;
-		super.draw(target, states);
+		
 	}
 	
+	/**
+	 * 
+	 * @param offset_from_center
+	 */
+	public void setOffset ( Vector2f offset_from_center )
+	{
+		
+	}
+	
+	/**
+	 * Dark Magic
+	 */
 	private void updateBox()
 	{
 		too_small_for_render = false;
@@ -97,23 +107,5 @@ public class InfiniteBox extends Shape
 				setWidth(view[2]-(getX()-view[0]));
 			}
 		}
-	}
-
-	@Override
-	protected long nativeCreate() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	protected void nativeDelete() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	protected void nativeSetExPtr() {
-		// TODO Auto-generated method stub
-		
 	}
 }

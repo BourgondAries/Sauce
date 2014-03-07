@@ -27,6 +27,8 @@ public class Layer implements Drawable, Comparable<Layer>
 	 */
 	public void add ( Drawable drawable )
 	{
+		if ( drawable == null )
+			throw new IllegalArgumentException("Layer.add(Drawable): The drawable must be a valid (non-nullptr) reference.");
 		m_drawables.add ( drawable );
 	}
 	
