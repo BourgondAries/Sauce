@@ -37,7 +37,7 @@ public class PathedTextures
 	 * @return the texture that is to be used.
 	 * @throws IOException when the specified file is not found.
 	 */
-	public static Texture addImage ( Path path ) throws IOException
+	public static Texture getTexture ( Path path ) throws IOException
 	{
 		// Check if the image is already loaded, can't really binary search
 		// unless using a hashing algorithm... It's likely fast enough for a

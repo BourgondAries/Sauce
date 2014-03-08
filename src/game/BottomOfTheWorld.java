@@ -27,7 +27,7 @@ public class BottomOfTheWorld implements Drawable
 		CM_TILE_HEIGHT = 33.f;
 	
 	private final static int
-		CM_TILE_COUNT_X = 30,
+		CM_TILE_COUNT_X = 60,
 		CM_TILE_COUNT_Y = 10;
 	
 	/**
@@ -135,18 +135,14 @@ public class BottomOfTheWorld implements Drawable
 			m_tiles.add(0, m_tiles.get(m_tiles.size() - 1));
 			m_tiles.remove(m_tiles.size() - 1);
 		}
-
-		
-		System.out.println("Translating");
 		
 		// Now translate the x coordinates:
 		for (int x = 0; x < AMOUNT_OF_SHIFTED_TILES; ++x)
 		{
-			for (int y = 0; y < CM_TILE_COUNT_Y; ++y)
+			for (int y = 0; y < m_tiles.get(x).size(); ++y)
 			{
 				m_tiles.get(x).get(y).setPosition(prevx - (AMOUNT_OF_SHIFTED_TILES - x) * CM_TILE_WIDTH, m_tiles.get(x).get(y).getPosition().y);
 			}
-			System.out.println("x-pos: " + m_tiles.get(x).get(0).getPosition().x);
 		}
 		
 		
@@ -168,20 +164,15 @@ public class BottomOfTheWorld implements Drawable
 			m_tiles.add(m_tiles.get(0));
 			m_tiles.remove(0);
 		}
-
-		
-		System.out.println("Translating");
 		
 		// Now translate the x coordinates:
 		for (int x = 0; x < AMOUNT_OF_SHIFTED_TILES; ++x)
 		{
-			for (int y = 0; y < CM_TILE_COUNT_Y; ++y)
+			for (int y = 0; y < m_tiles.get(m_tiles.size() - 1 - x).size(); ++y)
 			{
-				m_tiles.get(m_tiles.size() - 1 - x).get(y).setPosition(prevrx + (x) * CM_TILE_WIDTH, m_tiles.get(x).get(y).getPosition().y);
+				m_tiles.get(m_tiles.size() - 1 - x).get(y).setPosition(prevrx + (x) * CM_TILE_WIDTH, m_tiles.get(m_tiles.size() - 1 - x).get(y).getPosition().y);
 			}
-			System.out.println("x-pos: " + m_tiles.get(x).get(0).getPosition().x);
 		}
-		
 		
 		m_x_bounds.first += (int) ((AMOUNT_OF_SHIFTED_TILES) * CM_TILE_WIDTH);
 		m_x_bounds.second += (int) ((AMOUNT_OF_SHIFTED_TILES) * CM_TILE_WIDTH);

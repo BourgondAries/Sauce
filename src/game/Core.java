@@ -25,6 +25,7 @@ public class Core
 	
 	private BottomOfTheWorld m_bedrock;
 	private InfiniteBox m_magma;
+	private HUD m_heads_up_display;
 	
 	private Random m_rng = new Random();
 	
@@ -34,7 +35,7 @@ public class Core
 	{
 		m_player = new Player();
 		m_player.setSize(new Vector2f(30, 30));
-		m_player.setTexture(PathedTextures.addImage(Paths.get("res/drop2.png")));
+		m_player.setTexture(PathedTextures.getTexture(Paths.get("res/drop2.png")));
 		m_player.setOrigin(5, 5);
 		m_player.setPosition(Main.wnd.getSize().x / 2, Main.wnd.getSize().y);
 		m_player.setMass(10.f);
@@ -51,7 +52,8 @@ public class Core
 		m_layer.add(m_bedrock);
 		
 		m_player.setPosition(new Vector2f(0.f, 0.f));
-//		m_layer.add(m_magma);
+		
+		m_heads_up_display = new HUD(Main.wnd);
 		
 		run();
 	}
@@ -124,20 +126,36 @@ public class Core
 	private void runGameLogic()
 	{
 		// Effect of gravity on the player
-		m_player.fetchImpulse().y += 1.f;
-		
-		// Re-position part of BottomOfTheWorld so that we have continuity
-		{ 
-			float xpos = m_player.getPosition().x;
-			if ( xpos < m_bedrock.getXBounds().first )
-				m_bedrock.generateLeft();
-			else if (xpos > m_bedrock.getXBounds().second )
-				m_bedrock.generateRight();
-			
-			System.out.println("Above: " + m_bedrock.getTheTopOfTheTileLine((int) xpos));
+		{
+			m_player.fetchImpulse().y += 1.f;
 		}
 		
+		// Re-position part of BottomOfTheWorld so that we have fake continuity
+		{ 
+			float xpos = m_player.getPosition().x;
+			if ( xpos - Main.wnd.getSize().x < m_bedrock.getXBounds().first )
+				m_bedrock.generateLeft();
+			else if (xpos + Main.wnd.getSize().x > m_bedrock.getXBounds().second )
+				m_bedrock.generateRight();
+		}
+	
+		// This block removes a random tile at the top (per frame, with a chance of 1% per frame)
+		{
+			if (Math.random() > 0.99f) // random returns a float within [0, 1]
+//				m_bedrock.eraseRandomTileAtTheTop();
+				;
+		}
 		
+		// This block sets the text for the HUD, currently quite inefficient
+		{
+			m_heads_up_display.setText
+			(
+				"Above bedrock column: " + m_bedrock.getTheTopOfTheTileLine((int) m_player.getPosition().x)
+				+ "\nPlayer d^2y: " + m_player.getImpulse().y
+				+ "\nPlayer dy: " + m_player.getSpeed().y
+				+ "\nPlayer y: " + m_player.getPosition().y
+			);
+		}
 	}
 
 	private void updateObjects() 
@@ -161,6 +179,7 @@ public class Core
 		Main.wnd.clear();
 		Main.wnd.draw(m_layer);
 		Main.wnd.draw(m_bedrock);
+		Main.wnd.draw(m_heads_up_display);
 		Main.wnd.display();
 	}
 }
