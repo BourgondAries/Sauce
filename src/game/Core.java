@@ -15,17 +15,24 @@ import org.jsfml.window.Keyboard.Key;
 import org.jsfml.audio.*;
 import org.jsfml.window.event.*;
 
+import ttl.Bool;
 import engine.*;
 
 
 public class Core 
 {
+	private final static int CM_RED_FLASH_FRAME_COUNT = 30;
+	private final static int CM_RED_FLASH_RESET_NUMBER = 0;
+	private final static int CM_INTEGER_COLOR_MAX = 255;
+	
 	private Layer m_layer;
 	private Player m_player;
+	private int m_damage_frames = 0;
 	
 	private BottomOfTheWorld m_bedrock;
 	private InfiniteBox m_magma;
 	private HUD m_heads_up_display;
+	private Bool m_collision_with_bedrock = new Bool(false);
 	
 	private Random m_rng = new Random();
 	
@@ -51,7 +58,7 @@ public class Core
 		m_layer.add(m_player);
 		m_layer.add(m_bedrock);
 		
-		m_player.setPosition(new Vector2f(0.f, 0.f));
+		m_player.setPosition(new Vector2f(0.f, -100.f));
 		
 		m_heads_up_display = new HUD(Main.wnd);
 		
@@ -154,7 +161,28 @@ public class Core
 				+ "\nPlayer d^2y: " + m_player.getImpulse().y
 				+ "\nPlayer dy: " + m_player.getSpeed().y
 				+ "\nPlayer y: " + m_player.getPosition().y
+				+ "\nCurrent bedrock column height: " + m_bedrock.getCollisionTilePosition((int) m_player.getPosition().x)
+				+ "\nSecond bedrock column height: " + m_bedrock.getCollisionTilePosition((int) (m_player.getPosition().x + m_player.getSize().x))
+				+ (!m_bedrock.doesATileExistHere(m_player.getPosition()) ? "\ncollision" : "\n")
+				+ "Player health: " + m_player.getHealth()
 			);
+		}
+		
+		// This block checks for collision against bedrock, if it's true, the player is "bounced" upwards!
+		// It also flashes the screen red 
+		{
+			// Check if player's bottom is below the top-most tile
+			if 
+			( 
+				!m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x, m_player.getPosition().y + m_player.getSize().y)) 
+				|| !m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x + m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y)) 
+			)
+			{
+				m_player.fetchImpulse().y += Player.CM_JUMPFORCE / 3.f;
+				m_collision_with_bedrock.set(true);
+				if ( m_damage_frames == CM_RED_FLASH_FRAME_COUNT)
+					m_player.takeDamage();
+			}
 		}
 	}
 
@@ -166,13 +194,16 @@ public class Core
 		setViewToPlayer();
 	}
 	
-		private void setViewToPlayer()
-		{
-			View v = Main.view;
-			v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
-			v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
-			Main.wnd.setView(v);
-		}
+	private void setViewToPlayer()
+	{
+		View v = Main.view;
+		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
+		
+		v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
+		Main.wnd.setView(v);
+	}
+	
+	
 	
 	private void drawFrame ( )
 	{
@@ -180,6 +211,30 @@ public class Core
 		Main.wnd.draw(m_layer);
 		Main.wnd.draw(m_bedrock);
 		Main.wnd.draw(m_heads_up_display);
+		
+		// Red flashing when we have had collision with bedrock!
+		if ( m_collision_with_bedrock.fetchAndDisable() )
+			m_damage_frames = CM_RED_FLASH_RESET_NUMBER;
+		if ( m_damage_frames < CM_RED_FLASH_FRAME_COUNT )
+		{
+			RectangleShape rs = new RectangleShape();
+			rs.setSize(new Vector2f(Main.wnd.getSize()));
+			// A little dark magic:
+			rs.setFillColor
+			(
+				new Color
+				(
+					CM_INTEGER_COLOR_MAX,
+					0, 
+					0, 
+					CM_INTEGER_COLOR_MAX - ( (int) ((((float) m_damage_frames) / ((float) CM_RED_FLASH_FRAME_COUNT)) * ((float) CM_INTEGER_COLOR_MAX ))) )
+			);
+			ConstView view = Main.wnd.getView();
+			Main.wnd.setView(Main.wnd.getDefaultView());
+			Main.wnd.draw(rs);
+			Main.wnd.setView(view);
+			++m_damage_frames;
+		}
 		Main.wnd.display();
 	}
 }

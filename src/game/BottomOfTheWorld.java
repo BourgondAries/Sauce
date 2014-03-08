@@ -236,14 +236,14 @@ public class BottomOfTheWorld implements Drawable
 			// Need to regenerate the tile set.
 			if ( position.x < (getXBounds().first + 20) )
 			{
-				System.out.println("REGENERATE LEFT");
+//				System.out.println("REGENERATE LEFT");
 //				regenerateAround((int) position.x);
 				generateLeft();
 				return doesATileExistHere(position);
 			}
 			else if ( position.x > (getXBounds().second - 20))
 			{
-				System.out.println("REGENERATE RIGHT");
+//				System.out.println("REGENERATE RIGHT");
 				regenerateAround((int) position.x);
 				return doesATileExistHere(position);
 			}
@@ -254,7 +254,8 @@ public class BottomOfTheWorld implements Drawable
 			height = (int) (m_tiles.get(x_index_to_check).size() * CM_TILE_HEIGHT);
 		}
 		
-		return 0.f - position.y - height > (-280);
+		float max_height = CM_TILE_COUNT_Y * CM_TILE_HEIGHT;
+		return position.y < max_height - height;
 	}
 	
 	// Returns the position of the nearest, top tile
