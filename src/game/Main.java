@@ -11,7 +11,6 @@ public class Main
 	public static states 		game_state;
 	public static View 			view;
 //	public final static float 	BOTTOM_OF_THE_WORLD = 530.f;
-	public final static float 	BOTTOM_OF_THE_WORLD = 0.f;
 	public final static float 	BOTTOM_OF_THE_WORLD_CEILING = -350.f;
 	public final static float 	START_OF_MAGMA = 0.f;
 	public static RenderWindow 	wnd;

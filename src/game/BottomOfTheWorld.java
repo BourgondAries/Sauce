@@ -85,7 +85,7 @@ public class BottomOfTheWorld implements Drawable
 						new Vector2f
 						(
 								CM_TILE_WIDTH * x + m_x_bounds.first,
-								CM_TILE_HEIGHT * y + Main.BOTTOM_OF_THE_WORLD
+								CM_TILE_HEIGHT * y
 						)
 				);
 				temporary_rectangleshape.setOutlineColor(new Color(1, 0, 255));
@@ -93,6 +93,10 @@ public class BottomOfTheWorld implements Drawable
 				m_tiles.get(x).add(temporary_rectangleshape);
 			}
 		}
+		
+		// Mark the leftmost tiles with a color pattern (for debugging):
+		m_tiles.get(0).get(0).setFillColor(new Color(255, 0, 0));
+		m_tiles.get(9).get(0).setFillColor(new Color(0, 0, 255));
 	}
 	
 	/**
@@ -123,37 +127,64 @@ public class BottomOfTheWorld implements Drawable
 		final int AMOUNT_OF_SHIFTED_TILES = 10;
 		
 		// First, get the current left most tile x position:
-		float prevx = m_tiles.get(0).get(0).getPosition().x;
+		float prevx = m_x_bounds.first;
 		
-		// Lets try to move the 10 rightmost ones to the front:
-		for (int x = CM_TILE_COUNT_X - AMOUNT_OF_SHIFTED_TILES; x < CM_TILE_COUNT_X; ++x)
+		// Lets try to move the 10 rightmost ones to the left:
+		for (int x = 0; x < AMOUNT_OF_SHIFTED_TILES; ++x)
 		{
-			m_tiles.add(0, m_tiles.get(x));
-			m_tiles.remove(x);
+			m_tiles.add(0, m_tiles.get(m_tiles.size() - 1));
+			m_tiles.remove(m_tiles.size() - 1);
 		}
+
 		
 		System.out.println("Translating");
 		
 		// Now translate the x coordinates:
 		for (int x = 0; x < AMOUNT_OF_SHIFTED_TILES; ++x)
 		{
-			System.out.println(x);
-			for (int y = 0; y < CM_TILE_COUNT_Y - 1; ++y)
+			for (int y = 0; y < CM_TILE_COUNT_Y; ++y)
 			{
-				System.out.println("y: " + y);
-				System.out.println("Size of the array in x: " + m_tiles.get(x).size());
-				m_tiles.get(x).get(y).setPosition(prevx - (CM_TILE_COUNT_X - x) * CM_TILE_WIDTH, m_tiles.get(x).get(y).getPosition().y);
+				m_tiles.get(x).get(y).setPosition(prevx - (AMOUNT_OF_SHIFTED_TILES - x) * CM_TILE_WIDTH, m_tiles.get(x).get(y).getPosition().y);
 			}
+			System.out.println("x-pos: " + m_tiles.get(x).get(0).getPosition().x);
 		}
 		
-		m_x_bounds.first = (int) m_tiles.get(0).get(0).getPosition().x;
-		m_x_bounds.second = (int) m_tiles.get(m_tiles.size() - 1).get(0).getPosition().x;
+		
+		m_x_bounds.first -= (int) ((AMOUNT_OF_SHIFTED_TILES) * CM_TILE_WIDTH);
+		m_x_bounds.second -= (int) ((AMOUNT_OF_SHIFTED_TILES) * CM_TILE_WIDTH);
 		
 	}
 	
 	public void generateRight()
 	{
+		final int AMOUNT_OF_SHIFTED_TILES = 10;
 		
+		// First, get the current left most tile x position:
+		float prevrx = m_x_bounds.second;
+		
+		// Lets try to move the 10 rightmost ones to the left:
+		for (int x = 0; x < AMOUNT_OF_SHIFTED_TILES; ++x)
+		{
+			m_tiles.add(m_tiles.get(0));
+			m_tiles.remove(0);
+		}
+
+		
+		System.out.println("Translating");
+		
+		// Now translate the x coordinates:
+		for (int x = 0; x < AMOUNT_OF_SHIFTED_TILES; ++x)
+		{
+			for (int y = 0; y < CM_TILE_COUNT_Y; ++y)
+			{
+				m_tiles.get(m_tiles.size() - 1 - x).get(y).setPosition(prevrx + (x) * CM_TILE_WIDTH, m_tiles.get(x).get(y).getPosition().y);
+			}
+			System.out.println("x-pos: " + m_tiles.get(x).get(0).getPosition().x);
+		}
+		
+		
+		m_x_bounds.first += (int) ((AMOUNT_OF_SHIFTED_TILES) * CM_TILE_WIDTH);
+		m_x_bounds.second += (int) ((AMOUNT_OF_SHIFTED_TILES) * CM_TILE_WIDTH);
 	}
 	
 	public Pair<Integer, Integer> getXBounds ( )
@@ -232,7 +263,7 @@ public class BottomOfTheWorld implements Drawable
 			height = (int) (m_tiles.get(x_index_to_check).size() * CM_TILE_HEIGHT);
 		}
 		
-		return Main.BOTTOM_OF_THE_WORLD - position.y - height > (-280);
+		return 0.f - position.y - height > (-280);
 	}
 	
 	// Returns the position of the nearest, top tile

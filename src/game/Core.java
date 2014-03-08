@@ -104,7 +104,7 @@ public class Core
 		else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT)) 
 		{
 			m_player.fetchSpeed().x += 7.f;
-		} 
+		}
 		else if (Keyboard.isKeyPressed(Keyboard.Key.SPACE)) 
 		{
 			m_player.jump();
@@ -117,14 +117,27 @@ public class Core
 		{
 			Main.game_state = Main.states.menu;
 		}
-		System.out.println(m_player);
-		System.out.println(m_bedrock);
+//		System.out.println(m_player);
+//		System.out.println(m_bedrock);
 	}
 	
 	private void runGameLogic()
 	{
 		// Effect of gravity on the player
 		m_player.fetchImpulse().y += 1.f;
+		
+		// Re-position part of BottomOfTheWorld so that we have continuity
+		{ 
+			float xpos = m_player.getPosition().x;
+			if ( xpos < m_bedrock.getXBounds().first )
+				m_bedrock.generateLeft();
+			else if (xpos > m_bedrock.getXBounds().second )
+				m_bedrock.generateRight();
+			
+			System.out.println("Above: " + m_bedrock.getTheTopOfTheTileLine((int) xpos));
+		}
+		
+		
 	}
 
 	private void updateObjects() 
