@@ -14,6 +14,32 @@ import engine.Pair;
  */
 public class BottomOfTheWorld implements Drawable
 {
+	/**
+	 * This class holds the crimson red liquid under the scorp.
+	 * This liquid, fiery mass of metal is supposed to burst out of 
+	 * the scorp like a geyser in Iceland when part of the scorp is 
+	 * punctured (when there are 0 blocks between).
+	 * The geyser should be infinitely long during core mode.
+	 * 
+	 * The player will be trapped between 2 or multiple geysers,
+	 * giving the illusion of being closed in on.
+	 * There must also be a warning texture for this.
+	 * Once a tile at a geyser point is destroyed, 
+	 * 1 second of partial-geyser animation must be shown.
+	 * YEAH LET'S IMPLEMENT IT!!! GONNA BE AWESOMMMMEEEE!!! :DDDD
+	 * @author Kevin Robert Stravers
+	 *
+	 */
+	private class RelativeMagma extends RectangleShape
+	{
+		public RelativeMagma()
+		{
+			super.setSize(new Vector2f(Main.wnd.getSize().x * 2, Main.wnd.getSize().y));
+			super.setFillColor(new Color(220, 20, 60));
+		}
+	}
+	
+	
 	
 	/**
 	 * C: Constant
@@ -28,7 +54,30 @@ public class BottomOfTheWorld implements Drawable
 	
 	private final static int
 		CM_TILE_COUNT_X = 60,
-		CM_TILE_COUNT_Y = 10;
+		CM_TILE_COUNT_Y = 5;
+	
+	private class MagmaGeyser extends RectangleShape
+	{
+		public static final float CM_GEYSER_HEIGHT = 1000.f;
+		private boolean m_active = false;
+		
+		public MagmaGeyser()
+		{
+			super.setSize(new Vector2f(CM_TILE_WIDTH, CM_GEYSER_HEIGHT));
+			super.setFillColor(new Color(220, 20, 60));
+		}
+		
+		public void draw(RenderTarget target, RenderStates states)
+		{
+			if (m_active)
+				super.draw(target, states);
+		}
+		
+		public void setActive(boolean state)
+		{
+			m_active = state;
+		}
+	}
 	
 	/**
 	 * This 2D array contains all the tiles that are to be drawn.
@@ -39,6 +88,8 @@ public class BottomOfTheWorld implements Drawable
 	 */
 	private ArrayList< ArrayList<RectangleShape> >
 		m_tiles = new ArrayList <> ( );
+	private ArrayList<MagmaGeyser>
+		m_geysers = new ArrayList <> ( );
 		
 	/**
 	 * The bounds describe the outer bounds of the "ground" in
@@ -51,12 +102,23 @@ public class BottomOfTheWorld implements Drawable
 	private Pair<Integer, Integer> 
 		m_x_bounds = new Pair<>(0, (int) (((float) CM_TILE_COUNT_X) * CM_TILE_WIDTH));
 		
-	
+	private RelativeMagma m_crimson = new RelativeMagma();
+		
 	/**
-	 * Empty default constructor. Nothing to construct.
+	 * Default constructor.
 	 */
 	public BottomOfTheWorld ( )
-	{ }
+	{
+		m_crimson.setPosition(0, CM_TILE_HEIGHT * CM_TILE_COUNT_Y);
+		
+		for ( int i = 0; i < CM_TILE_COUNT_X; ++i )
+			m_geysers.add(new MagmaGeyser());
+	}
+	
+	public void updateCrimsonRelativeTo(float x)
+	{
+		m_crimson.setPosition((float) x - Main.wnd.getSize().x, m_crimson.getPosition().y);
+	}
 	
 	/**
 	 * Method that generates the tile set.
@@ -120,6 +182,19 @@ public class BottomOfTheWorld implements Drawable
 	 * has been surpassed, this function is called and
 	 * will fill a space to the left with some tiles.
 	 * 
+	 * IMPORTANT NOTE FOR FUTURE ME:
+	 * When shifting left or right:
+	 * left:
+	 * we take the x rightmost columns and place them to the left, without
+	 * interchanging the columns individually.
+	 * Example:
+	 * 
+	 * 1 2 3 4 5 6 7 8 9 -> 7 8 9 1 2 3 4 5 6 7
+	 * 
+	 * The same rule is applied to the right:
+	 * 
+	 * 1 2 3 4 5 6 7 8 9 -> 3 4 5 6 7 8 9 1 2 3
+	 * 
 	 * TODO: Implement premature decay thanks to time.
 	 */
 	public void generateLeft()
@@ -151,6 +226,10 @@ public class BottomOfTheWorld implements Drawable
 		
 	}
 	
+	/**
+	 * Method shifts the leftmost tiles to the right and translates all bounds correctly.
+	 * Performs the opposite action of generateLeft
+	 */
 	public void generateRight()
 	{
 		final int AMOUNT_OF_SHIFTED_TILES = 10;
@@ -188,7 +267,7 @@ public class BottomOfTheWorld implements Drawable
 	 * This function returns the tile's position, thus
 	 * allowing the creation of particle effects in that location.
 	 * 
-	 * Do note that the location is the upper left corner
+	 * IMPORTANT: Do note that the location is the upper left corner
 	 * of the tile.
 	 */
 	public Vector2f eraseRandomTileAtTheTop()
@@ -203,6 +282,12 @@ public class BottomOfTheWorld implements Drawable
 		}
 		Vector2f tmp_pos = m_tiles.get(x_pos_to_erase).get(0).getPosition();
 		m_tiles.get(x_pos_to_erase).remove(0);
+		
+		if (tmp_pos.y == CM_TILE_HEIGHT * (CM_TILE_COUNT_Y - 1) )
+		{
+			m_geysers.get(x_pos_to_erase).setActive(true);
+			m_geysers.get(x_pos_to_erase).setPosition(tmp_pos.x, -MagmaGeyser.CM_GEYSER_HEIGHT + CM_TILE_COUNT_Y * CM_TILE_HEIGHT);
+		}
 		return tmp_pos;
 	}
 	
@@ -213,7 +298,7 @@ public class BottomOfTheWorld implements Drawable
 	 * @param x_position The position in world space
 	 * @return The index of the row where that x coordinate falls on.
 	 */
-	public int getTheTopOfTheTileLine ( int x_position )
+	private int getTheTopOfTheTileLine ( int x_position )
 	{
 		x_position = ( x_position - m_x_bounds.first ) / (int) CM_TILE_WIDTH;
 		return x_position;
@@ -236,14 +321,11 @@ public class BottomOfTheWorld implements Drawable
 			// Need to regenerate the tile set.
 			if ( position.x < (getXBounds().first + 20) )
 			{
-//				System.out.println("REGENERATE LEFT");
-//				regenerateAround((int) position.x);
 				generateLeft();
 				return doesATileExistHere(position);
 			}
 			else if ( position.x > (getXBounds().second - 20))
 			{
-//				System.out.println("REGENERATE RIGHT");
 				regenerateAround((int) position.x);
 				return doesATileExistHere(position);
 			}
@@ -264,8 +346,7 @@ public class BottomOfTheWorld implements Drawable
 		int x_index_to_check = getTheTopOfTheTileLine((int) x);
 		
 		if (m_tiles.get(x_index_to_check).size() > 0 == false)
-			return new Vector2f(0.f, 0.f);
-//		int height = (int) m_tiles.get(x_index_to_check).get(0).getPosition().y;
+			return new Vector2f((float) x, CM_TILE_COUNT_Y * CM_TILE_HEIGHT);
 		return  m_tiles.get(x_index_to_check).get(0).getPosition();
 	}
 	
@@ -291,6 +372,10 @@ public class BottomOfTheWorld implements Drawable
 				rendertarget.draw(m_tiles.get(x).get(y));
 			}
 		}
+		rendertarget.draw(m_crimson);
+		
+		for (MagmaGeyser m : m_geysers)
+			rendertarget.draw(m);
 	}
 }
 

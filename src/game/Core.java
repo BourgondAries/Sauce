@@ -27,12 +27,13 @@ public class Core
 	
 	private Layer m_layer;
 	private Player m_player;
-	private int m_damage_frames = 0;
+	private int m_damage_frames = CM_RED_FLASH_FRAME_COUNT;
 	
 	private BottomOfTheWorld m_bedrock;
 	private InfiniteBox m_magma;
 	private HUD m_heads_up_display;
 	private Bool m_collision_with_bedrock = new Bool(false);
+	private Timer m_timer = new Timer(Main.wnd);
 	
 	private Random m_rng = new Random();
 	
@@ -59,6 +60,7 @@ public class Core
 		m_layer.add(m_bedrock);
 		
 		m_player.setPosition(new Vector2f(0.f, -100.f));
+		m_player.setOrigin(m_player.getSize().x / 2, m_player.getSize().y / 2);
 		
 		m_heads_up_display = new HUD(Main.wnd);
 		
@@ -96,6 +98,10 @@ public class Core
 						case ESCAPE:
 							Main.game_state = Main.states.menu;
 							return;
+						case E:
+							m_player.fetchImpulse().z += 1.f;
+						case Q:
+							m_player.fetchImpulse().z -= 1.f;
 						default:
 							break;
 					
@@ -108,11 +114,11 @@ public class Core
 		
 		if (Keyboard.isKeyPressed(Keyboard.Key.LEFT)) 
 		{
-			m_player.fetchSpeed().x -= 7.f;
+			m_player.fetchSpeed().x -= 1.f;
 		} 
 		else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT)) 
 		{
-			m_player.fetchSpeed().x += 7.f;
+			m_player.fetchSpeed().x += 1.f;
 		}
 		else if (Keyboard.isKeyPressed(Keyboard.Key.SPACE)) 
 		{
@@ -149,22 +155,22 @@ public class Core
 		// This block removes a random tile at the top (per frame, with a chance of 1% per frame)
 		{
 			if (Math.random() > 0.99f) // random returns a float within [0, 1]
-//				m_bedrock.eraseRandomTileAtTheTop();
-				;
+				m_bedrock.eraseRandomTileAtTheTop();
 		}
 		
 		// This block sets the text for the HUD, currently quite inefficient
 		{
 			m_heads_up_display.setText
 			(
-				"Above bedrock column: " + m_bedrock.getTheTopOfTheTileLine((int) m_player.getPosition().x)
-				+ "\nPlayer d^2y: " + m_player.getImpulse().y
+//				"Above bedrock column: " + m_bedrock.getTheTopOfTheTileLine((int) m_player.getPosition().x)
+				"Player d^2y: " + m_player.getImpulse().y
 				+ "\nPlayer dy: " + m_player.getSpeed().y
 				+ "\nPlayer y: " + m_player.getPosition().y
 				+ "\nCurrent bedrock column height: " + m_bedrock.getCollisionTilePosition((int) m_player.getPosition().x)
 				+ "\nSecond bedrock column height: " + m_bedrock.getCollisionTilePosition((int) (m_player.getPosition().x + m_player.getSize().x))
 				+ (!m_bedrock.doesATileExistHere(m_player.getPosition()) ? "\ncollision" : "\n")
 				+ "Player health: " + m_player.getHealth()
+				+ "\nPlayer Speed: " + m_player.getSpeed()
 			);
 		}
 		
@@ -182,16 +188,24 @@ public class Core
 				m_collision_with_bedrock.set(true);
 				if ( m_damage_frames == CM_RED_FLASH_FRAME_COUNT)
 					m_player.takeDamage();
+				m_player.fetchImpulse().z += m_player.fetchSpeed().x * 0.2f;
 			}
+		}
+		
+		// Update the position of the crimson ( The magma under bedrock itself )
+		{
+			m_bedrock.updateCrimsonRelativeTo(m_player.getPosition().x);
 		}
 	}
 
 	private void updateObjects() 
 	{
 		m_player.update();
-		m_player.fetchSpeed().x = 0.f;
+		m_player.fetchSpeed().x /= 1.02f;
+		m_player.fetchSpeed().z /= 1.02f;
 		
 		setViewToPlayer();
+		m_timer.update();
 	}
 	
 	private void setViewToPlayer()
@@ -236,6 +250,7 @@ public class Core
 			Main.wnd.setView(view);
 			++m_damage_frames;
 		}
+		Main.wnd.draw(m_timer);
 		Main.wnd.display();
 	}
 }

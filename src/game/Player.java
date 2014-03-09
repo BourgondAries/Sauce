@@ -55,16 +55,8 @@ public class Player extends DynamicObject
 	
 	public void jump() 
 	{
-//		if (world_state == worldStates.onGround) 
 		{
 			fetchImpulse().y += CM_JUMPFORCE;
 		}
-//		else if (world_state == Environment.inMagma) 
-//		{
-//			Final<Vector3f> const_impulse = getImpulse();
-//			Vector3f impulse = const_impulse.data;
-//			impulse.y += CM_JUMPFORCE / 2;
-//			setImpulse(impulse);
-//		}
 	}
 }
