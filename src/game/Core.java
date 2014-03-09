@@ -199,6 +199,7 @@ public class Core
 		View v = Main.view;
 		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
 		
+		// Scramble the view (Give the vibrating illusion), also topkek, magic numbers
 		v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
 		Main.wnd.setView(v);
 	}

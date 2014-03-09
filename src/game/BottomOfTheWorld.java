@@ -170,7 +170,7 @@ public class BottomOfTheWorld implements Drawable
 		{
 			for (int y = 0; y < m_tiles.get(m_tiles.size() - 1 - x).size(); ++y)
 			{
-				m_tiles.get(m_tiles.size() - 1 - x).get(y).setPosition(prevrx + (x) * CM_TILE_WIDTH, m_tiles.get(m_tiles.size() - 1 - x).get(y).getPosition().y);
+				m_tiles.get(m_tiles.size() - 1 - x).get(y).setPosition(prevrx + (AMOUNT_OF_SHIFTED_TILES - x - 1) * CM_TILE_WIDTH, m_tiles.get(m_tiles.size() - 1 - x).get(y).getPosition().y);
 			}
 		}
 		
