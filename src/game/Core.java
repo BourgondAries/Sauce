@@ -6,13 +6,10 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Random;
 
-import javax.vecmath.Vector3f;
 
 import org.jsfml.graphics.*;
 import org.jsfml.system.Vector2f;
 import org.jsfml.window.*;
-import org.jsfml.window.Keyboard.Key;
-import org.jsfml.audio.*;
 import org.jsfml.window.event.*;
 
 import ttl.Bool;
@@ -25,19 +22,20 @@ public class Core
 	private final static int CM_RED_FLASH_RESET_NUMBER = 0;
 	private final static int CM_INTEGER_COLOR_MAX = 255;
 	
-	private Layer m_layer;
+	private LayerCollection m_layers = new LayerCollection();
 	private Player m_player;
 	private int m_damage_frames = CM_RED_FLASH_FRAME_COUNT;
 	
+	private InfiniteBox m_lava;
 	private BottomOfTheWorld m_bedrock;
-	private InfiniteBox m_magma;
 	private HUD m_heads_up_display;
 	private Bool m_collision_with_bedrock = new Bool(false);
 	private Timer m_timer = new Timer(Main.wnd);
 	
 	private Random m_rng = new Random();
 	
-	static ArrayList<DynamicObject> physical_objects;
+	private ArrayList<DynamicObject> m_malm_objects;
+	
 	
 	public Core() throws IOException
 	{
@@ -49,20 +47,33 @@ public class Core
 		m_player.setMass(10.f);
 		
 		m_bedrock = new BottomOfTheWorld ( );
-		physical_objects = new ArrayList<DynamicObject>();
+		m_malm_objects = new ArrayList<DynamicObject>();
 		
 		System.out.println("CORE\n");
 		
 		m_bedrock.generateTiles();
 		
-		m_layer = new Layer();
-		m_layer.add(m_player);
-		m_layer.add(m_bedrock);
+		m_lava = new InfiniteBox();
+		m_lava.setSize( new Vector2f(Main.wnd.getSize().x * 2, BottomOfTheWorld.getTileCountY()*BottomOfTheWorld.getTileHeight()) );
+		m_lava.setPosition(-Main.wnd.getSize().x, -Main.wnd.getSize().y + BottomOfTheWorld.getTileCountY()*BottomOfTheWorld.getTileHeight());
+		m_lava.setFillColor(new Color(255, 165, 0, 127));
 		
 		m_player.setPosition(new Vector2f(0.f, -100.f));
 		m_player.setOrigin(m_player.getSize().x / 2, m_player.getSize().y / 2);
 		
 		m_heads_up_display = new HUD(Main.wnd);
+		
+		Layer player_layer = new Layer();
+		player_layer.add(m_player);
+		player_layer.add(m_bedrock);
+		player_layer.add(m_lava);
+		
+		Layer information_layer = new Layer();
+		information_layer.add(m_heads_up_display);
+		information_layer.add(m_timer);
+		
+		m_layers.add(player_layer, 0);
+		m_layers.add(information_layer, 1);
 		
 		run();
 	}
@@ -100,8 +111,12 @@ public class Core
 							return;
 						case E:
 							m_player.fetchImpulse().z += 1.f;
+							break;
 						case Q:
 							m_player.fetchImpulse().z -= 1.f;
+							break;
+						case H:
+							m_heads_up_display.setActive(!m_heads_up_display.getActive());
 						default:
 							break;
 					
@@ -154,15 +169,17 @@ public class Core
 	
 		// This block removes a random tile at the top (per frame, with a chance of 1% per frame)
 		{
-			if (Math.random() > 0.99f) // random returns a float within [0, 1]
-				m_bedrock.eraseRandomTileAtTheTop();
+			if (Math.random() > 0.94f) // random returns a float within [0, 1]
+			{
+				Vector2f position = m_bedrock.eraseRandomTileAtTheTop();
+				m_malm_objects.add(new Malm(new Vector2f(position.x + m_bedrock.getTileWidth() / 2.f, position.y + m_bedrock.getTileHeight() / 2.f)));
+			}
 		}
 		
 		// This block sets the text for the HUD, currently quite inefficient
 		{
 			m_heads_up_display.setText
 			(
-//				"Above bedrock column: " + m_bedrock.getTheTopOfTheTileLine((int) m_player.getPosition().x)
 				"Player d^2y: " + m_player.getImpulse().y
 				+ "\nPlayer dy: " + m_player.getSpeed().y
 				+ "\nPlayer y: " + m_player.getPosition().y
@@ -196,6 +213,45 @@ public class Core
 		{
 			m_bedrock.updateCrimsonRelativeTo(m_player.getPosition().x);
 		}
+		
+		// Set lava position to be correct:
+		{
+			m_lava.updateViaX(m_player.getPosition().x);
+		}
+		
+		// For each malm object, slow it down and perform updates
+		{
+			for ( DynamicObject x : m_malm_objects )
+			{
+				// 1. Perform all relocations
+				x.update();
+				
+				// 2. Perform friction
+				x.fetchSpeed().x /= 1.02f;
+				x.fetchSpeed().y /= 1.02f;
+			}
+		}
+		
+		// Each malm object, if within a certain box, accelerates towards the player
+		{
+			ArrayList<DynamicObject> to_remove = new ArrayList<>();
+			for ( DynamicObject x : m_malm_objects )
+			{
+				if (x.isBoxNear(m_player, 0))
+				{
+					x.setFillColor(Color.RED);
+					to_remove.add(x);
+				}
+				if (x.isBoxNear(m_player, 75))
+				{
+					x.accelerateTowards(m_player, 0.1f);
+				}
+			}
+			for ( DynamicObject x : to_remove )
+			{
+				m_malm_objects.remove(x);
+			}
+		}
 	}
 
 	private void updateObjects() 
@@ -223,9 +279,7 @@ public class Core
 	private void drawFrame ( )
 	{
 		Main.wnd.clear();
-		Main.wnd.draw(m_layer);
-		Main.wnd.draw(m_bedrock);
-		Main.wnd.draw(m_heads_up_display);
+		Main.wnd.draw(m_layers);
 		
 		// Red flashing when we have had collision with bedrock!
 		if ( m_collision_with_bedrock.fetchAndDisable() )
@@ -250,7 +304,9 @@ public class Core
 			Main.wnd.setView(view);
 			++m_damage_frames;
 		}
-		Main.wnd.draw(m_timer);
+		
+		for ( DynamicObject x : m_malm_objects )
+			Main.wnd.draw(x);
 		Main.wnd.display();
 	}
 }

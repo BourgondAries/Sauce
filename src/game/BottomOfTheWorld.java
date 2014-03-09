@@ -54,7 +54,22 @@ public class BottomOfTheWorld implements Drawable
 	
 	private final static int
 		CM_TILE_COUNT_X = 60,
-		CM_TILE_COUNT_Y = 5;
+		CM_TILE_COUNT_Y = 15;
+	
+	public final static int getTileCountY()
+	{
+		return CM_TILE_COUNT_Y;
+	}
+	
+	public final static float getTileHeight()
+	{
+		return CM_TILE_HEIGHT;
+	}
+	
+	public final static float getTileWidth()
+	{
+		return CM_TILE_WIDTH;
+	}
 	
 	private class MagmaGeyser extends RectangleShape
 	{

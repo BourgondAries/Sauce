@@ -3,7 +3,9 @@ package engine;
 
 import javax.vecmath.Vector3f;
 
+import org.jsfml.graphics.FloatRect;
 import org.jsfml.graphics.RectangleShape;
+import org.jsfml.system.Vector2f;
 
 
 /**
@@ -199,6 +201,40 @@ public class DynamicObject extends RectangleShape
 		
 		// Reset impulses
 		m_impulse.set(0.f, 0.f, 0.f);
+	}
+	
+	/**
+	 * Method that checks whether one dynamic object is within a certain box-collision
+	 * vincinity of another one. The pixel_limits are taken from the 4
+	 * different vertices of the rectangleshape, and go in both x-and-y coords.
+	 * @param compared_to
+	 * @param pixel_limits
+	 * @return whether the compared_to object is within another's space.
+	 */
+	public boolean isBoxNear ( DynamicObject compared_to, int pixel_limits )
+	{
+		FloatRect box = getGlobalBounds();
+		int px = pixel_limits;
+		box = new FloatRect ( box.left - px, box.top - px, box.width + px, box.height + px );
+		box = box.intersection(compared_to.getGlobalBounds());
+		
+		return (box != null);
+	}
+	
+	/**
+	 * 
+	 * @param other
+	 * @param force
+	 */
+	public void accelerateTowards ( DynamicObject other, float force )
+	{
+		Vector2f origin = new Vector2f( getPosition().x + getSize().x / 2.f, getPosition().y + getSize().y / 2.f );
+		Vector2f other_origin = new Vector2f( other.getPosition().x + other.getSize().x / 2.f, other.getPosition().y + other.getSize().y / 2.f );
+		Vector2f direction = Vector2f.sub(origin, other_origin);
+		float distance = Utilities.getDistance(origin,  other_origin);
+		direction = new Vector2f(force * direction.x / distance, force * direction.y / distance);
+		fetchImpulse().x -= direction.x;
+		fetchImpulse().y -= direction.y;
 	}
 	
 	private void clampRotation ()

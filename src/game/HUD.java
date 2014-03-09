@@ -30,6 +30,7 @@ public class HUD implements Drawable
 	private Font m_drawing_font;
 	private ConstView m_hud_view;
 	private Text m_display_text;
+	private boolean m_active = true;
 	
 	public HUD (RenderWindow x)
 	{
@@ -45,6 +46,16 @@ public class HUD implements Drawable
 		}
 	}
 	
+	public void setActive(boolean state)
+	{
+		m_active = state;
+	}
+	
+	public boolean getActive()
+	{
+		return m_active;
+	}
+	
 	public void setText ( String argument )
 	{
 		m_display_text.setString(argument);
@@ -52,9 +63,12 @@ public class HUD implements Drawable
 
 	public void draw(RenderTarget target, RenderStates states) 
 	{
-		ConstView oldview = target.getView();
-		target.setView(m_hud_view);
-		target.draw(m_display_text);
-		target.setView(oldview);
+		if (m_active)
+		{
+			ConstView oldview = target.getView();
+			target.setView(m_hud_view);
+			target.draw(m_display_text);
+			target.setView(oldview);
+		}
 	}
 }

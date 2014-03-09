@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.jsfml.graphics.Drawable;
+import org.jsfml.graphics.RenderStates;
+import org.jsfml.graphics.RenderTarget;
+
 import engine.Layer;
 
 
@@ -17,7 +21,7 @@ import engine.Layer;
  * @author Kevin R. Stravers
  *
  */
-public class LayerCollection
+public class LayerCollection implements Drawable
 {
 	public ArrayList<Pair<Layer, Integer>> 
 		m_layers = new ArrayList<>();
@@ -120,5 +124,14 @@ public class LayerCollection
 			}
 		}
 		return -1;
+	}
+
+
+	public void draw(RenderTarget target, RenderStates states) 
+	{
+		for ( Pair<Layer, Integer> layer : m_layers )
+		{
+			target.draw(layer.first);
+		}
 	}
 }
