@@ -291,7 +291,7 @@ public class BottomOfTheWorld implements Drawable
 		while (m_tiles.get(x_pos_to_erase).size() == 0)
 		{
 			if (x_pos_to_erase == m_tiles.size() - 1)
-				return new Vector2f(0.f, 0.f);
+				return null;
 			else
 				++x_pos_to_erase;
 		}
