@@ -153,8 +153,6 @@ public class Core
 		{
 			Main.game_state = Main.states.menu;
 		}
-//		System.out.println(m_player);
-//		System.out.println(m_bedrock);
 	}
 	
 	private void runGameLogic()
