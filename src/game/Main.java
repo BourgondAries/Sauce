@@ -69,7 +69,7 @@ public class Main
 
 	public Main()
 	{
-		game_state = states.core;
+		game_state = states.menu;
 		wnd = new RenderWindow(new VideoMode(800, 600, 32), "Sauce");
 		view = new View(wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize());
 		wnd.setFramerateLimit(60);
