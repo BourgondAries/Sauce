@@ -1,12 +1,7 @@
 package engine;
 
-import javax.vecmath.Vector2f;
 
-import org.jsfml.graphics.RenderStates;
-import org.jsfml.graphics.RenderTarget;
 import org.jsfml.graphics.RectangleShape;
-
-import game.Main;
 
 
 /**
@@ -16,23 +11,26 @@ import game.Main;
  * of an infinite texture. This is much more efficient than drawing an arbitrarily large
  * rectangleshape. (Seriously, it's a resource hog).
  * 
+ * I let RectangleShape do all the hard work,...
+ * 
  * TODO: Implement texture mapping. Currently only a colored rectangle is allowed :/
  * 
  * @author Thormod Myrvang
  *
  */
 public class InfiniteBox extends RectangleShape
-{
-	
-	public InfiniteBox ( ) 
-	{
-	}
-	
+{	
+	/**
+	 * Puts the center of the rectangle at the x position.
+	 */
 	public void updateViaX ( float x )
 	{
 		super.setPosition( x - super.getSize().x / 2.f, super.getPosition().y );
 	}
 	
+	/**
+	 * Puts the center of the rectangle at the y position.
+	 */
 	public void updateViaY ( float y )
 	{
 		super.setPosition( super.getPosition().x, y - super.getSize().y / 2.f );

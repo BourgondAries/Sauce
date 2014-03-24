@@ -1,47 +1,92 @@
 package game;
 
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+
 import org.jsfml.graphics.*;
 import org.jsfml.window.*;
+
+import engine.Dxy;
 
 
 public class Main
 {
+	// Entry point of the program
+	public static void main ( String[] args ) throws IOException
+	{
+//		Dxy d = new Dxy (file2str("res/settings"));
+//		ArrayList<String> x = d.tokenize();
+//		for ( String u : x)
+//			System.out.println(u);
+		new Main();
+	}
 	
-	// Setup variables
+	
+	// Entry point of the game
+	public Main()
+	{
+		game_state = states.menu;
+		wnd = new RenderWindow(new VideoMode(800, 600, 32), "Shact");
+		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
+		wnd.setFramerateLimit(60);
+		wnd.setView(view);
+		this.run();	
+	}
+	
+	
+	// Globals. All globals should be in Main
 	public static states 		game_state;
 	public static View 			view;
-//	public final static float 	BOTTOM_OF_THE_WORLD = 530.f;
-	public final static float 	BOTTOM_OF_THE_WORLD_CEILING = -350.f;
-	public final static float 	START_OF_MAGMA = 0.f;
 	public static RenderWindow 	wnd;
 
-	// Setup states in the game
+	
 	public enum states
 	{
-		menu, tutorial, surface, core, game, scoreboard;
+		// Menu states
+		menu, // The menu state, with this active, menu will be entered from the Main method.
+		scoreboard, // Scoreboard of the game, a simple window
+		options, // Volume, some other stuff
+		about, // To feed our ego
+		exit,
+		
+		// The actual game states:
+		tutorial, // Travel downward from the satellite. 
+		surface, // We've reached the surface, commence downward travel
+		core, // Core gameplay
+		shaft, // When we travel upward in the game, comes after core
+		game, // I have no idea, remove?
 	}
 
+	
 	private void run()
 	{
 		try {
 		
 			// Run program until close
-			while (wnd.isOpen())
+			while ( wnd.isOpen ( ) )
 			{		
 				// Initialize and run a state in the game
-				switch (game_state)
+				switch ( game_state )
 				{
 					case menu:
 						new Menu();
 						break;
 					case tutorial:
+						new Tutorial();
 						break;
 					case surface:
 						break;
 					case core:
 						new Core();
 						break;
-					case game:
+					case shaft:
+						new Shaft();
 						break;
 					case scoreboard:
 						new Scoreboard();
@@ -58,56 +103,17 @@ public class Main
 		}
 	}
 	
+	
 	public static void dispose() 
 	{
-		//Close the window
 		wnd.close();
-		
-		// Exit the system
 		System.exit(0);
 	}
-
-	public Main()
+	
+	
+	static String file2str ( String path ) throws IOException 
 	{
-		game_state = states.menu;
-		wnd = new RenderWindow(new VideoMode(800, 600, 32), "Sauce");
-		view = new View(wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize());
-		wnd.setFramerateLimit(60);
-		wnd.setView(view);
-	
-		this.run();	
-	}
-	
-	
-	
-	public static void main(String[] args)
-	{
-		new Main();
+	  byte encoded[] = Files.readAllBytes(Paths.get(path));
+	  return StandardCharsets.UTF_8.decode(ByteBuffer.wrap(encoded)).toString(); // UTF-8 Everywhere!
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

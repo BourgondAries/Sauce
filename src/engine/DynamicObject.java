@@ -215,14 +215,16 @@ public class DynamicObject extends RectangleShape
 	{
 		FloatRect box = getGlobalBounds();
 		int px = pixel_limits;
-		box = new FloatRect ( box.left - px, box.top - px, box.width + px, box.height + px );
+		box = new FloatRect ( box.left - px, box.top - px, box.width + 2*px, box.height + 2*px );
 		box = box.intersection(compared_to.getGlobalBounds());
 		
 		return (box != null);
 	}
 	
 	/**
-	 * 
+	 * This function makes a dynamicobject accelerate towards another with
+	 * a set "force". This force is multiplied by the direction and then divided
+	 * by the entire distance given by the pythagorean theorem.
 	 * @param other
 	 * @param force
 	 */

@@ -32,7 +32,7 @@ public class Timer implements Drawable
 	private RectangleShape		m_box;
 	private Text 				m_text;
 	private final long 			m_posix_time_at_start;
-	private static final long 	CM_TIME_DURATION_IN_MS = 1000 * 60;
+	private static final long 	CM_TIME_DURATION_IN_MS = 1000 * 4;
 	private ConstView 			m_view;
 	
 	public Timer ( RenderWindow window )
@@ -58,7 +58,15 @@ public class Timer implements Drawable
 	public void update()
 	{
 		long timeleft = m_posix_time_at_start - System.currentTimeMillis() +  CM_TIME_DURATION_IN_MS;
-		m_text.setString(String.valueOf(timeleft));
+		if ( timeleft >= 0 ) // First for the branch predictor. om nom nom
+			m_text.setString(String.valueOf(timeleft));
+		else 
+			m_text.setString("0");
+	}
+	
+	public boolean hasEnded()
+	{
+		return ( m_posix_time_at_start - System.currentTimeMillis() +  CM_TIME_DURATION_IN_MS < 0);
 	}
 	
 	public void draw ( RenderTarget target, RenderStates states )

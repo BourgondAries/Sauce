@@ -86,6 +86,12 @@ public class Core
 			runGameLogic();
 			updateObjects();
 			drawFrame();
+			
+			if ( m_timer.hasEnded() )
+			{
+				Main.game_state = Main.states.shaft;
+				return;
+			}
 		}
 	}
 	
@@ -147,8 +153,6 @@ public class Core
 		{
 			Main.game_state = Main.states.menu;
 		}
-//		System.out.println(m_player);
-//		System.out.println(m_bedrock);
 	}
 	
 	private void runGameLogic()
@@ -169,10 +173,11 @@ public class Core
 	
 		// This block removes a random tile at the top (per frame, with a chance of 1% per frame)
 		{
-			if (Math.random() > 0.94f) // random returns a float within [0, 1]
+			if (Math.random() > .95f) // random returns a float within [0, 1]
 			{
 				Vector2f position = m_bedrock.eraseRandomTileAtTheTop();
-				m_malm_objects.add(new Malm(new Vector2f(position.x + m_bedrock.getTileWidth() / 2.f, position.y + m_bedrock.getTileHeight() / 2.f)));
+				if ( position != null )
+					m_malm_objects.add(new Malm(new Vector2f(position.x + BottomOfTheWorld.getTileWidth() / 2.f, position.y + BottomOfTheWorld.getTileHeight() / 2.f)));
 			}
 		}
 		
@@ -239,10 +244,9 @@ public class Core
 			{
 				if (x.isBoxNear(m_player, 0))
 				{
-					x.setFillColor(Color.RED);
 					to_remove.add(x);
 				}
-				if (x.isBoxNear(m_player, 75))
+				else if (m_player.isBoxNear(x, 75))
 				{
 					x.accelerateTowards(m_player, 0.1f);
 				}
