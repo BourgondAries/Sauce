@@ -3,6 +3,8 @@ package game;
 import java.io.IOException;
 import java.nio.file.Paths;
 
+import org.jsfml.audio.Sound;
+import org.jsfml.audio.SoundBuffer;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
 import org.jsfml.window.Keyboard;
@@ -10,11 +12,17 @@ import org.jsfml.window.event.Event;
 import org.jsfml.window.event.KeyEvent;
 
 import engine.PathedTextures;
+import engine.SyncTrack;
 
 public class Tutorial
 {
-	Tutorial ( )
+	Tutorial ( ) throws IOException
 	{
+		
+		buff.loadFromFile(Paths.get("sfx/menu_loop.ogg"));
+		sound.setBuffer(buff);
+		soundfx = new SyncTrack(sound);
+		
 		// We need a sky background, ship in the middle.
 		// Sky must be moving.
 		
@@ -38,6 +46,10 @@ public class Tutorial
 		
 		run();
 	}
+	
+	private SoundBuffer buff = new SoundBuffer();
+	private Sound sound = new Sound();
+	private SyncTrack soundfx;
 	
 	RectangleShape 
 		m_ship, 
@@ -76,6 +88,7 @@ public class Tutorial
 					switch (keyev.key)
 					{
 						case UP:
+							soundfx.play();
 							break;
 						default:
 							break;

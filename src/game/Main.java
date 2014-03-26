@@ -32,7 +32,7 @@ public class Main
 	public Main()
 	{
 		game_state = states.menu;
-		wnd = new RenderWindow(new VideoMode(800, 600, 32), "Shact");
+		wnd = new RenderWindow(new VideoMode(1900, 800, 32), "Shact");
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
 		wnd.setView(view);
@@ -59,8 +59,7 @@ public class Main
 		tutorial, // Travel downward from the satellite. 
 		surface, // We've reached the surface, commence downward travel
 		core, // Core gameplay
-		shaft, // When we travel upward in the game, comes after core
-		game, // I have no idea, remove?
+		shaft // When we travel upward in the game, comes after core
 	}
 
 	
