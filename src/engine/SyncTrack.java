@@ -2,6 +2,11 @@ package engine;
 
 import org.jsfml.audio.Sound;
 
+	/**
+	 * Makes you able to play a unlimited amount of sounds from a single sound.
+	 * You can change the sound by using fetchSound and setSound.
+	 * If you use getSound, you can change volume and other things before playing.
+	 */
 public class SyncTrack {
 	private Sound track;
 	

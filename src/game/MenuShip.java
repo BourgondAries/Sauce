@@ -20,6 +20,8 @@ public class MenuShip implements Drawable {
 	private float distance_relation;
 	private boolean have_played_incomming_sound;
 	private boolean turn_ship;
+	private Sound local_aud_teleport_far;
+	private Sound local_aud_teleport_close;
 
 	// These have to be set from another class before spawning any ship!
 	public static Sprite body;
@@ -85,12 +87,12 @@ public class MenuShip implements Drawable {
 				have_played_incomming_sound = true;
 				
 				// Setup sounds
-				Sound new_far = teleport_far.getTrack();
-				Sound new_close = teleport_close.getTrack();
-				new_far.setVolume((1-depth)*100);
-				new_close.setVolume(depth*100);
-				new_far.play();
-				new_close.play();
+				local_aud_teleport_far = teleport_far.getTrack();
+				local_aud_teleport_close = teleport_close.getTrack();
+				local_aud_teleport_far.setVolume((1-depth)*100);
+				local_aud_teleport_close.setVolume(depth*100);
+				local_aud_teleport_far.play();
+				local_aud_teleport_close.play();
 			}
 			
 			// Check if the ship has to wait before flying for the sound to play correctly
