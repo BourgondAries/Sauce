@@ -87,15 +87,12 @@ public class Menu {
 	private ImageScrambler scr_menu_underline_left_right;
 	private ImageScrambler scr_menu_underline_right_right;
 	
-	// Functionality
-	float time_to_spawn_menu;
-	
-	// Time of start
-	long start_time;
-	
 	// Render Queue
 	ArrayList<Drawable> render_queue = new ArrayList<>();
 	ArrayList<MenuShip> menu_ships = new ArrayList<>();
+	
+	// Skip menu
+	private boolean skip_intro = false;
 	
 	public Menu() throws IOException, TextureCreationException {
 		Main.view.setCenter(Vector2f.div(new Vector2f(Main.wnd.getSize()),2));
@@ -228,12 +225,12 @@ public class Menu {
 	private long playIntro() {
 		
 		// Timings in milliseconds
-		float time_to_stop_move_planets = 16000; // 16000
+		float time_to_stop_move_planets = 9900; // 16000
 		float time_to_start_spawn_ships = 1000; // 4000
 		float time_to_stop_spawn_ships = 8500; // 14000
 		float time_to_teleport_closest_ship = 9400; // 14700
 		float duration_of_teleport_effect_on_closest_ship = 1000; // 1000
-		time_to_spawn_menu = 9900; // 15500
+		float time_to_spawn_menu = 9900; // 15500
 		float duration_of_menu_flickering = 500; // 500
 		float where_to_start_menu_loop = 29000; // 29000
 		
@@ -415,13 +412,23 @@ public class Menu {
 		aud_menu_switch.fetchTrack().setVolume(menu_switch_volume);
 		aud_intro.play();
 		
+		// Setup skipping
+		long skip_ahead = 0;
+		
 		// Setup start time
-		start_time = System.currentTimeMillis();
+		long start_time = System.currentTimeMillis();
 		
 		while(true) {
 			
 			// Calculate time since start in milliseconds
-			long diff_time = System.currentTimeMillis() - start_time;
+			long diff_time = System.currentTimeMillis() - start_time + skip_ahead;
+			
+			// Skip
+			if (skip_intro && diff_time < time_to_teleport_closest_ship) {
+				skip_ahead = (long) (time_to_teleport_closest_ship) - diff_time;
+				skip_intro = false;
+				continue;
+			}
 			
 			// Handle phases
 			if (diff_time<time_to_stop_move_planets) move_planets = true;
@@ -983,7 +990,7 @@ public class Menu {
 	private void skipIntro()
 	{
 		aud_intro.stop();
-		start_time = 0;
+		skip_intro = true;
 	}
 	
 	private void handleEvents() {
