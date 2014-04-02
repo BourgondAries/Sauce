@@ -6,7 +6,7 @@ import java.util.*;
 
 public class RockCeiling implements Drawable
 {
-	
+	private static float BOTTOM_OF_THE_WORLD_CEILING = -1000.f;
 	private ArrayList<RectangleShape> m_tiles = new ArrayList<RectangleShape>();
 	
 	public RockCeiling()
@@ -18,7 +18,7 @@ public class RockCeiling implements Drawable
 				RectangleShape temporary_rectangleshape = new RectangleShape();
 				temporary_rectangleshape.setSize(new Vector2f(100.f, 100.f));
 				temporary_rectangleshape.setFillColor(new Color(127, 127, 127));
-				temporary_rectangleshape.setPosition(new Vector2f(100.f * x, - 100.f * y + Main.BOTTOM_OF_THE_WORLD_CEILING));
+				temporary_rectangleshape.setPosition(new Vector2f(100.f * x, - 100.f * y + BOTTOM_OF_THE_WORLD_CEILING));
 				temporary_rectangleshape.setOutlineColor(new Color(150, 0, 0));
 				temporary_rectangleshape.setOutlineThickness(1.f);
 				
