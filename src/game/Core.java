@@ -23,8 +23,8 @@ public class Core
 	private final static int CM_RED_FLASH_RESET_NUMBER = 0;
 	private final static int CM_INTEGER_COLOR_MAX = 255;
 	private final static int CM_REMOVAL_DISTANCE = 0;
-	private final static int CM_ACCELERATION_DISTANCE = 75;
-	private final static float CM_ACCELERATION_SPEED = 0.01f;
+	private final static int CM_ACCELERATION_DISTANCE = Main.wnd.getSize().x / 10;
+	private final static float CM_ACCELERATION_SPEED = Main.wnd.getSize().x / 10000.f;
 	private final static float CM_FRICTIONAL_FORCE_DECAY = 1.02f;
 	private final static float CM_GEYSER_INVERSE_JUMPFORCE = 3.f;
 	private final static float CM_ROTATIONAL_MULTIPLIER = 0.2f;
@@ -38,6 +38,7 @@ public class Core
 	private HUD 				m_heads_up_display;
 	private Bool 				m_collision_with_bedrock = new Bool(false);
 	private Timer 				m_timer = new Timer(Main.wnd);
+	private Bool				m_jumped = new Bool(true);
 	
 	private Random m_rng = new Random();
 	
@@ -115,7 +116,8 @@ public class Core
 					switch (keyev.key)
 					{
 						case UP:
-							m_player.jump();
+							if (m_jumped.fetchAndDisable())
+								m_player.jump();
 							break;
 						case RETURN:
 							m_bedrock.eraseRandomTileAtTheTop();
@@ -134,6 +136,18 @@ public class Core
 						default:
 							break;
 					
+					}
+				} break;
+				case KEY_RELEASED:
+				{
+					KeyEvent keyev = event.asKeyEvent();
+					switch (keyev.key)
+					{
+						case UP:
+							m_jumped.set(true);
+							break;
+						default:
+							break;
 					}
 				} break;
 			default:

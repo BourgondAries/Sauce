@@ -53,7 +53,8 @@ public class BottomOfTheWorld implements Drawable
 		CM_TILE_HEIGHT = 33.f;
 	
 	private final static int
-		CM_TILE_COUNT_X = Main.wnd.getSize().x / 10,
+		CM_PIXELS_PER_TILE = 10,
+		CM_TILE_COUNT_X = Main.wnd.getSize().x / CM_PIXELS_PER_TILE,
 		CM_TILE_COUNT_Y = 15;
 	
 	public final static int getTileCountY()

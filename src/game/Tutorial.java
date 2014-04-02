@@ -15,6 +15,22 @@ import engine.SyncTrack;
 
 public class Tutorial
 {
+	private SoundBuffer buff = new SoundBuffer();
+	private Sound sound = new Sound();
+	private SyncTrack soundfx;
+	
+	RectangleShape 
+		m_ship, 
+		m_sky;
+	
+	private final float 
+			TEXTURE_HEIGHT_MULTIPLIER = 30.f,
+			SKY_SCROLL_SPEED_PIX_PER_FRAME = -50.f;
+	private float TEXTURE_WIDTH;
+	private float color_clamp = 0.f;
+	private static final float COLOR_SPECTRUM_DELTA = 0.0001f;
+	private Color clear_color = new Color(0, 0, 0);
+	
 	Tutorial ( ) throws IOException
 	{
 		buff.loadFromFile(Paths.get("sfx/menu_loop.ogg"));
@@ -31,7 +47,7 @@ public class Tutorial
 		m_sky = new RectangleShape ( );
 		try 
 		{
-			Texture tex = PathedTextures.getTexture(Paths.get("res/sky2.png"));
+			Texture tex = PathedTextures.getTexture(Paths.get("res/sky.tga"));
 			tex.setRepeated ( true );
 			TEXTURE_WIDTH = tex.getSize().x;
 			m_sky.setSize ( new Vector2f ( TEXTURE_WIDTH, Main.wnd.getSize().y * TEXTURE_HEIGHT_MULTIPLIER ) );
@@ -45,18 +61,7 @@ public class Tutorial
 		run();
 	}
 	
-	private SoundBuffer buff = new SoundBuffer();
-	private Sound sound = new Sound();
-	private SyncTrack soundfx;
 	
-	RectangleShape 
-		m_ship, 
-		m_sky;
-	
-	private final float 
-			TEXTURE_HEIGHT_MULTIPLIER = 30.f,
-			SKY_SCROLL_SPEED_PIX_PER_FRAME = -50.f;
-	private float TEXTURE_WIDTH;
 	
 	public void run()
 	{
@@ -118,6 +123,13 @@ public class Tutorial
 	
 	private void runGameLogic()
 	{
+		// Change the sky's color to be more earthly in this frame.
+		if (color_clamp < .75f)
+			color_clamp += COLOR_SPECTRUM_DELTA;
+		
+		// Set the new color:
+		clear_color = new Color((int) (255 * color_clamp * color_clamp), (int) (255 * color_clamp * color_clamp), (int) (255 * color_clamp));
+		
 		// Move the sky texture upwards.
 		// If the end has been reached, we return the position to (0, 0).
 		// We also randomize the x-axis so that each iteration looks semi-random.
@@ -144,7 +156,7 @@ public class Tutorial
 	
 	private void drawFrame()
 	{
-		Main.wnd.clear ( );
+		Main.wnd.clear ( clear_color );
 		Main.wnd.draw ( m_sky );
 		Main.wnd.draw ( m_ship );
 		Main.wnd.display ( );
