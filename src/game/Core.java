@@ -18,19 +18,20 @@ import engine.*;
 
 public class Core 
 {
+	// Constants
 	private final static int CM_RED_FLASH_FRAME_COUNT = 30;
 	private final static int CM_RED_FLASH_RESET_NUMBER = 0;
 	private final static int CM_INTEGER_COLOR_MAX = 255;
 	
 	private LayerCollection m_layers = new LayerCollection();
-	private Player m_player;
-	private int m_damage_frames = CM_RED_FLASH_FRAME_COUNT;
+	private Player 			m_player;
+	private int 			m_damage_frames = CM_RED_FLASH_FRAME_COUNT;
 	
-	private InfiniteBox m_lava;
-	private BottomOfTheWorld m_bedrock;
-	private HUD m_heads_up_display;
-	private Bool m_collision_with_bedrock = new Bool(false);
-	private Timer m_timer = new Timer(Main.wnd);
+	private InfiniteBox 		m_lava;
+	private BottomOfTheWorld 	m_bedrock;
+	private HUD 				m_heads_up_display;
+	private Bool 				m_collision_with_bedrock = new Bool(false);
+	private Timer 				m_timer = new Timer(Main.wnd);
 	
 	private Random m_rng = new Random();
 	

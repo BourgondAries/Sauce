@@ -18,13 +18,13 @@ public class ScoreCounter implements Drawable
 	private Text m_text;
 	
 	
-	public ScoreCounter ( )
+	public ScoreCounter()
 	{
 		
 	}
 	
 	
-	public void draw ( RenderTarget target, RenderStates states )
+	public void draw(RenderTarget target, RenderStates states)
 	{
 		
 	}

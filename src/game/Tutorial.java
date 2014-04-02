@@ -7,7 +7,6 @@ import org.jsfml.audio.Sound;
 import org.jsfml.audio.SoundBuffer;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
-import org.jsfml.window.Keyboard;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.KeyEvent;
 
@@ -18,7 +17,6 @@ public class Tutorial
 {
 	Tutorial ( ) throws IOException
 	{
-		
 		buff.loadFromFile(Paths.get("sfx/menu_loop.ogg"));
 		sound.setBuffer(buff);
 		soundfx = new SyncTrack(sound);
@@ -71,7 +69,6 @@ public class Tutorial
 		}
 		while ( Main.game_state == Main.states.tutorial );
 	}
-	
 	
 	private void handleEvents()
 	{
