@@ -23,7 +23,7 @@ public class Main
 	public Main()
 	{
 		game_state = states.core;
-		wnd = new RenderWindow(new VideoMode(800, 600, 32), "Shact");
+		wnd = new RenderWindow(new VideoMode(1920, 1000, 32), "Shact");
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
 		wnd.setView(view);

@@ -22,6 +22,12 @@ public class Core
 	private final static int CM_RED_FLASH_FRAME_COUNT = 30;
 	private final static int CM_RED_FLASH_RESET_NUMBER = 0;
 	private final static int CM_INTEGER_COLOR_MAX = 255;
+	private final static int CM_REMOVAL_DISTANCE = 0;
+	private final static int CM_ACCELERATION_DISTANCE = 75;
+	private final static float CM_ACCELERATION_SPEED = 0.01f;
+	private final static float CM_FRICTIONAL_FORCE_DECAY = 1.02f;
+	private final static float CM_GEYSER_INVERSE_JUMPFORCE = 3.f;
+	private final static float CM_ROTATIONAL_MULTIPLIER = 0.2f;
 	
 	private LayerCollection m_layers = new LayerCollection();
 	private Player 			m_player;
@@ -204,30 +210,37 @@ public class Core
 			// Check if player's bottom is below the top-most tile
 			if 
 			( 
-				!m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x, m_player.getPosition().y + m_player.getSize().y)) 
-				|| !m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x + m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y)) 
+				(
+					!m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x, m_player.getPosition().y + m_player.getSize().y)) 
+					|| !m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x + m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y))
+				)
+//				||
+//				( // Check for collision with a geyser!
+//					m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
+//					|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
+//				)
 			)
 			{
-				m_player.fetchImpulse().y += Player.CM_JUMPFORCE / 3.f;
+				m_player.fetchImpulse().y += Player.CM_JUMPFORCE / CM_GEYSER_INVERSE_JUMPFORCE;
 				m_collision_with_bedrock.set(true);
 				if ( m_damage_frames == CM_RED_FLASH_FRAME_COUNT)
 					m_player.takeDamage();
-				m_player.fetchImpulse().z += m_player.fetchSpeed().x * 0.2f;
+				m_player.fetchImpulse().z += m_player.fetchSpeed().x * CM_ROTATIONAL_MULTIPLIER;
 			}
-			// Check for collision with a geyser!
+			
 			else
 			{
 				if 
 				( 
-					m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
-					|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x )
+						m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
+						|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
 				)
 				{
-					m_player.fetchImpulse().y += Player.CM_JUMPFORCE / 3.f;
+					m_player.fetchImpulse().y += Player.CM_JUMPFORCE / CM_GEYSER_INVERSE_JUMPFORCE;
 					m_collision_with_bedrock.set(true);
 					if ( m_damage_frames == CM_RED_FLASH_FRAME_COUNT)
 						m_player.takeDamage();
-					m_player.fetchImpulse().z += m_player.fetchSpeed().x * 0.2f;
+					m_player.fetchImpulse().z += m_player.fetchSpeed().x * CM_ROTATIONAL_MULTIPLIER;
 				}
 			}
 		}
@@ -251,8 +264,8 @@ public class Core
 				x.update();
 				
 				// 2. Perform friction
-				x.fetchSpeed().x /= 1.02f;
-				x.fetchSpeed().y /= 1.02f;
+				x.fetchSpeed().x /= CM_FRICTIONAL_FORCE_DECAY;
+				x.fetchSpeed().y /= CM_FRICTIONAL_FORCE_DECAY;
 			}
 		}
 		
@@ -261,13 +274,13 @@ public class Core
 			ArrayList<DynamicObject> to_remove = new ArrayList<>();
 			for ( DynamicObject x : m_malm_objects )
 			{
-				if (x.isBoxNear(m_player, 0))
+				if (x.isBoxNear(m_player, CM_REMOVAL_DISTANCE))
 				{
 					to_remove.add(x);
 				}
-				else if (m_player.isBoxNear(x, 75))
+				else if (m_player.isBoxNear(x, CM_ACCELERATION_DISTANCE))
 				{
-					x.accelerateTowards(m_player, 0.1f);
+					x.accelerateTowards(m_player, CM_ACCELERATION_SPEED);
 				}
 			}
 			for ( DynamicObject x : to_remove )
