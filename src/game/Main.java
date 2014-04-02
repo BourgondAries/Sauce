@@ -22,7 +22,7 @@ public class Main
 	// Entry point of the game
 	public Main()
 	{
-		game_state = states.menu;
+		game_state = states.tutorial;
 		wnd = new RenderWindow(new VideoMode(1900, 1000, 32), "Shact");
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
@@ -31,7 +31,7 @@ public class Main
 	}
 	
 	
-	// Globals. All globals should be in Main
+	// Globals. All globals should be in Main.
 	public static states 		game_state;
 	public static View 			view;
 	public static RenderWindow 	wnd;

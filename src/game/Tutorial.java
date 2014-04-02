@@ -28,7 +28,7 @@ public class Tutorial
 		
 		m_ship = new RectangleShape ( );
 		m_ship.setSize(new Vector2f(200, 200));
-		m_ship.setPosition(400 - 100, 300 - 100);
+		m_ship.setPosition(Main.wnd.getSize().x / 2 - m_ship.getSize().x / 2, Main.wnd.getSize().y / 2 - m_ship.getSize().y / 2);
 		
 		m_sky = new RectangleShape ( );
 		try 
@@ -68,9 +68,6 @@ public class Tutorial
 			runGameLogic();
 			updateObjects();
 			drawFrame();
-			
-//			Main.wnd.close();
-//			Main.game_state = Main.states.exit;
 		}
 		while ( Main.game_state == Main.states.tutorial );
 	}
