@@ -52,6 +52,7 @@ public class Tutorial
 			TEXTURE_WIDTH = tex.getSize().x;
 			m_sky.setSize ( new Vector2f ( TEXTURE_WIDTH, Main.wnd.getSize().y * TEXTURE_HEIGHT_MULTIPLIER ) );
 			m_sky.setTexture ( tex );
+			m_sky.setPosition(new Vector2f(0.f, Main.wnd.getSize().y));
 		} 
 		catch ( IOException exc_obj ) 
 		{
@@ -142,7 +143,7 @@ public class Tutorial
 					new Vector2f 
 					( 
 						(float) (-Math.random()) * m_sky.getSize().x / 2.f
-						, 0.f 
+						, Main.wnd.getSize().y
 					) 
 				);
 			}
