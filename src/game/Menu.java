@@ -8,11 +8,9 @@ import java.util.Arrays;
 import org.jsfml.audio.Music;
 import org.jsfml.audio.Sound;
 import org.jsfml.graphics.Color;
-import org.jsfml.graphics.ConstTexture;
 import org.jsfml.graphics.Drawable;
 import org.jsfml.graphics.Font;
 import org.jsfml.graphics.IntRect;
-import org.jsfml.graphics.RectangleShape;
 import org.jsfml.graphics.Sprite;
 import org.jsfml.graphics.Texture;
 import org.jsfml.graphics.TextureCreationException;
@@ -48,8 +46,6 @@ public class Menu {
 	private Sprite img_close_ship;
 	private Sprite img_close_ship_red;
 	private Sprite img_close_ship_cyan;
-	private Sprite img_ship_flames_forward;
-	private Sprite img_ship_flames_backward;
 	private Sprite img_anim_smoke;
 	private Sprite img_anim_ship;
 	private Sprite img_button_left;
@@ -58,6 +54,8 @@ public class Menu {
 	private Sprite img_button_right_white;
 	private Sprite img_button_border_left;
 	private Sprite img_button_border_right;
+	private Sprite img_ship_flames_forward;
+	private Sprite img_ship_flames_backward;
 	
 	// Tilable graphic
 	private final static int SPACE_EXTRA_SIZE = 100;
@@ -88,6 +86,12 @@ public class Menu {
 	private ImageScrambler scr_menu_underline_right_left;
 	private ImageScrambler scr_menu_underline_left_right;
 	private ImageScrambler scr_menu_underline_right_right;
+	
+	// Functionality
+	float time_to_spawn_menu = 15500;
+	
+	// Time of start
+	long start_time = System.currentTimeMillis();
 	
 	// Render Queue
 	ArrayList<Drawable> render_queue = new ArrayList<>();
@@ -240,7 +244,8 @@ public class Menu {
 		float menu_fire_spacing_top = 60; // 50
 		float menu_letters_spacing_multiplier = 0.8f;
 		float menu_loop_volume = 40;
-		float menu_button_volume = 20;
+		float menu_button_volume = 10;
+		float menu_switch_volume = 50;
 		
 		// Probability
 		float likeliness_of_spawning_ship = 0.03f; // 0.02f
@@ -405,17 +410,15 @@ public class Menu {
 		aud_menu_loop.setLoop(true);
 		aud_menu_loop.setVolume(menu_loop_volume);
 		aud_button_hover.fetchTrack().setVolume(menu_button_volume);
+		aud_menu_switch.fetchTrack().setVolume(menu_switch_volume);
 		aud_intro.play();
-		
-		// Time of start
-		long start_time = System.currentTimeMillis();
 		
 		while(true) {
 			
 			// Calculate time since start in milliseconds
 			long diff_time = System.currentTimeMillis() - start_time;
 			
-			// Handle fases
+			// Handle phases
 			if (diff_time<time_to_stop_move_planets) move_planets = true;
 			else move_planets = false;
 			if (diff_time>time_to_start_spawn_ships && diff_time<time_to_stop_spawn_ships) spawn_ships = true;
@@ -828,6 +831,9 @@ public class Menu {
 		// Check if menu-stuff is already erased
 		boolean menu_gone = false;
 		
+		// Fetch the menu_loop volume so the fade is smooth
+		float menu_loop_volume = aud_menu_loop.getVolume();
+		
 		// Start time
 		long start_time = System.currentTimeMillis();
 		
@@ -843,7 +849,7 @@ public class Menu {
 				float x = uptime/duration_of_menu_fade;
 				
 				// Lower volume
-				aud_menu_loop.setVolume(100*(1-x));
+				aud_menu_loop.setVolume(menu_loop_volume*(1-x));
 				
 				// Update flicker-values
 				float max_distort = x*menu_effect_amplitude;
@@ -969,8 +975,30 @@ public class Menu {
 		Main.wnd.display();
 	}
 	
+	private void skipIntro()
+	{
+		start_time = 0;
+	}
+	
 	private void handleEvents() {
 		for (Event event : Main.wnd.pollEvents()) {
+			switch (event.type)
+			{
+				case KEY_PRESSED:
+				{
+					KeyEvent keyev = event.asKeyEvent();
+					switch (keyev.key)
+					{
+						case ESCAPE:
+							skipIntro();
+							return;
+						default:
+							break;
+					}
+				} break;
+			default:
+				break;
+			}
 		}
 	}
 }

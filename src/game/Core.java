@@ -92,6 +92,7 @@ public class Core
 				Main.game_state = Main.states.shaft;
 				return;
 			}
+			System.out.println("CORE");
 		}
 	}
 	
@@ -212,7 +213,24 @@ public class Core
 					m_player.takeDamage();
 				m_player.fetchImpulse().z += m_player.fetchSpeed().x * 0.2f;
 			}
+			// Check for collision with a geyser!
+			else
+			{
+				if 
+				( 
+					m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
+					|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x )
+				)
+				{
+					m_player.fetchImpulse().y += Player.CM_JUMPFORCE / 3.f;
+					m_collision_with_bedrock.set(true);
+					if ( m_damage_frames == CM_RED_FLASH_FRAME_COUNT)
+						m_player.takeDamage();
+					m_player.fetchImpulse().z += m_player.fetchSpeed().x * 0.2f;
+				}
+			}
 		}
+		
 		
 		// Update the position of the crimson ( The magma under bedrock itself )
 		{

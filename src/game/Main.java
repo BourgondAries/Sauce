@@ -1,18 +1,13 @@
 package game;
 
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 import org.jsfml.graphics.*;
 import org.jsfml.window.*;
-
-import engine.Dxy;
 
 
 public class Main
@@ -20,10 +15,6 @@ public class Main
 	// Entry point of the program
 	public static void main ( String[] args ) throws IOException
 	{
-//		Dxy d = new Dxy (file2str("res/settings"));
-//		ArrayList<String> x = d.tokenize();
-//		for ( String u : x)
-//			System.out.println(u);
 		new Main();
 	}
 	
@@ -40,7 +31,7 @@ public class Main
 	}
 	
 	
-	// Globals. All globals should be in Main
+	// Globals. All globals should be in Main.
 	public static states 		game_state;
 	public static View 			view;
 	public static RenderWindow 	wnd;

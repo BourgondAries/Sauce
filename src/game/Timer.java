@@ -32,7 +32,7 @@ public class Timer implements Drawable
 	private RectangleShape		m_box;
 	private Text 				m_text;
 	private final long 			m_posix_time_at_start;
-	private static final long 	CM_TIME_DURATION_IN_MS = 1000 * 4;
+	private static final long 	CM_TIME_DURATION_IN_MS = 1000 * 60;
 	private ConstView 			m_view;
 	
 	public Timer ( RenderWindow window )

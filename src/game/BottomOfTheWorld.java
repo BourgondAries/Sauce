@@ -92,6 +92,11 @@ public class BottomOfTheWorld implements Drawable
 		{
 			m_active = state;
 		}
+		
+		public boolean isActive ( )
+		{
+			return m_active;
+		}
 	}
 	
 	/**
@@ -317,6 +322,28 @@ public class BottomOfTheWorld implements Drawable
 	{
 		x_position = ( x_position - m_x_bounds.first ) / (int) CM_TILE_WIDTH;
 		return x_position;
+	}
+	
+	/**
+	 * Checks for collision with a geyser of a single point on the x-coord axis.
+	 * @param xpos
+	 * @return
+	 */
+	public boolean thereIsACollisionWithGeyser ( float xpos )
+	{
+		for (MagmaGeyser m : m_geysers)
+		{
+			if 
+			( 
+				m.isActive()
+				&& xpos > m.getPosition().x 
+				&& xpos < m.getPosition().x + m.getSize().x
+			)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	
