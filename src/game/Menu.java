@@ -23,6 +23,7 @@ import org.jsfml.window.event.Event;
 import org.jsfml.window.event.KeyEvent;
 
 import engine.Button;
+import engine.Formulas;
 import engine.PathedFonts;
 import engine.PathedSounds;
 import engine.PathedTextures;
@@ -36,6 +37,8 @@ public class Menu {
 	private SyncTrack aud_menu_switch;
 	private SyncTrack aud_teleport_far;
 	private SyncTrack aud_teleport_close;
+	private SyncTrack aud_button_press;
+	private SyncTrack aud_button_hover;
 	
 	// Graphic
 	private Sprite img_planet;
@@ -51,6 +54,8 @@ public class Menu {
 	private Sprite img_anim_ship;
 	private Sprite img_button_left;
 	private Sprite img_button_right;
+	private Sprite img_button_left_white;
+	private Sprite img_button_right_white;
 	private Sprite img_button_border_left;
 	private Sprite img_button_border_right;
 	
@@ -59,9 +64,10 @@ public class Menu {
 	private Sprite img_space;
 	private Sprite img_space_blur;
 	private Sprite img_button_middle;
+	private Sprite img_button_middle_white;
 	
-	private final static int MENU_UNDERLINE_SPACING_FIRE = 0;
-	private final static int MENU_UNDERLINE_SPACING_WINDOW_X = 100;
+	private final static int MENU_UNDERLINE_SPACING_FIRE = -10; // 0
+	private final static int MENU_UNDERLINE_SPACING_WINDOW_X = 65; // 100
 	private ImageScrambler scr_menu_underline_middle_left;
 	private ImageScrambler scr_menu_underline_middle_right;
 	
@@ -91,8 +97,9 @@ public class Menu {
 		spashScreen();
 		loadResources();
 		long time_used = playIntro();
-		runMenu(time_used);
-		playOutro();
+		time_used = runMenu(time_used);
+		playOutro(time_used);
+		SyncTrack.cleanList();
 	}
 
 	private void spashScreen() {
@@ -103,13 +110,15 @@ public class Menu {
 	private void loadResources() throws IOException, TextureCreationException {
 		
 		// Music (streamed from file)
-		aud_intro = loadMusic("sfx/intro.ogg");
-		aud_menu_loop = loadMusic("sfx/menu_loop.ogg");
+		aud_intro = loadMusic("sfx/intro_short.ogg");
+		aud_menu_loop = loadMusic("sfx/menu_loop_rock.ogg");
 		
 		// Sounds (loaded into memory)
 		aud_menu_switch = loadSound("sfx/menu_switch.ogg");
 		aud_teleport_far = loadSound("sfx/teleport_far.ogg");
 		aud_teleport_close = loadSound("sfx/teleport_close.ogg");
+		aud_button_press = loadSound("sfx/button_press.ogg");
+		aud_button_hover = loadSound("sfx/button_hover.ogg");
 		
 		// Fonts
 		fon_button = loadFont("res/pixelmix.ttf");
@@ -124,49 +133,52 @@ public class Menu {
 		img_close_ship_cyan = loadImage("res/menu/close_ship_cyan.tga");
 		img_ship_flames_forward = loadImage("res/menu/ship_flames_forward.tga");
 		img_ship_flames_backward = loadImage("res/menu/ship_flames_backward.tga");
-		img_button_left = loadImage("res/menu/holo/button_left.tga");
-		img_button_right = loadImage("res/menu/holo/button_right.tga");
-		img_button_border_left = loadImage("res/menu/holo/button_border_left.tga");
-		img_button_border_right = loadImage("res/menu/holo/button_border_right.tga");
+		img_button_left = loadImage("res/menu/holo/small/button_left.tga");
+		img_button_right = loadImage("res/menu/holo/small/button_right.tga");
+		img_button_left_white = loadImage("res/menu/holo/small/button_left_white.tga");
+		img_button_right_white = loadImage("res/menu/holo/small/button_right_white.tga");
+		img_button_border_left = loadImage("res/menu/holo/small/button_border_left.tga");
+		img_button_border_right = loadImage("res/menu/holo/small/button_border_right.tga");
 		
 		img_anim_smoke = loadAnimatedImage("res/menu/smoke.tga",320,320,4);
 		img_anim_ship = loadAnimatedImage("res/menu/ship.tga",300,300,9);
 		
 		img_space = loadTilableImage("res/menu/space.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
 		img_space_blur = loadTilableImage("res/menu/space_blur.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
-		img_button_middle = loadTilableImage("res/menu/holo/button_middle.tga", 1, 124);
+		img_button_middle = loadTilableImage("res/menu/holo/small/button_middle.tga", 1, 124);
+		img_button_middle_white = loadTilableImage("res/menu/holo/small/button_middle_white.tga", 1, 124);
 		
-		scr_menu_underline_left_left = new ImageScrambler(loadImage("res/menu/holo/menu_underline_left.tga"));
-		scr_menu_underline_right_left = new ImageScrambler(loadImage("res/menu/holo/menu_underline_right.tga"));
-		scr_menu_underline_left_right = new ImageScrambler(loadImage("res/menu/holo/menu_underline_left.tga"));
-		scr_menu_underline_right_right = new ImageScrambler(loadImage("res/menu/holo/menu_underline_right.tga"));
-		scr_menu_border_left_down = new ImageScrambler(loadImage("res/menu/holo/menu_border_left_down.tga"));
-		scr_menu_border_right_down = new ImageScrambler(loadImage("res/menu/holo/menu_border_right_down.tga"));
-		scr_menu_border_left_up = new ImageScrambler(loadImage("res/menu/holo/menu_border_left_up.tga"));
-		scr_menu_border_right_up = new ImageScrambler(loadImage("res/menu/holo/menu_border_right_up.tga"));
-		scr_menu_s = new ImageScrambler(loadImage("res/menu/holo/menu_s.tga"));
-		scr_menu_h = new ImageScrambler(loadImage("res/menu/holo/menu_h.tga"));
-		scr_menu_fire = new ImageScrambler(loadImage("res/menu/holo/menu_fire.tga"));
-		scr_menu_c = new ImageScrambler(loadImage("res/menu/holo/menu_c.tga"));
-		scr_menu_t = new ImageScrambler(loadImage("res/menu/holo/menu_t.tga"));
+		scr_menu_underline_left_left = new ImageScrambler(loadImage("res/menu/holo/small/menu_underline_left.tga"));
+		scr_menu_underline_right_left = new ImageScrambler(loadImage("res/menu/holo/small/menu_underline_right.tga"));
+		scr_menu_underline_left_right = new ImageScrambler(loadImage("res/menu/holo/small/menu_underline_left.tga"));
+		scr_menu_underline_right_right = new ImageScrambler(loadImage("res/menu/holo/small/menu_underline_right.tga"));
+		scr_menu_border_left_down = new ImageScrambler(loadImage("res/menu/holo/small/menu_border_left_down.tga"));
+		scr_menu_border_right_down = new ImageScrambler(loadImage("res/menu/holo/small/menu_border_right_down.tga"));
+		scr_menu_border_left_up = new ImageScrambler(loadImage("res/menu/holo/small/menu_border_left_up.tga"));
+		scr_menu_border_right_up = new ImageScrambler(loadImage("res/menu/holo/small/menu_border_right_up.tga"));
+		scr_menu_s = new ImageScrambler(loadImage("res/menu/holo/small/menu_s.tga"));
+		scr_menu_h = new ImageScrambler(loadImage("res/menu/holo/small/menu_h.tga"));
+		scr_menu_fire = new ImageScrambler(loadImage("res/menu/holo/small/menu_fire.tga"));
+		scr_menu_c = new ImageScrambler(loadImage("res/menu/holo/small/menu_c.tga"));
+		scr_menu_t = new ImageScrambler(loadImage("res/menu/holo/small/menu_t.tga"));
 		
 		scr_menu_underline_middle_left = new ImageScrambler(loadTilableImage(
-						"res/menu/holo/menu_underline_middle.tga",
+						"res/menu/holo/small/menu_underline_middle.tga",
 						(int) (Main.wnd.getSize().x/2 -
-						60 -
+						30 - //60
 						MENU_UNDERLINE_SPACING_FIRE -
 						MENU_UNDERLINE_SPACING_WINDOW_X -
 						scr_menu_fire.fetchSprite().getLocalBounds().width/2),
-						50));
+						25)); //50
 		
 		scr_menu_underline_middle_right = new ImageScrambler(loadTilableImage(
-						"res/menu/holo/menu_underline_middle.tga",
+						"res/menu/holo/small/menu_underline_middle.tga",
 						(int) (Main.wnd.getSize().x/2 -
-						60 -
+						30 - //60
 						MENU_UNDERLINE_SPACING_FIRE -
 						MENU_UNDERLINE_SPACING_WINDOW_X -
 						scr_menu_fire.fetchSprite().getLocalBounds().width/2),
-						50));
+						25)); //50
 	}
 	
 	private Music loadMusic(String path) throws IOException {
@@ -210,26 +222,28 @@ public class Menu {
 	private long playIntro() {
 		
 		// Timings in milliseconds
-		float time_to_stop_move_planets = 16000;
-		float time_to_start_spawn_ships = 4000;
-		float time_to_stop_spawn_ships = 14000;
-		float time_to_teleport_closest_ship = 14700;
-		float duration_of_teleport_effect_on_closest_ship = 1000;
-		float time_to_spawn_menu = 15500;
-		float duration_of_menu_flickering = 500;
-		float where_to_start_menu_loop = 29000;
+		float time_to_stop_move_planets = 10000; // 16000
+		float time_to_start_spawn_ships = 1000; // 4000
+		float time_to_stop_spawn_ships = 8500; // 14000
+		float time_to_teleport_closest_ship = 9400; // 14700
+		float duration_of_teleport_effect_on_closest_ship = 1000; // 1000
+		float time_to_spawn_menu = 9900; // 15500
+		float duration_of_menu_flickering = 500; // 500
+		float where_to_start_menu_loop = 29000; // 29000
 		
 		// Constants
 		float teleport_effect_on_closest_ship_amplitude = 100;
-		float menu_effect_amplitude = 100;
-		float menu_border_spacing = 0;
-		float menu_underline_spacing_y = 294;
-		float menu_letters_spacing_underline = 0;
-		float menu_fire_spacing_top = 50;
+		float menu_effect_amplitude = 20;
+		float menu_border_spacing = 10; // 0
+		float menu_underline_spacing_y = 180; // 294
+		float menu_letters_spacing_underline = 10; // 0
+		float menu_fire_spacing_top = 60; // 50
 		float menu_letters_spacing_multiplier = 0.8f;
+		float menu_loop_volume = 40;
+		float menu_button_volume = 20;
 		
 		// Probability
-		float likeliness_of_spawning_ship = 0.02f;
+		float likeliness_of_spawning_ship = 0.03f; // 0.02f
 		
 		// Setup fases
 		boolean move_planets = true;
@@ -247,6 +261,17 @@ public class Menu {
 		img_close_ship.setColor(new Color(255,255,255,0));
 		img_close_ship_cyan.setColor(new Color(255,255,255,0));
 		img_close_ship_red.setColor(new Color(255,255,255,0));
+		
+		// Setup origins
+		img_close_ship.setOrigin(
+				img_close_ship.getLocalBounds().width/2,
+				img_close_ship.getLocalBounds().height/2);
+		img_close_ship_red.setOrigin(
+				img_close_ship_red.getLocalBounds().width/2,
+				img_close_ship_red.getLocalBounds().height/2);
+		img_close_ship_cyan.setOrigin(
+				img_close_ship_cyan.getLocalBounds().width/2,
+				img_close_ship_cyan.getLocalBounds().height/2);
 		
 		// Setup render queue
 		render_queue.addAll(Arrays.asList(
@@ -281,9 +306,8 @@ public class Menu {
 				coordinates_left_bottom,
 				new Vector2f(0,-img_planet.getGlobalBounds().height));
 		
-		Vector2f closest_ship_start = Vector2f.add(new Vector2f(
-				coordinates_top_right.x/2, coordinates_left_bottom.y/2),
-				new Vector2f(-img_close_ship.getGlobalBounds().width/2,-img_close_ship.getGlobalBounds().height/2));
+		Vector2f closest_ship_start = new Vector2f(
+				coordinates_top_right.x/2, coordinates_left_bottom.y/2);
 		
 		scr_menu_border_left_down.updatePosition(new Vector2f(
 				coordinates_left_bottom.x + menu_border_spacing,
@@ -379,6 +403,8 @@ public class Menu {
 		
 		// Setup music
 		aud_menu_loop.setLoop(true);
+		aud_menu_loop.setVolume(menu_loop_volume);
+		aud_button_hover.fetchTrack().setVolume(menu_button_volume);
 		aud_intro.play();
 		
 		// Time of start
@@ -403,34 +429,30 @@ public class Menu {
 				// Calculate formula for change
 				float x = diff_time/time_to_stop_move_planets;
 				
-				float slow_stop = x*(2-x);
-				float very_slow_stop = (float) (1-Math.pow(1-x,4));
-				float slow_top_then_return = x*(1-x);
-				
 				//slow_stop = slow_stop>1 ? 1 : slow_stop<0 ? 0 : slow_stop;
 				//slow_top_then_return = slow_top_then_return>1 ? 1 : slow_top_then_return<0 ? 0 : slow_top_then_return;
 				
 				// Update transparency
-				Color color = new Color(255,255,255,(int) (slow_stop*255));
+				Color color = new Color(255,255,255,(int) (Formulas.slow_stop(x)*255));
 				img_planet.setColor(color);
 				img_space.setColor(color);
-				img_planet_atmosphere.setColor(new Color(255,255,255,(int) (very_slow_stop*255)));
-				img_space_blur.setColor(new Color(255,255,255,(int) (slow_top_then_return*255)));
+				img_planet_atmosphere.setColor(new Color(255,255,255,(int) (Formulas.very_slow_stop(x)*255)));
+				img_space_blur.setColor(new Color(255,255,255,(int) (Formulas.slow_top_then_return(x)*255)));
 				
 				// Update position
 				img_planet.setPosition(Vector2f.add(
 								planet_start,
-								Vector2f.mul(planet_move, slow_stop)));
+								Vector2f.mul(planet_move, Formulas.slow_stop(x))));
 				img_planet_atmosphere.setPosition(img_planet.getPosition());
 				img_planet_dark.setPosition(img_planet.getPosition());
 				
 				img_sun.setPosition(Vector2f.add(
 						planet_start,
-						Vector2f.mul(sun_move, slow_stop)));
+						Vector2f.mul(sun_move, Formulas.slow_stop(x))));
 				
 				img_space.setPosition(Vector2f.add(
 						space_start,
-						Vector2f.mul(space_move, slow_stop)));
+						Vector2f.mul(space_move, Formulas.slow_stop(x))));
 				img_space_blur.setPosition(img_space.getPosition());
 			}
 			
@@ -493,12 +515,10 @@ public class Menu {
 					float x = (diff_time - time_to_teleport_closest_ship) /
 							duration_of_teleport_effect_on_closest_ship;
 					
-					float slow_top_then_return = x*(1-x);
-					
 					// Update transparency
 					img_close_ship.setColor(new Color(255,255,255,(int) (x*255)));
-					img_close_ship_cyan.setColor(new Color(255,255,255,(int) (slow_top_then_return*255)));
-					img_close_ship_red.setColor(new Color(255,255,255,(int) (slow_top_then_return*255)));
+					img_close_ship_cyan.setColor(new Color(255,255,255,(int) (Formulas.slow_top_then_return(x)*255)));
+					img_close_ship_red.setColor(new Color(255,255,255,(int) (Formulas.slow_top_then_return(x)*255)));
 					
 					// Update movement
 					img_close_ship_cyan.setPosition(Vector2f.add(
@@ -632,7 +652,7 @@ public class Menu {
 		}
 	}
 	
-	private void runMenu(long time_so_far) {
+	private long runMenu(long time_so_far) {
 		
 		// Update flicker-values
 		float max_distort = 2;
@@ -666,12 +686,18 @@ public class Menu {
 		Button.img_button_left = img_button_left;
 		Button.img_button_middle = img_button_middle;
 		Button.img_button_right = img_button_right;
+		Button.img_button_left_white = img_button_left_white;
+		Button.img_button_middle_white = img_button_middle_white;
+		Button.img_button_right_white = img_button_right_white;
+		Button.aud_button_hover = aud_button_hover;
+		Button.aud_button_press = aud_button_press;
 		Button.fon_button = fon_button;
 		
 		// Button settings
-		float button_distance_from_sides = 150;
-		float button_distance_from_bottom = 150;
-		float button_distance_from_top = 100;
+		float button_distance_from_sides = 80; // 150
+		float button_distance_from_bottom = 0; // 150
+		float button_distance_from_top = 0; // 100
+		float number_of_button_places = 3;
 		
 		float button_placement_space_y =
 				Main.wnd.getSize().y -
@@ -683,6 +709,7 @@ public class Menu {
 				scr_menu_underline_left_left.fetchSprite().getPosition().y +
 				scr_menu_underline_left_left.fetchSprite().getLocalBounds().height +
 				button_distance_from_top;
+		float space_between_buttons = button_placement_space_y/(number_of_button_places+1);
 		float button_width =
 				Main.wnd.getSize().x -
 				2*button_distance_from_sides;
@@ -690,7 +717,8 @@ public class Menu {
 		// Make buttons
 		Button btn_play = new Button(new Vector2f(
 				button_distance_from_sides,
-				button_placement_start_y -
+				button_placement_start_y +
+				space_between_buttons -
 				Button.img_button_middle.getLocalBounds().height/2),
 				button_width,
 				"PLAY");
@@ -700,17 +728,17 @@ public class Menu {
 		Button btn_score = new Button(new Vector2f(
 				button_distance_from_sides,
 				button_placement_start_y +
-				button_placement_space_y/2 -
+				space_between_buttons*2 -
 				Button.img_button_middle.getLocalBounds().height/2),
 				button_width,
-				"GOTO: CORE (SLIGHT BUG DUE TO SCREEN RESOLUTION!!!1!1)");
+				"CORE");
 		btn_score.doPlayStart();
 		render_queue.add(btn_score);
 		
 		Button btn_exit = new Button(new Vector2f(
 				button_distance_from_sides,
 				button_placement_start_y +
-				button_placement_space_y -
+				space_between_buttons*3 -
 				Button.img_button_middle.getLocalBounds().height/2),
 				button_width,
 				"EXIT");
@@ -737,17 +765,20 @@ public class Menu {
 					Mouse.isButtonPressed(Mouse.Button.LEFT));
 			
 			if (play_state) {
+				System.out.println("play");
 				Main.game_state = Main.states.tutorial;
-				return;
+				return time_so_far+uptime;
 			}
 			
 			if (exit_state) {
+				System.out.println("exit");
 				Main.dispose();
 			}
 			
 			if (score_state) {
+				System.out.println("core");
 				Main.game_state = Main.states.core;
-				return;
+				return time_so_far+uptime;
 			}
 			
 			// Flicker effect on menu
@@ -767,9 +798,164 @@ public class Menu {
 		}
 	}
 	
-	private void playOutro() {
-		//TODO: make outro
-		aud_menu_loop.stop();
+	private void playOutro(long time_so_far) {
+		
+		// Timings
+		float time_to_activate_all_ships = 2000;
+		float time_to_turn_closest_ship = 2500;
+		float rotation_time = 1000;
+		float rotation_angle = 65;
+		float wait_before_fire = 1000;
+		float duration_of_menu_fade = 500;
+		float menu_effect_amplitude = 20;
+		
+		// Poor GPU...
+		scr_menu_fire.simpleRender(false);
+		scr_menu_border_left_down.simpleRender(false);
+		scr_menu_border_right_down.simpleRender(false);
+		scr_menu_border_left_up.simpleRender(false);
+		scr_menu_border_right_up.simpleRender(false);
+		scr_menu_underline_left_left.simpleRender(false);
+		scr_menu_underline_middle_left.simpleRender(false);
+		scr_menu_underline_right_left.simpleRender(false);
+		scr_menu_underline_left_right.simpleRender(false);
+		scr_menu_underline_middle_right.simpleRender(false);
+		scr_menu_underline_right_right.simpleRender(false);
+		
+		// Start menu-sound
+		aud_menu_switch.play();
+		
+		// Check if menu-stuff is already erased
+		boolean menu_gone = false;
+		
+		// Start time
+		long start_time = System.currentTimeMillis();
+		
+		while (true) {
+			
+			// Outro uptime
+			long uptime = System.currentTimeMillis() - start_time;
+			
+			// Fade menu out
+			if (uptime<duration_of_menu_fade) {
+				
+				// Calculate percent complete
+				float x = uptime/duration_of_menu_fade;
+				
+				// Lower volume
+				aud_menu_loop.setVolume(100*(1-x));
+				
+				// Update flicker-values
+				float max_distort = x*menu_effect_amplitude;
+				scr_menu_s.setMaxDistort(max_distort);
+				scr_menu_h.setMaxDistort(max_distort);
+				scr_menu_c.setMaxDistort(max_distort);
+				scr_menu_t.setMaxDistort(max_distort);
+				scr_menu_fire.setMaxDistort(max_distort);
+				scr_menu_underline_left_left.setMaxDistort(max_distort);
+				scr_menu_underline_middle_left.setMaxDistort(max_distort);
+				scr_menu_underline_right_left.setMaxDistort(max_distort);
+				scr_menu_underline_left_right.setMaxDistort(max_distort);
+				scr_menu_underline_middle_right.setMaxDistort(max_distort);
+				scr_menu_underline_right_right.setMaxDistort(max_distort);
+				scr_menu_border_left_down.setMaxDistort(max_distort);
+				scr_menu_border_right_down.setMaxDistort(max_distort);
+				scr_menu_border_left_up.setMaxDistort(max_distort);
+				scr_menu_border_right_up.setMaxDistort(max_distort);
+				
+				float visibility = 1-x;
+				scr_menu_s.setVisibility(visibility);
+				scr_menu_h.setVisibility(visibility);
+				scr_menu_c.setVisibility(visibility);
+				scr_menu_t.setVisibility(visibility);
+				scr_menu_fire.setVisibility(visibility);
+				scr_menu_underline_left_left.setVisibility(visibility);
+				scr_menu_underline_middle_left.setVisibility(visibility);
+				scr_menu_underline_right_left.setVisibility(visibility);
+				scr_menu_underline_left_right.setVisibility(visibility);
+				scr_menu_underline_middle_right.setVisibility(visibility);
+				scr_menu_underline_right_right.setVisibility(visibility);
+				scr_menu_border_left_down.setVisibility(visibility);
+				scr_menu_border_right_down.setVisibility(visibility);
+				scr_menu_border_left_up.setVisibility(visibility);
+				scr_menu_border_right_up.setVisibility(visibility);
+				
+				// Make everything flicker
+				scr_menu_s.scramble();
+				scr_menu_h.scramble();
+				scr_menu_c.scramble();
+				scr_menu_t.scramble();
+				scr_menu_fire.scramble();
+				scr_menu_underline_left_left.scramble();
+				scr_menu_underline_middle_left.scramble();
+				scr_menu_underline_right_left.scramble();
+				scr_menu_underline_left_right.scramble();
+				scr_menu_underline_middle_right.scramble();
+				scr_menu_underline_right_right.scramble();
+				scr_menu_border_left_down.scramble();
+				scr_menu_border_right_down.scramble();
+				scr_menu_border_left_up.scramble();
+				scr_menu_border_right_up.scramble();
+			} else if (!menu_gone) {
+				menu_gone = true;
+				aud_menu_loop.stop();
+				render_queue.remove(scr_menu_border_left_down);
+				render_queue.remove(scr_menu_border_left_up);
+				render_queue.remove(scr_menu_border_right_down);
+				render_queue.remove(scr_menu_border_right_up);
+				render_queue.remove(scr_menu_s);
+				render_queue.remove(scr_menu_h);
+				render_queue.remove(scr_menu_fire);
+				render_queue.remove(scr_menu_c);
+				render_queue.remove(scr_menu_t);
+				render_queue.remove(scr_menu_underline_left_left);
+				render_queue.remove(scr_menu_underline_left_right);
+				render_queue.remove(scr_menu_underline_middle_left);
+				render_queue.remove(scr_menu_underline_middle_right);
+				render_queue.remove(scr_menu_underline_right_left);
+				render_queue.remove(scr_menu_underline_right_right);
+			}
+			
+			// Activate ships
+			if (uptime<=time_to_activate_all_ships) {
+				float completeness_of_activation = uptime/time_to_activate_all_ships;
+				for (MenuShip ship : menu_ships) {
+					if (completeness_of_activation>=ship.getDepth()) ship.turnShip();
+				}
+			}
+			
+			// Update ships
+			for (MenuShip ship : menu_ships) {
+				ship.update(uptime+time_so_far);
+			}
+			
+			if (uptime-time_to_turn_closest_ship<rotation_time && uptime>time_to_turn_closest_ship) {
+				
+				// Calculate completeness
+				float x = (uptime-time_to_turn_closest_ship)/rotation_time;
+				
+				// Rotate view
+				Main.view.setRotation(Formulas.slow_stop(x)*rotation_angle);
+				Main.wnd.setView(Main.view);
+				
+				// Rotate closest ship
+				img_close_ship.setRotation(Formulas.slow_stop(x)*rotation_angle);
+			}
+			
+			if (uptime-time_to_turn_closest_ship-rotation_time>=wait_before_fire) {
+				Main.wnd.clear(new Color(0,0,0));
+				Main.wnd.display();
+				Main.view.setRotation(0);
+				Main.wnd.setView(Main.view);
+				return;
+			}
+			
+			// Draw frame
+			handleEvents();
+			drawFrame();
+		}
+		
+		//aud_menu_loop.stop();
 	}
 	
 	private void drawFrame()
