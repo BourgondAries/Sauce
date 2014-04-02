@@ -27,7 +27,7 @@ public class Main
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
 		wnd.setView(view);
-		this.run();	
+		this.run();
 	}
 	
 	
