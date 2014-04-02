@@ -17,6 +17,7 @@ public class Button implements Drawable {
 	private Vector2f size;
 	private boolean mouse_was_down_over = false;
 	private boolean loaded = true;
+	private boolean first_time = true;
 	private static boolean exit;
 	private static float distance_remaining;
 	private boolean activated = false;
@@ -158,6 +159,8 @@ public class Button implements Drawable {
 	}
 	
 	public boolean update(Vector2f mouse_position, boolean mouse_down) {
+		if (first_time) { exit = false; first_time = false; }
+		
 		if (!loaded) {
 			
 			// Make button visible

@@ -22,7 +22,7 @@ public class Main
 	// Entry point of the game
 	public Main()
 	{
-		game_state = states.core;
+		game_state = states.menu;
 		wnd = new RenderWindow(new VideoMode(1920, 1000, 32), "Shact");
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);

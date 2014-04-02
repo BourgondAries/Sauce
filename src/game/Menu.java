@@ -88,16 +88,18 @@ public class Menu {
 	private ImageScrambler scr_menu_underline_right_right;
 	
 	// Functionality
-	float time_to_spawn_menu = 15500;
+	float time_to_spawn_menu;
 	
 	// Time of start
-	long start_time = System.currentTimeMillis();
+	long start_time;
 	
 	// Render Queue
 	ArrayList<Drawable> render_queue = new ArrayList<>();
 	ArrayList<MenuShip> menu_ships = new ArrayList<>();
 	
 	public Menu() throws IOException, TextureCreationException {
+		Main.view.setCenter(Vector2f.div(new Vector2f(Main.wnd.getSize()),2));
+		Main.wnd.setView(Main.view);
 		spashScreen();
 		loadResources();
 		long time_used = playIntro();
@@ -226,12 +228,12 @@ public class Menu {
 	private long playIntro() {
 		
 		// Timings in milliseconds
-		float time_to_stop_move_planets = 10000; // 16000
+		float time_to_stop_move_planets = 16000; // 16000
 		float time_to_start_spawn_ships = 1000; // 4000
 		float time_to_stop_spawn_ships = 8500; // 14000
 		float time_to_teleport_closest_ship = 9400; // 14700
 		float duration_of_teleport_effect_on_closest_ship = 1000; // 1000
-		float time_to_spawn_menu = 9900; // 15500
+		time_to_spawn_menu = 9900; // 15500
 		float duration_of_menu_flickering = 500; // 500
 		float where_to_start_menu_loop = 29000; // 29000
 		
@@ -412,6 +414,9 @@ public class Menu {
 		aud_button_hover.fetchTrack().setVolume(menu_button_volume);
 		aud_menu_switch.fetchTrack().setVolume(menu_switch_volume);
 		aud_intro.play();
+		
+		// Setup start time
+		start_time = System.currentTimeMillis();
 		
 		while(true) {
 			
@@ -977,6 +982,7 @@ public class Menu {
 	
 	private void skipIntro()
 	{
+		aud_intro.stop();
 		start_time = 0;
 	}
 	
