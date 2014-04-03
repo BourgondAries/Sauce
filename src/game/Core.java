@@ -209,8 +209,8 @@ public class Core
 						(
 							new Vector2f
 							(
-								(float) (position.x + (Math.random() + 0.5f) * BottomOfTheWorld.getTileWidth() / 2.f)
-								, (float) (position.y + (Math.random() + 0.5f) * BottomOfTheWorld.getTileHeight() / 2.f)
+								(float) (position.x + BottomOfTheWorld.getTileWidth() / 2.f)
+								, (float) (position.y + BottomOfTheWorld.getTileHeight() / 2.f)
 							)
 						)
 					);
