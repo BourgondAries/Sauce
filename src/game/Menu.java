@@ -235,12 +235,12 @@ public class Menu {
 	private long playIntro() {
 		
 		// Timings in milliseconds
-		float time_to_stop_move_planets = 9900; // 16000
+		float time_to_stop_move_planets = 9500; // 16000
 		float time_to_start_spawn_ships = 1000; // 4000
 		float time_to_stop_spawn_ships = 8500; // 14000
-		float time_to_teleport_closest_ship = 9400; // 14700
+		float time_to_teleport_closest_ship = 9000; // 14700
 		float duration_of_teleport_effect_on_closest_ship = 1000; // 1000
-		float time_to_spawn_menu = 9900; // 15500
+		float time_to_spawn_menu = 9500; // 15500
 		float duration_of_menu_flickering = 500; // 500
 		float where_to_start_menu_loop = 29000; // 29000
 		
@@ -836,7 +836,7 @@ public class Menu {
 		float time_to_turn_closest_ship = 2500;
 		float rotation_time = MenuShip.SHIP_TURN_DURATION;
 		float rotation_angle = 65;
-		float wait_before_fire = 4000;
+		float wait_before_fire = 3000;
 		float duration_of_menu_fade = 500;
 		float menu_effect_amplitude = 20;
 		

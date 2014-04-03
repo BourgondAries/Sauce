@@ -22,4 +22,12 @@ public class Formulas {
 	public static float very_slow_stop(float x) {
 		return (float) (1-Math.pow(1-x,4));
 	}
+	
+	public static float sinus_out(float x) {
+		return (float) (Math.pow(Math.cos(x*0.5*Math.PI),2));
+	}
+	
+	public static float sinus_in(float x) {
+		return 1-sinus_out(x);
+	}
 }

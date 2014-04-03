@@ -53,7 +53,7 @@ public class MenuShip implements Drawable {
 	public static final float SHIP_TIME_BEFORE_STOP_TURNING_PLAY_FLAMES = 100;
 	public static final float SHIP_HOVER_FREQUENCY = 2; // Waves per second
 	public static final float SHIP_HOVER_AMPLITUDE = 1; // Relative distance to cover in a wave
-	public static final float SHIP_FLIGHT_SPEED = 6; // Speed in relative pixels per milliseconds
+	public static final float SHIP_FLIGHT_SPEED = 20; // Speed in relative pixels per milliseconds
 	public static final float SHIP_RELATIVE_DISTANCE = 10; // How much longer the ship farthest back must travel
 	public static final float SHIP_MAX_SIZE_MULTIPLIER = 0.5f; // Maximum scale of the sprite
 	public static final float SHIP_MIN_SIZE_MULTIPLIER = 0.05f; // Minimum scale of the sprite
