@@ -20,6 +20,7 @@ import org.jsfml.window.Mouse;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.KeyEvent;
 
+import engine.AnimatedSprite;
 import engine.Button;
 import engine.Formulas;
 import engine.PathedFonts;
@@ -35,6 +36,10 @@ public class Menu {
 	private SyncTrack aud_menu_switch;
 	private SyncTrack aud_teleport_far;
 	private SyncTrack aud_teleport_close;
+	private SyncTrack aud_pod_fire_far;
+	private SyncTrack aud_pod_fire_close;
+	private SyncTrack aud_flames_far;
+	private SyncTrack aud_flames_close;
 	private SyncTrack aud_button_press;
 	private SyncTrack aud_button_hover;
 	
@@ -46,8 +51,6 @@ public class Menu {
 	private Sprite img_close_ship;
 	private Sprite img_close_ship_red;
 	private Sprite img_close_ship_cyan;
-	private Sprite img_anim_smoke;
-	private Sprite img_anim_ship;
 	private Sprite img_button_left;
 	private Sprite img_button_right;
 	private Sprite img_button_left_white;
@@ -56,6 +59,10 @@ public class Menu {
 	private Sprite img_button_border_right;
 	private Sprite img_ship_flames_forward;
 	private Sprite img_ship_flames_backward;
+	
+	// Animated graphic
+	private AnimatedSprite img_anim_smoke;
+	private AnimatedSprite img_anim_ship;
 	
 	// Tilable graphic
 	private final static int SPACE_EXTRA_SIZE = 100;
@@ -120,6 +127,10 @@ public class Menu {
 		aud_menu_switch = loadSound("sfx/menu_switch.ogg");
 		aud_teleport_far = loadSound("sfx/teleport_far.ogg");
 		aud_teleport_close = loadSound("sfx/teleport_close.ogg");
+		aud_flames_far = loadSound("sfx/button_press.ogg");
+		aud_flames_close = loadSound("sfx/button_press.ogg");
+		aud_pod_fire_far = loadSound("sfx/button_press.ogg");
+		aud_pod_fire_close = loadSound("sfx/button_press.ogg");
 		aud_button_press = loadSound("sfx/button_press.ogg");
 		aud_button_hover = loadSound("sfx/button_hover.ogg");
 		
@@ -143,8 +154,8 @@ public class Menu {
 		img_button_border_left = loadImage("res/menu/holo/small/button_border_left.tga");
 		img_button_border_right = loadImage("res/menu/holo/small/button_border_right.tga");
 		
-		img_anim_smoke = loadAnimatedImage("res/menu/smoke.tga",320,320,4);
-		img_anim_ship = loadAnimatedImage("res/menu/ship.tga",300,300,9);
+		img_anim_smoke = loadAnimatedImage("res/menu/smoke.tga",4);
+		img_anim_ship = loadAnimatedImage("res/menu/ship.tga",9);
 		
 		img_space = loadTilableImage("res/menu/space.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
 		img_space_blur = loadTilableImage("res/menu/space_blur.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
@@ -215,11 +226,10 @@ public class Menu {
 		return new_sprite;
 	}
 	
-	private Sprite loadAnimatedImage(String path, int width, int height, int frames) throws IOException {
-		//TODO: make animated sprites and find a way to load them
+	private AnimatedSprite loadAnimatedImage(String path, int frames) throws IOException {
 		Sprite new_sprite = loadImage(path);
-		new_sprite.setTextureRect(new IntRect(0, 0, width, height));
-		return new_sprite;
+		AnimatedSprite new_animated_sprite = new AnimatedSprite(new_sprite, frames);
+		return new_animated_sprite;
 	}
 	
 	private long playIntro() {
@@ -247,7 +257,7 @@ public class Menu {
 		float menu_switch_volume = 50;
 		
 		// Probability
-		float likeliness_of_spawning_ship = 0.03f; // 0.02f
+		float likeliness_of_spawning_ship = 0.05f; // 0.02f
 		
 		// Setup fases
 		boolean move_planets = true;
@@ -292,7 +302,13 @@ public class Menu {
 		MenuShip.smoke = img_anim_smoke;
 		MenuShip.teleport_far = aud_teleport_far;
 		MenuShip.teleport_close = aud_teleport_close;
+		MenuShip.pod_fire_far = aud_pod_fire_far;
+		MenuShip.pod_fire_close = aud_pod_fire_close;
+		MenuShip.flames_far = aud_flames_far;
+		MenuShip.flames_close = aud_flames_close;
 		MenuShip.start_position = Main.wnd.getSize().x;
+		MenuShip.img_flame_backward = img_ship_flames_backward;
+		MenuShip.img_flame_forward = img_ship_flames_forward;
 		
 		// Setup positions in pixels
 		Vector2f space_move = new Vector2f(SPACE_EXTRA_SIZE,-SPACE_EXTRA_SIZE);
@@ -486,10 +502,10 @@ public class Menu {
 					float ship_scale = (depth*(MenuShip.SHIP_MAX_SIZE_MULTIPLIER-1)+1)*MenuShip.SHIP_MIN_SIZE_MULTIPLIER;
 					
 					// Random position
-					float x_domain = coordinates_top_right.x-img_anim_ship.getGlobalBounds().width*ship_scale;
+					float x_domain = coordinates_top_right.x-img_anim_ship.fetchSprite().getGlobalBounds().width*ship_scale;
 					float x = (float) Math.random()*x_domain;
 				
-					float y_domain = (coordinates_left_bottom.y-img_anim_ship.getGlobalBounds().height*ship_scale); //*x/x_domain;
+					float y_domain = (coordinates_left_bottom.y-img_anim_ship.fetchSprite().getGlobalBounds().height*ship_scale); //*x/x_domain;
 					float y = (float) Math.random()*y_domain;
 					
 					// Spawn ship
@@ -818,9 +834,9 @@ public class Menu {
 		// Timings
 		float time_to_activate_all_ships = 2000;
 		float time_to_turn_closest_ship = 2500;
-		float rotation_time = 1000;
+		float rotation_time = MenuShip.SHIP_TURN_DURATION;
 		float rotation_angle = 65;
-		float wait_before_fire = 1000;
+		float wait_before_fire = 4000;
 		float duration_of_menu_fade = 500;
 		float menu_effect_amplitude = 20;
 		
@@ -965,6 +981,7 @@ public class Menu {
 				Main.wnd.display();
 				Main.view.setRotation(0);
 				Main.wnd.setView(Main.view);
+				aud_pod_fire_close.play();
 				return;
 			}
 			
