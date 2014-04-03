@@ -21,6 +21,7 @@ public class ScoreCounter implements Drawable
 	
 	private Font m_font;
 	private Text m_text = new Text();
+	private long m_score = 0;
 	
 	
 	public ScoreCounter()
@@ -34,6 +35,15 @@ public class ScoreCounter implements Drawable
 		m_text.setString("Derp");
 	}
 	
+	public void addScore(int n)
+	{
+		m_score += n;
+	}
+	
+	public void update()
+	{
+		m_text.setString ( String.valueOf(m_score) );
+	}
 	
 	public void draw(RenderTarget target, RenderStates states)
 	{
