@@ -20,4 +20,8 @@ public class Malm extends DynamicObject
 		super.setPosition(position);
 	}
 	
+	public long getScore()
+	{
+		return 1000;
+	}
 }

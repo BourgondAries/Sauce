@@ -3,15 +3,9 @@ package game;
 import java.io.IOException;
 import java.nio.file.Paths;
 
-import org.jsfml.graphics.ConstView;
-import org.jsfml.graphics.Drawable;
-import org.jsfml.graphics.Font;
-import org.jsfml.graphics.RenderStates;
-import org.jsfml.graphics.RenderTarget;
-import org.jsfml.graphics.RenderWindow;
-import org.jsfml.graphics.Text;
+import org.jsfml.graphics.*;
 
-import engine.PathedFonts;
+import engine.*;
 
 
 /**
@@ -25,16 +19,15 @@ import engine.PathedFonts;
  * USE \n FOR NEW LINES!
  *
  */
-public class HUD implements Drawable
+public class HUD extends Absolute implements Drawable
 {
 	private Font m_drawing_font;
-	private ConstView m_hud_view;
 	private Text m_display_text;
 	private boolean m_active = true;
 	
 	public HUD (RenderWindow x)
 	{
-		m_hud_view = x.getDefaultView();
+		setAbsoluteView(x.getDefaultView());
 		try 
 		{
 			m_drawing_font = PathedFonts.getFont(Paths.get("res/pixelmix.ttf"));
@@ -65,10 +58,7 @@ public class HUD implements Drawable
 	{
 		if (m_active)
 		{
-			ConstView oldview = target.getView();
-			target.setView(m_hud_view);
-			target.draw(m_display_text);
-			target.setView(oldview);
+			draw(target, m_display_text);
 		}
 	}
 }
