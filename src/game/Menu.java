@@ -36,6 +36,10 @@ public class Menu {
 	private SyncTrack aud_menu_switch;
 	private SyncTrack aud_teleport_far;
 	private SyncTrack aud_teleport_close;
+	private SyncTrack aud_pod_fire_far;
+	private SyncTrack aud_pod_fire_close;
+	private SyncTrack aud_flames_far;
+	private SyncTrack aud_flames_close;
 	private SyncTrack aud_button_press;
 	private SyncTrack aud_button_hover;
 	
@@ -123,6 +127,10 @@ public class Menu {
 		aud_menu_switch = loadSound("sfx/menu_switch.ogg");
 		aud_teleport_far = loadSound("sfx/teleport_far.ogg");
 		aud_teleport_close = loadSound("sfx/teleport_close.ogg");
+		aud_flames_far = loadSound("sfx/button_press.ogg");
+		aud_flames_close = loadSound("sfx/button_press.ogg");
+		aud_pod_fire_far = loadSound("sfx/button_press.ogg");
+		aud_pod_fire_close = loadSound("sfx/button_press.ogg");
 		aud_button_press = loadSound("sfx/button_press.ogg");
 		aud_button_hover = loadSound("sfx/button_hover.ogg");
 		
@@ -249,7 +257,7 @@ public class Menu {
 		float menu_switch_volume = 50;
 		
 		// Probability
-		float likeliness_of_spawning_ship = 0.03f; // 0.02f
+		float likeliness_of_spawning_ship = 0.05f; // 0.02f
 		
 		// Setup fases
 		boolean move_planets = true;
@@ -294,7 +302,13 @@ public class Menu {
 		MenuShip.smoke = img_anim_smoke;
 		MenuShip.teleport_far = aud_teleport_far;
 		MenuShip.teleport_close = aud_teleport_close;
+		MenuShip.pod_fire_far = aud_pod_fire_far;
+		MenuShip.pod_fire_close = aud_pod_fire_close;
+		MenuShip.flames_far = aud_flames_far;
+		MenuShip.flames_close = aud_flames_close;
 		MenuShip.start_position = Main.wnd.getSize().x;
+		MenuShip.img_flame_backward = img_ship_flames_backward;
+		MenuShip.img_flame_forward = img_ship_flames_forward;
 		
 		// Setup positions in pixels
 		Vector2f space_move = new Vector2f(SPACE_EXTRA_SIZE,-SPACE_EXTRA_SIZE);
@@ -820,9 +834,9 @@ public class Menu {
 		// Timings
 		float time_to_activate_all_ships = 2000;
 		float time_to_turn_closest_ship = 2500;
-		float rotation_time = 1000;
+		float rotation_time = MenuShip.SHIP_TURN_DURATION;
 		float rotation_angle = 65;
-		float wait_before_fire = 1000;
+		float wait_before_fire = 4000;
 		float duration_of_menu_fade = 500;
 		float menu_effect_amplitude = 20;
 		
@@ -967,6 +981,7 @@ public class Menu {
 				Main.wnd.display();
 				Main.view.setRotation(0);
 				Main.wnd.setView(Main.view);
+				aud_pod_fire_close.play();
 				return;
 			}
 			

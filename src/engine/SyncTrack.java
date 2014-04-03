@@ -46,4 +46,10 @@ public class SyncTrack {
 		sounds_playing.add(new_sound);
 		new_sound.play();
 	}
+	
+	public static void play(Sound sound) {
+		Sound new_sound = new Sound(sound);
+		sounds_playing.add(new_sound);
+		new_sound.play();
+	}
 }
