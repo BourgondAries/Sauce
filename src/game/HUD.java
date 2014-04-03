@@ -27,7 +27,7 @@ public class HUD extends Absolute implements Drawable
 	
 	public HUD (RenderWindow x)
 	{
-		setAbsoluteView(x.getDefaultView());
+		super.setAbsoluteView(x.getDefaultView());
 		try 
 		{
 			m_drawing_font = PathedFonts.getFont(Paths.get("res/pixelmix.ttf"));
@@ -58,7 +58,7 @@ public class HUD extends Absolute implements Drawable
 	{
 		if (m_active)
 		{
-			draw(target, m_display_text);
+			super.draw(target, m_display_text);
 		}
 	}
 }

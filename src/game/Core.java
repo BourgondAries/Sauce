@@ -203,7 +203,17 @@ public class Core
 			{
 				Vector2f position = m_bedrock.eraseRandomTileAtTheTop();
 				if ( position != null )
-					m_malm_objects.add(new Malm(new Vector2f(position.x + BottomOfTheWorld.getTileWidth() / 2.f, position.y + BottomOfTheWorld.getTileHeight() / 2.f)));
+					m_malm_objects.add
+					(
+						new Malm
+						(
+							new Vector2f
+							(
+								(float) (position.x + (Math.random() + 0.5f) * BottomOfTheWorld.getTileWidth() / 2.f)
+								, (float) (position.y + (Math.random() + 0.5f) * BottomOfTheWorld.getTileHeight() / 2.f)
+							)
+						)
+					);
 			}
 		}
 		
