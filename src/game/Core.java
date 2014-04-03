@@ -39,10 +39,11 @@ public class Core
 	private Bool 				m_collision_with_bedrock = new Bool(false);
 	private Timer 				m_timer = new Timer(Main.wnd);
 	private Bool				m_jumped = new Bool(true);
+	private ScoreCounter		m_score_counter = new ScoreCounter();
 	
 	private Random m_rng = new Random();
 	
-	private ArrayList<DynamicObject> m_malm_objects;
+	private ArrayList<Malm> m_malm_objects;
 	
 	
 	public Core() throws IOException
@@ -55,7 +56,7 @@ public class Core
 		m_player.setMass(10.f);
 		
 		m_bedrock = new BottomOfTheWorld ( );
-		m_malm_objects = new ArrayList<DynamicObject>();
+		m_malm_objects = new ArrayList<>();
 		
 		System.out.println("CORE\n");
 		
@@ -79,9 +80,12 @@ public class Core
 		Layer information_layer = new Layer();
 		information_layer.add(m_heads_up_display);
 		information_layer.add(m_timer);
+		information_layer.add(m_score_counter);
 		
 		m_layers.add(player_layer, 0);
 		m_layers.add(information_layer, 1);
+		
+		m_score_counter.setAbsoluteView(Main.wnd.getView());
 		
 		run();
 	}
@@ -286,11 +290,12 @@ public class Core
 		// Each malm object, if within a certain box, accelerates towards the player
 		{
 			ArrayList<DynamicObject> to_remove = new ArrayList<>();
-			for ( DynamicObject x : m_malm_objects )
+			for ( Malm x : m_malm_objects )
 			{
 				if (x.isBoxNear(m_player, CM_REMOVAL_DISTANCE))
 				{
 					to_remove.add(x);
+					m_score_counter.addScore(x.getScore());
 				}
 				else if (m_player.isBoxNear(x, CM_ACCELERATION_DISTANCE))
 				{
@@ -312,6 +317,8 @@ public class Core
 		
 		setViewToPlayer();
 		m_timer.update();
+		
+		m_score_counter.update();
 	}
 	
 	private void setViewToPlayer()
