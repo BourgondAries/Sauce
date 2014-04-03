@@ -20,6 +20,7 @@ import org.jsfml.window.Mouse;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.KeyEvent;
 
+import engine.AnimatedSprite;
 import engine.Button;
 import engine.Formulas;
 import engine.PathedFonts;
@@ -46,8 +47,6 @@ public class Menu {
 	private Sprite img_close_ship;
 	private Sprite img_close_ship_red;
 	private Sprite img_close_ship_cyan;
-	private Sprite img_anim_smoke;
-	private Sprite img_anim_ship;
 	private Sprite img_button_left;
 	private Sprite img_button_right;
 	private Sprite img_button_left_white;
@@ -56,6 +55,10 @@ public class Menu {
 	private Sprite img_button_border_right;
 	private Sprite img_ship_flames_forward;
 	private Sprite img_ship_flames_backward;
+	
+	// Animated graphic
+	private AnimatedSprite img_anim_smoke;
+	private AnimatedSprite img_anim_ship;
 	
 	// Tilable graphic
 	private final static int SPACE_EXTRA_SIZE = 100;
@@ -143,8 +146,8 @@ public class Menu {
 		img_button_border_left = loadImage("res/menu/holo/small/button_border_left.tga");
 		img_button_border_right = loadImage("res/menu/holo/small/button_border_right.tga");
 		
-		img_anim_smoke = loadAnimatedImage("res/menu/smoke.tga",320,320,4);
-		img_anim_ship = loadAnimatedImage("res/menu/ship.tga",300,300,9);
+		img_anim_smoke = loadAnimatedImage("res/menu/smoke.tga",4);
+		img_anim_ship = loadAnimatedImage("res/menu/ship.tga",9);
 		
 		img_space = loadTilableImage("res/menu/space.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
 		img_space_blur = loadTilableImage("res/menu/space_blur.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
@@ -215,11 +218,10 @@ public class Menu {
 		return new_sprite;
 	}
 	
-	private Sprite loadAnimatedImage(String path, int width, int height, int frames) throws IOException {
-		//TODO: make animated sprites and find a way to load them
+	private AnimatedSprite loadAnimatedImage(String path, int frames) throws IOException {
 		Sprite new_sprite = loadImage(path);
-		new_sprite.setTextureRect(new IntRect(0, 0, width, height));
-		return new_sprite;
+		AnimatedSprite new_animated_sprite = new AnimatedSprite(new_sprite, frames);
+		return new_animated_sprite;
 	}
 	
 	private long playIntro() {
@@ -486,10 +488,10 @@ public class Menu {
 					float ship_scale = (depth*(MenuShip.SHIP_MAX_SIZE_MULTIPLIER-1)+1)*MenuShip.SHIP_MIN_SIZE_MULTIPLIER;
 					
 					// Random position
-					float x_domain = coordinates_top_right.x-img_anim_ship.getGlobalBounds().width*ship_scale;
+					float x_domain = coordinates_top_right.x-img_anim_ship.fetchSprite().getGlobalBounds().width*ship_scale;
 					float x = (float) Math.random()*x_domain;
 				
-					float y_domain = (coordinates_left_bottom.y-img_anim_ship.getGlobalBounds().height*ship_scale); //*x/x_domain;
+					float y_domain = (coordinates_left_bottom.y-img_anim_ship.fetchSprite().getGlobalBounds().height*ship_scale); //*x/x_domain;
 					float y = (float) Math.random()*y_domain;
 					
 					// Spawn ship

@@ -7,12 +7,13 @@ import org.jsfml.graphics.RenderTarget;
 import org.jsfml.graphics.Sprite;
 import org.jsfml.system.Vector2f;
 
+import engine.AnimatedSprite;
 import engine.Formulas;
 import engine.SyncTrack;
 
 public class MenuShip implements Drawable {
 	private Vector2f position;
-	private Sprite ship;
+	private AnimatedSprite ship;
 	private long spawned;
 	private float relative_distance;
 	private float depth;
@@ -24,12 +25,13 @@ public class MenuShip implements Drawable {
 	private Sound local_aud_teleport_far;
 	private Sound local_aud_teleport_close;
 	private boolean turn_time_taken = false;
+	private boolean has_changed_frame_to_stationary = false;
 	private long turn_start;
 	private float rotation_angle;
 
 	// These have to be set from another class before spawning any ship!
-	public static Sprite body;
-	public static Sprite smoke;
+	public static AnimatedSprite body;
+	public static AnimatedSprite smoke;
 	public static SyncTrack teleport_far;
 	public static SyncTrack teleport_close;
 	public static float start_position;
@@ -48,18 +50,20 @@ public class MenuShip implements Drawable {
 	public MenuShip(float to_x, float to_y, long diff_time, float depth) {
 		
 		// Setup body
-		ship = new Sprite(body.getTexture(),body.getTextureRect());
+		ship = new AnimatedSprite(body);
 		
 		// Set correct origin
-		ship.setOrigin(ship.getLocalBounds().width/2, ship.getLocalBounds().height/2);
+		ship.fetchSprite().setOrigin(
+				ship.fetchSprite().getLocalBounds().width/2,
+				ship.fetchSprite().getLocalBounds().height/2);
 		
 		// Setup scale
 		float size_factor = depth*(SHIP_MAX_SIZE_MULTIPLIER-SHIP_MIN_SIZE_MULTIPLIER)+SHIP_MIN_SIZE_MULTIPLIER;
-		ship.setScale(size_factor, size_factor);
+		ship.fetchSprite().setScale(size_factor, size_factor);
 		
 		// Setup position
 		position = new Vector2f(to_x,to_y);
-		ship.setPosition(start_position+ship.getGlobalBounds().width/2, to_y);
+		ship.fetchSprite().setPosition(start_position+ship.fetchSprite().getGlobalBounds().width/2, to_y);
 		this.depth = depth;
 		
 		// Setup angle ship will rotate to
@@ -113,17 +117,23 @@ public class MenuShip implements Drawable {
 			
 			// Update ship position
 			float new_distance = relative_distance - SHIP_FLIGHT_SPEED*time_since_flight;
-			ship.setPosition(position.x + new_distance, position.y);
+			ship.fetchSprite().setPosition(position.x + new_distance, position.y);
 			
 		} else if (!turn_ship) {
+			
+			// Change frame if not already
+			if (!has_changed_frame_to_stationary) {
+				ship.next();
+				has_changed_frame_to_stationary = true;
+			}
 			
 			// Make ship hover
 			float sine_x = (time_since_flight-flight_time)*SHIP_HOVER_FREQUENCY/1000;
 			float amplitude = SHIP_HOVER_AMPLITUDE/distance_relation;
 			
-			ship.setPosition(
-					ship.getPosition().x,
-					(float) (ship.getPosition().y + Math.sin(sine_x)*amplitude));
+			ship.fetchSprite().setPosition(
+					ship.fetchSprite().getPosition().x,
+					(float) (ship.fetchSprite().getPosition().y + Math.sin(sine_x)*amplitude));
 		} else {
 			
 			// Turn ship
@@ -140,16 +150,16 @@ public class MenuShip implements Drawable {
 				// Turn completeness
 				float x = (uptime)/SHIP_TURN_DURATION;
 				
-				ship.setRotation(Formulas.slow_stop(x)*rotation_angle);
+				ship.fetchSprite().setRotation(Formulas.slow_stop(x)*rotation_angle);
 			} else if (uptime<SHIP_TURN_DURATION+SHIP_WAIT_AFTER_TURN) {
 				
 				// Make ship hover
 				float sine_x = (time_since_flight-flight_time)*SHIP_HOVER_FREQUENCY/1000;
 				float amplitude = SHIP_HOVER_AMPLITUDE/distance_relation;
 				
-				ship.setPosition(
-						ship.getPosition().x,
-						(float) (ship.getPosition().y + Math.sin(sine_x)*amplitude));
+				ship.fetchSprite().setPosition(
+						ship.fetchSprite().getPosition().x,
+						(float) (ship.fetchSprite().getPosition().y + Math.sin(sine_x)*amplitude));
 			} else {
 				
 			}
