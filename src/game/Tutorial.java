@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jsfml.audio.Music;
 import org.jsfml.audio.Sound;
 import org.jsfml.audio.SoundBuffer;
 import org.jsfml.graphics.*;
@@ -45,12 +46,15 @@ public class Tutorial
 	private float star_min_size = 0.2f;
 	private float number_of_stars = 50;
 	private List<Sprite> stars = new ArrayList<>();
+	private Music aud_wind = new Music();
 	
 	Tutorial ( ) throws IOException
 	{
-		buff.loadFromFile(Paths.get("sfx/menu_loop.ogg"));
-		sound.setBuffer(buff);
-		soundfx = new SyncTrack(sound);
+		// Load windsound
+		aud_wind.openFromFile(Paths.get("sfx/wind.ogg"));
+		aud_wind.setVolume(0);
+		aud_wind.setLoop(true);
+		aud_wind.play();
 		
 		// We need a sky background, ship in the middle.
 		// Sky must be moving.
@@ -187,13 +191,16 @@ public class Tutorial
 	
 	private void updateObjects()
 	{
+		// Update music
+		aud_wind.setVolume(100*Formulas.slow_stop(color_clamp));
+		
 		// Update move to position
 		if (ship_move_completeness.x>=1) {
 			ship_move_completeness = new Vector2f(0,ship_move_completeness.y);
 			ship_move_from = new Vector2f(ship_move_to.x,ship_move_from.y);
 			
 			float rand_x = (float) ((Main.wnd.getSize().x-m_ship.getSize().x)/2+
-					Math.random()*ship_position_distance_from_center*2-ship_position_distance_from_center);
+					(Math.random()*2-1)*ship_position_distance_from_center*Formulas.sinus_in(color_clamp));
 			ship_move_to = new Vector2f(rand_x,ship_move_to.y);
 			System.out.println("x: "+ship_move_to.x);
 		}
@@ -202,7 +209,7 @@ public class Tutorial
 			ship_move_from = new Vector2f(ship_move_from.x,ship_move_to.y);
 			
 			float rand_y = (float) ((Main.wnd.getSize().y-m_ship.getSize().y)/2+
-					Math.random()*ship_position_distance_from_center*2-ship_position_distance_from_center);
+					(Math.random()*2-1)*ship_position_distance_from_center*Formulas.sinus_in(color_clamp));
 			ship_move_to = new Vector2f(ship_move_to.x,rand_y);
 			System.out.println("y: "+ship_move_to.y);
 		}
