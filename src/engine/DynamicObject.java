@@ -71,6 +71,11 @@ public class DynamicObject extends RectangleShape
 		return m_world_state == Environment.onGround;
 	}
 	
+	public void setOriginToMiddle()
+	{
+		super.setOrigin(super.getSize().x / 2, super.getSize().y / 2);
+	}
+	
 	/**
 	 * This method returns a POD; thus a copy; of the mass of the object.
 	 * @return the mass of this object.

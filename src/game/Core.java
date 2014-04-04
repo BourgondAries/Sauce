@@ -40,6 +40,7 @@ public class Core
 	private Timer 				m_timer = new Timer(Main.wnd);
 	private Bool				m_jumped = new Bool(true);
 	private ScoreCounter		m_score_counter = new ScoreCounter();
+	private RecentScore			m_recent_score = new RecentScore();
 	
 	private Random m_rng = new Random();
 	
@@ -81,6 +82,7 @@ public class Core
 		information_layer.add(m_heads_up_display);
 		information_layer.add(m_timer);
 		information_layer.add(m_score_counter);
+		information_layer.add(m_recent_score);
 		
 		m_layers.add(player_layer, 0);
 		m_layers.add(information_layer, 1);
@@ -203,7 +205,19 @@ public class Core
 			{
 				Vector2f position = m_bedrock.eraseRandomTileAtTheTop();
 				if ( position != null )
-					m_malm_objects.add(new Malm(new Vector2f(position.x + BottomOfTheWorld.getTileWidth() / 2.f, position.y + BottomOfTheWorld.getTileHeight() / 2.f)));
+				{
+					m_malm_objects.add
+					(
+						new Malm
+						(
+							new Vector2f
+							(
+								(float) (position.x + BottomOfTheWorld.getTileWidth() / 2.f)
+								, (float) (position.y + BottomOfTheWorld.getTileHeight() / 2.f)
+							)	
+						)
+					);
+				}
 			}
 		}
 		
@@ -296,6 +310,7 @@ public class Core
 				{
 					to_remove.add(x);
 					m_score_counter.addScore(x.getScore());
+					m_recent_score.pushScore(x.getScore(), m_player.getPosition());
 				}
 				else if (m_player.isBoxNear(x, CM_ACCELERATION_DISTANCE))
 				{
@@ -319,6 +334,7 @@ public class Core
 		m_timer.update();
 		
 		m_score_counter.update();
+		m_recent_score.update();
 	}
 	
 	private void setViewToPlayer()
