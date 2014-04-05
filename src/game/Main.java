@@ -14,15 +14,29 @@ public class Main
 {
 	// Entry point of the program
 	public static void main ( String[] args ) throws IOException
-	{
-		new Main();
+	{	
+		long i = 2;
+		while (i * i < Long.MAX_VALUE / 2)
+		{
+			++i;
+		}
+		System.out.println(i);
+		System.out.println(i*i);
+		System.out.println((i-1L)*(i-1L));
+		return;
+//		new Main();
 	}
+	
+	
+	
+	
+	
 	
 	
 	// Entry point of the game
 	public Main()
 	{
-		game_state = states.core;
+		game_state = states.shaft;
 		wnd = new RenderWindow(new VideoMode(1920, 1000, 32), "Shact");
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
