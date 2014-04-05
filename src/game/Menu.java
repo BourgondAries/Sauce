@@ -127,10 +127,10 @@ public class Menu {
 		aud_menu_switch = loadSound("sfx/menu_switch.ogg");
 		aud_teleport_far = loadSound("sfx/teleport_far.ogg");
 		aud_teleport_close = loadSound("sfx/teleport_close.ogg");
-		aud_flames_far = loadSound("sfx/button_press.ogg");
-		aud_flames_close = loadSound("sfx/button_press.ogg");
-		aud_pod_fire_far = loadSound("sfx/button_press.ogg");
-		aud_pod_fire_close = loadSound("sfx/button_press.ogg");
+		aud_flames_far = loadSound("sfx/flames_far.ogg");
+		aud_flames_close = loadSound("sfx/flames_close.ogg");
+		aud_pod_fire_far = loadSound("sfx/pod_fire_far.ogg");
+		aud_pod_fire_close = loadSound("sfx/pod_fire_close.ogg");
 		aud_button_press = loadSound("sfx/button_press.ogg");
 		aud_button_hover = loadSound("sfx/button_hover.ogg");
 		
@@ -257,7 +257,7 @@ public class Menu {
 		float menu_switch_volume = 50;
 		
 		// Probability
-		float likeliness_of_spawning_ship = 0.05f; // 0.02f
+		float likeliness_of_spawning_ship = 0.03f; // 0.02f
 		
 		// Setup fases
 		boolean move_planets = true;
@@ -835,10 +835,13 @@ public class Menu {
 		float time_to_activate_all_ships = 2000;
 		float time_to_turn_closest_ship = 2500;
 		float rotation_time = MenuShip.SHIP_TURN_DURATION;
+		float time_before_stop_turning_play_flame = MenuShip.SHIP_TIME_BEFORE_STOP_TO_PLAY_SOUND;
 		float rotation_angle = 65;
 		float wait_before_fire = 3000;
 		float duration_of_menu_fade = 500;
 		float menu_effect_amplitude = 20;
+		boolean first_flame_played = false;
+		boolean second_flame_played = false;
 		
 		// Poor GPU...
 		scr_menu_fire.simpleRender(false);
@@ -964,6 +967,18 @@ public class Menu {
 			}
 			
 			if (uptime-time_to_turn_closest_ship<rotation_time && uptime>time_to_turn_closest_ship) {
+				
+				// Play first flame
+				if (!first_flame_played) {
+					first_flame_played = true;
+					aud_flames_close.play();
+				}
+				
+				// Play second flame
+				if (!second_flame_played && uptime>=time_to_turn_closest_ship+rotation_time-time_before_stop_turning_play_flame) {
+					second_flame_played = true;
+					aud_flames_close.play();
+				}
 				
 				// Calculate completeness
 				float x = (uptime-time_to_turn_closest_ship)/rotation_time;

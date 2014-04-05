@@ -15,16 +15,7 @@ public class Main
 	// Entry point of the program
 	public static void main ( String[] args ) throws IOException
 	{	
-		long i = 2;
-		while (i * i < Long.MAX_VALUE / 2)
-		{
-			++i;
-		}
-		System.out.println(i);
-		System.out.println(i*i);
-		System.out.println((i-1L)*(i-1L));
-		return;
-//		new Main();
+		new Main();
 	}
 	
 	
