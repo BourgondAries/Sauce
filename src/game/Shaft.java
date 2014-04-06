@@ -2,6 +2,7 @@ package game;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.ArrayList;
 
 import engine.*;
 import ttl.*;
@@ -25,12 +26,17 @@ public class Shaft
 		m_ship = new Player();
 	private java.util.ArrayList<DynamicObject>
 		m_wall_objects = new java.util.ArrayList<>();
+	private ArrayList<FallingRock>
+		m_falling_rocks = new ArrayList<>();
 		
 	private Bool 
 		m_collision = new Bool(false);
 	
 	private final int 
 		CM_BORDER_SIZE;
+	
+	private double // Clamped [0, 1], 0 = hardest, 1= doesn't spawn FallingRocks
+		m_difficulty = 0.;
 		
 	public Shaft()
 	{
@@ -199,16 +205,81 @@ public class Shaft
 				m_ship.setPosition(m_ship.getPosition().x - m_ship.getSize().x, m_ship.getPosition().y);
 			}
 		}
+		
+		/*
+		 * Spawn falling rocks that need to be dodged!
+		 * The rocks ACCELERATE! OH MY GOOOOOOOOOOOOOOOOOOOOODDDDDDDDDDDDDDDDDDDDDD
+		 */
+		{
+			if (Math.random() > m_difficulty)
+			{ 
+				FallingRock falling_rock = new FallingRock();
+				falling_rock.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), -1000.f));
+				falling_rock.setSize(new Vector2f(10,10));
+				falling_rock.setFillColor(new Color(255, 255, 255));
+				m_falling_rocks.add(falling_rock);
+			}
+		}
+		
+		/*
+		 * For all falling rocks, increase their speed by a gravitational constant.
+		 */
+		{
+			for (FallingRock ref : m_falling_rocks)
+			{
+				ref.accelerateTowards(m_ship, 0.01f);
+				ref.fetchImpulse().y += 0.03f;
+				System.out.println("Fall");
+			}
+			System.out.println("\n\n\n");
+		}
+		
+		/*
+		 * If a falling rock has position below the screen, delete it.
+		 */
+		{
+			for (FallingRock ref : m_falling_rocks)
+			{
+				if (ref.getPosition().y > Main.wnd.getSize().y)
+				{
+					m_falling_rocks.remove(ref);
+					break;
+				}
+			}
+		}
+		
+		/*
+		 * If a falling rock has collided with the ship, cause a loss of life
+		 */
+		{
+			for (FallingRock ref : m_falling_rocks)
+			{
+				if (ref.isBoxNear(m_ship, 0))
+				{
+					m_collision.set(true);
+				}
+			}
+		}
 	}
 	
 	private void updateObjects()
 	{
+		// Update both walls
 		for (DynamicObject x : m_wall_objects)
 		{
 			x.update();
 		}
 		
+		// Update the ship...
 		m_ship.update();
+		
+		// Update the falling rocks position
+		{
+			for (FallingRock ref : m_falling_rocks)
+			{
+				ref.update();
+			}
+		}
 		
 	}
 	
@@ -218,6 +289,10 @@ public class Shaft
 			Main.wnd.clear(new Color(255, 0, 0, 127));
 		else
 			Main.wnd.clear();
+		for (FallingRock ref : m_falling_rocks)
+		{
+			Main.wnd.draw(ref);
+		}
 		Main.wnd.draw(m_layers);
 		Main.wnd.display();
 	}
