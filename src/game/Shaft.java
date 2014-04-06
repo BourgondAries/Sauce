@@ -36,17 +36,23 @@ public class Shaft
 		CM_BORDER_SIZE;
 	
 	private double // Clamped [0, 1], 0 = hardest, 1= doesn't spawn FallingRocks
-		m_difficulty = 0.;
+		m_difficulty = 0.0,
+		m_rock_start_speed = 20., // The rock spawn with a certain speed
+		m_rock_speed_aberrant = 20., // A rock that is especially fast!
+		m_rock_speed_uncertainty = 1.,
+		m_rock_size = 10.;
 		
 	public Shaft()
 	{
-		try {
+		try 
+		{
 			Texture tex = PathedTextures.getTexture(Paths.get("res/shaft/wall.tga"));
 			m_wall_left.setSize(new Vector2f(tex.getSize()));
 			m_wall_left.setTexture(tex);
 			m_wall_right.setSize(m_wall_left.getSize());
 			m_wall_right.setTexture(tex);
-		} catch (IOException exc_obj) {
+		} catch (IOException exc_obj) 
+		{
 			exc_obj.printStackTrace();
 		}
 		m_wall_left.setOriginToMiddle();
@@ -214,9 +220,18 @@ public class Shaft
 			if (Math.random() > m_difficulty)
 			{ 
 				FallingRock falling_rock = new FallingRock();
-				falling_rock.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), -1000.f));
-				falling_rock.setSize(new Vector2f(10,10));
+				falling_rock.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -m_rock_size));
+				falling_rock.setSize(new Vector2f((float)m_rock_size, (float) m_rock_size));
 				falling_rock.setFillColor(new Color(255, 255, 255));
+				falling_rock.setSpeed
+				(
+					new Vector3f
+					(
+						0.f
+						, (float) ((Math.random() > m_difficulty ? m_rock_speed_aberrant : m_rock_start_speed) + (Math.random() - 0.5) * m_rock_speed_uncertainty)
+						, 0.f
+					)
+				);
 				m_falling_rocks.add(falling_rock);
 			}
 		}
@@ -229,22 +244,24 @@ public class Shaft
 			{
 				ref.accelerateTowards(m_ship, 0.01f);
 				ref.fetchImpulse().y += 0.03f;
-				System.out.println("Fall");
 			}
-			System.out.println("\n\n\n");
 		}
 		
 		/*
 		 * If a falling rock has position below the screen, delete it.
 		 */
 		{
+			ArrayList<FallingRock> to_remove = new ArrayList<>();
 			for (FallingRock ref : m_falling_rocks)
 			{
 				if (ref.getPosition().y > Main.wnd.getSize().y)
 				{
-					m_falling_rocks.remove(ref);
-					break;
+					to_remove.add(ref);
 				}
+			}
+			for (FallingRock rm : to_remove)
+			{
+				m_falling_rocks.remove(rm);
 			}
 		}
 		
