@@ -1,5 +1,7 @@
 package game;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +11,11 @@ import org.jsfml.graphics.RenderStates;
 import org.jsfml.graphics.RenderTarget;
 import org.jsfml.graphics.Sprite;
 import org.jsfml.graphics.Text;
+import org.jsfml.graphics.Texture;
+import org.jsfml.system.Vector2f;
+
+import engine.PathedFonts;
+import engine.PathedTextures;
 
 public class SpeechBox implements Drawable {
 	private String current_text;
@@ -17,10 +24,10 @@ public class SpeechBox implements Drawable {
 	
 	private float percent_open;
 	
-	private float width = 600;
-	private float height = 200;
+	private Vector2f size = new Vector2f(600,200);
+	private Vector2f position = new Vector2f(0,0);
 	private float padding_content = 10;
-	private int ticks_to_wait_between_leatters = 5;
+	private int tick_counter = 0;
 	
 	// Textbox
 	private Sprite corner_top_left;
@@ -32,6 +39,14 @@ public class SpeechBox implements Drawable {
 	private Sprite corner_top;
 	private Sprite corner_bottom;
 	private Sprite corner_middle;
+	
+	// Divider
+	private Sprite divider_bottom_left;
+	private Sprite divider_bottom_middle;
+	private Sprite divider_bottom_right;
+	private Sprite divider_top_left;
+	private Sprite divider_top_middle;
+	private Sprite divider_top_right;
 	
 	// Header
 	private Sprite header_left;
@@ -45,12 +60,19 @@ public class SpeechBox implements Drawable {
 	
 	// Font
 	private Font font;
-	private Text text;
+	private Text content_text;
+	private Text footer_text;
+	private Text header_text;
 	
 	private StatusBox box_state;
 	private StatusWriting writing_state;
 	
 	private static final float OPEN_CLOSE_SPEED = 0.01f;
+	private static final float TICKS_BETWEEN_NEW_LETTER = 5;
+	private static final int CONTENT_TEXT_SIZE = 10;
+	private static final int HEADER_TEXT_SIZE = 15;
+	private static final int FOOTER_TEXT_SIZE = 15;
+	private static final float DIVIDER_SPACING = 0;
 	
 	private static enum StatusBox {
 		open,
@@ -65,9 +87,10 @@ public class SpeechBox implements Drawable {
 		interrupted
 	}
 	
-	public SpeechBox() {
+	public SpeechBox() throws IOException {
 		// Setup variables
 		current_text = "";
+		
 		current_text_index = 0;
 		total_text = new ArrayList<>();
 		
@@ -79,10 +102,97 @@ public class SpeechBox implements Drawable {
 		
 		// Load textures
 		loadTextures();
+		
+		// Setup text
+		content_text = new Text("",font,CONTENT_TEXT_SIZE);
+		header_text = new Text("",font,HEADER_TEXT_SIZE);
+		footer_text = new Text("",font,FOOTER_TEXT_SIZE);
+		
+		// Update position
+		updatePosition();
 	}
 	
-	private void loadTextures() {
+	private void loadTextures() throws IOException {
 		
+		// Textbox
+		corner_bottom_left = new Sprite(PathedTextures.getTexture(Paths.get(
+						"res/textbox/textbox_content_bottom_left.tga")));
+		corner_bottom_right = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_content_bottom_right.tga")));
+		corner_top_left = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_content_top_left.tga")));
+		corner_top_right = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_content_top_right.tga")));
+		
+		corner_top = new Sprite(loadTileable("res/textbox/textbox_content_middle_top.tga"));
+		corner_bottom = new Sprite(loadTileable("res/textbox/textbox_content_middle_bottom.tga"));
+		corner_left = new Sprite(loadTileable("res/textbox/textbox_content_middle_left.tga"));
+		corner_right = new Sprite(loadTileable("res/textbox/textbox_content_middle_right.tga"));
+		corner_middle = new Sprite(loadTileable("res/textbox/textbox_content_middle.tga"));
+		
+		// Header
+		header_left = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_header_left.tga")));
+		header_middle = new Sprite(loadTileable("res/textbox/textbox_header_middle.tga"));
+		header_right = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_header_right.tga")));
+		
+		// Footer
+		footer_left = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_footer_left.tga")));
+		footer_middle = new Sprite(loadTileable("res/textbox/textbox_footer_middle.tga"));
+		footer_right = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_footer_right.tga")));
+		
+		// Divider
+		divider_top_left = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_footer_left.tga")));
+		divider_bottom_left = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_footer_left.tga")));
+		divider_top_middle = new Sprite(loadTileable("res/textbox/textbox_footer_middle.tga"));
+		divider_bottom_middle = new Sprite(loadTileable("res/textbox/textbox_footer_middle.tga"));
+		divider_top_right = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_footer_right.tga")));
+		divider_bottom_right = new Sprite(PathedTextures.getTexture(Paths.get(
+				"res/textbox/textbox_footer_right.tga")));
+		
+		// Font
+		font = PathedFonts.getFont(Paths.get("res/pixelmix.ttf"));
+	}
+	
+	private Texture loadTileable(String path) throws IOException {
+		Texture new_tex = PathedTextures.getTexture(Paths.get(path));
+		new_tex.setRepeated(true);
+		return new_tex;
+	}
+	
+	private void updatePosition() {
+		// Set positions
+		float footer_y = position.y + size.y - footer_left.getGlobalBounds().height;
+		float content_y = position.y + header_left.getGlobalBounds().height +
+				2*DIVIDER_SPACING + divider_top_left.getGlobalBounds().height;
+		float divider_top_y = position.y + header_left.getGlobalBounds().height + DIVIDER_SPACING;
+		float divider_bottom_y = position.y + size.y - footer_left.getGlobalBounds().height -
+				DIVIDER_SPACING - divider_bottom_left.getGlobalBounds().height;
+		
+		// Set sizes
+		float size_content_y = size.y - 4*DIVIDER_SPACING - header_left.getGlobalBounds().height -
+				footer_left.getGlobalBounds().height - 2*divider_top_left.getGlobalBounds().height;
+		
+		// Header
+		header_left.setPosition(position);
+		header_right.setPosition(position.x + size.x - header_right.getGlobalBounds().width, position.y);
+		header_middle.setPosition(position.x + header_left.getGlobalBounds().width, position.y);
+		
+		// Footer
+		footer_left.setPosition(position.x, footer_y);
+		footer_middle.setPosition(position.x + footer_left.getGlobalBounds().width, footer_y);
+		footer_right.setPosition(position.x + size.x - footer_right.getGlobalBounds().width, footer_y);
+		
+		// Dividers
+		divider_top_left.setPosition(position.x,divider_top_y);
+		divider_top_middle.setPosition(position.x + divider_top_left.getGlobalBounds().width, divider_top_y);
+		divider_top_right.setPosition(position.x + size.x - divider_top_right.getGlobalBounds().width, divider_top_y);
 	}
 	
 	public void queueText(String text) {
@@ -178,8 +288,9 @@ public class SpeechBox implements Drawable {
 		
 		switch (writing_state) {
 			case is_writing:
-				if (current_text.length()>=total_text.get(current_text_index).length())
+				if (current_text.length()<=total_text.get(current_text_index).length())
 				current_text = total_text.get(current_text_index).substring(0,current_text.length());
+				text.setString(current_text);
 				break;
 			case ready:
 				break;
@@ -200,5 +311,15 @@ public class SpeechBox implements Drawable {
 		corner_bottom_left.draw(arg0, arg1);
 		corner_top_right.draw(arg0, arg1);
 		corner_top_left.draw(arg0, arg1);
+		
+		header_left.draw(arg0, arg1);
+		header_middle.draw(arg0, arg1);
+		header_right.draw(arg0, arg1);
+		
+		footer_left.draw(arg0, arg1);
+		footer_middle.draw(arg0, arg1);
+		footer_right.draw(arg0, arg1);
+		
+		divider_top_left
 	}
 }

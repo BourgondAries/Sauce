@@ -61,7 +61,6 @@ public class Menu {
 	private Sprite img_ship_flames_backward;
 	
 	// Animated graphic
-	private AnimatedSprite img_anim_smoke;
 	private AnimatedSprite img_anim_ship;
 	
 	// Tilable graphic
@@ -157,7 +156,6 @@ public class Menu {
 		img_button_border_left = loadImage("res/menu/holo/small/button_border_left.tga");
 		img_button_border_right = loadImage("res/menu/holo/small/button_border_right.tga");
 		
-		img_anim_smoke = loadAnimatedImage("res/menu/smoke.tga",4);
 		img_anim_ship = loadAnimatedImage("res/menu/ship.tga",9);
 		
 		img_space = loadTilableImage("res/menu/space.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
@@ -302,7 +300,6 @@ public class Menu {
 		
 		// Setup ships
 		MenuShip.body = img_anim_ship;
-		MenuShip.smoke = img_anim_smoke;
 		MenuShip.teleport_far = aud_teleport_far;
 		MenuShip.teleport_close = aud_teleport_close;
 		MenuShip.pod_fire_far = aud_pod_fire_far;

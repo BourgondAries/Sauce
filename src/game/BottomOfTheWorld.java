@@ -421,17 +421,3 @@ public class BottomOfTheWorld implements Drawable
 			rendertarget.draw(m);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

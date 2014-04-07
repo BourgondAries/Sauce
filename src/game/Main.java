@@ -14,16 +14,21 @@ public class Main
 {
 	// Entry point of the program
 	public static void main ( String[] args ) throws IOException
-	{
+	{	
 		new Main();
 	}
+	
+	
+	
+	
+	
 	
 	
 	// Entry point of the game
 	public Main()
 	{
 		game_state = states.menu;
-		wnd = new RenderWindow(new VideoMode(800, 600, 32), "Shact");
+		wnd = new RenderWindow(new VideoMode(1920, 1000, 32), "Shact");
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
 		wnd.setView(view);
@@ -35,6 +40,7 @@ public class Main
 	public static states 		game_state;
 	public static View 			view;
 	public static RenderWindow 	wnd;
+	public static int framerate = 60;
 
 	
 	public enum states
@@ -50,7 +56,8 @@ public class Main
 		tutorial, // Travel downward from the satellite. 
 		surface, // We've reached the surface, commence downward travel
 		core, // Core gameplay
-		shaft // When we travel upward in the game, comes after core
+		shaft, // When we travel upward in the game, comes after core
+		enterscore
 	}
 
 	
@@ -77,6 +84,9 @@ public class Main
 						break;
 					case shaft:
 						new Shaft();
+						break;
+					case enterscore:
+						new EnterScore();
 						break;
 					case scoreboard:
 						new Scoreboard();

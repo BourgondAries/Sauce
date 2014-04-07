@@ -39,7 +39,6 @@ public class MenuShip implements Drawable {
 
 	// These have to be set from another class before spawning any ship!
 	public static AnimatedSprite body;
-	public static AnimatedSprite smoke;
 	public static Sprite img_flame_forward;
 	public static Sprite img_flame_backward;
 	public static SyncTrack teleport_far;

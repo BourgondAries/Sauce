@@ -143,13 +143,13 @@ public class DynamicObject extends RectangleShape
 	 * 
 	 * This algorithm adds a speed to the existing speed.
 	 * 
-	 * @param speed the speed to replace by.
+	 * @param vector3f the speed to replace by.
 	 */
-	public void setSpeed ( final Vector3f speed )
+	public void setSpeed ( final org.jsfml.system.Vector3f vector3f )
 	{
-		m_speed.x = speed.x;
-		m_speed.y = speed.y;
-		m_speed.z = speed.z;
+		m_speed.x = vector3f.x;
+		m_speed.y = vector3f.y;
+		m_speed.z = vector3f.z;
 	}
 	
 	/**

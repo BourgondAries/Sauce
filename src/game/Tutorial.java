@@ -71,8 +71,8 @@ public class Tutorial
 		m_sky = new RectangleShape ( );
 		try 
 		{
-			star = PathedTextures.getTexture(Paths.get("res/menu/star.tga"));
-			Texture tex = PathedTextures.getTexture(Paths.get("res/sky.tga"));
+			star = PathedTextures.getTexture(Paths.get("res/tutorial/star.tga"));
+			Texture tex = PathedTextures.getTexture(Paths.get("res/tutorial/sky.tga"));
 			tex.setRepeated ( true );
 			TEXTURE_WIDTH = tex.getSize().x;
 			m_sky.setSize ( new Vector2f ( TEXTURE_WIDTH, Main.wnd.getSize().y * TEXTURE_HEIGHT_MULTIPLIER ) );
