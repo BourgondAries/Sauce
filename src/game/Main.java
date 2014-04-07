@@ -40,6 +40,7 @@ public class Main
 	public static states 		game_state;
 	public static View 			view;
 	public static RenderWindow 	wnd;
+	public static int framerate = 60;
 
 	
 	public enum states
@@ -55,7 +56,8 @@ public class Main
 		tutorial, // Travel downward from the satellite. 
 		surface, // We've reached the surface, commence downward travel
 		core, // Core gameplay
-		shaft // When we travel upward in the game, comes after core
+		shaft, // When we travel upward in the game, comes after core
+		enterscore
 	}
 
 	
@@ -82,6 +84,9 @@ public class Main
 						break;
 					case shaft:
 						new Shaft();
+						break;
+					case enterscore:
+						new EnterScore();
 						break;
 					case scoreboard:
 						new Scoreboard();

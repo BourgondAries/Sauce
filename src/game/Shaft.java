@@ -29,7 +29,16 @@ public class Shaft
 	private ArrayList<FallingRock>
 		m_falling_rocks = new ArrayList<>();
 	private FallingHealth 
-		m_falling_health = new FallingHealth();
+		m_falling_health = new FallingHealth(),
+		m_falling_booster = new FallingHealth();
+	private int 
+		m_framal_godmode = 0,
+		m_framal_booster = -1,
+		m_progress = 0,
+		m_progress_speed = 20;
+	
+	private final int 
+		CM_MAX_PROGRESS = 60000;
 		
 	private Bool 
 		m_collision = new Bool(false);
@@ -71,6 +80,15 @@ public class Shaft
 		m_game_elements.add(m_ship);
 		m_game_elements.add(m_falling_health);
 		m_falling_health.setPosition(new Vector2f(0, Main.wnd.getSize().y));
+		try 
+		{
+			m_falling_booster.setTexture(PathedTextures.getTexture(Paths.get("res/shaft/boost.tga")));
+		} 
+		catch (IOException exc_obj) 
+		{
+			exc_obj.printStackTrace();
+		}
+		m_game_elements.add(m_falling_booster);
 		
 		m_layers.add(m_walls, 1);
 		m_layers.add(m_game_elements, 0);
@@ -106,6 +124,8 @@ public class Shaft
 			handleEvents();
 			runGameLogic();
 			updateObjects();
+			if (Main.game_state != Main.states.shaft)
+				return;
 			drawFrame();
 		}
 		while ( Main.game_state == Main.states.shaft );
@@ -272,6 +292,7 @@ public class Shaft
 		/*
 		 * If a falling rock has collided with the ship, cause a loss of life
 		 */
+		if (m_framal_godmode == 0)
 		{
 			for (FallingRock ref : m_falling_rocks)
 			{
@@ -279,6 +300,7 @@ public class Shaft
 				{
 					m_collision.set(true);
 					m_ship.takeDamage();
+					m_framal_godmode += Main.framerate * 2;
 					break;
 				}
 			}
@@ -305,7 +327,55 @@ public class Shaft
 			}
 		}
 		
-		System.out.println(m_ship.getHealth());
+		
+		// If the booster is at a coord lower than the screen, try to put it atop again based on difficulty
+		{
+			if (m_falling_booster.getPosition().y > Main.wnd.getSize().y)
+			{
+				if (Math.random() < m_difficulty)
+				{
+					m_falling_booster.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -Main.wnd.getSize().y));
+				}
+			}
+		}
+		
+		// Check if there is collision with the booster box!
+		{
+			if (m_falling_booster.isBoxNear(m_ship, 0))
+			{
+				m_framal_godmode = Main.framerate * 5;
+				m_framal_booster = m_framal_godmode;
+				
+				// Set the speeds to be higher
+				for (FallingRock x : m_falling_rocks)
+				{
+					x.setSpeed(new Vector3f(x.getSpeed().x, x.getSpeed().y + 30.f, x.getSpeed().z));
+				}
+				m_rock_start_speed += 30;
+				m_progress_speed += 30;
+				
+				m_falling_booster.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -Main.wnd.getSize().y));
+			}
+		}
+		
+		// Decrement framal godmode by 1 IF it is not 0
+		{
+			if (m_framal_godmode > 0)
+				--m_framal_godmode;
+			if (m_framal_booster > 0)
+				--m_framal_booster;
+			else if (m_framal_booster == 0)
+			{
+				for (FallingRock x : m_falling_rocks)
+				{
+					x.setSpeed(new Vector3f(x.getSpeed().x, x.getSpeed().y - 20.f, x.getSpeed().z));
+				}
+				m_rock_start_speed -= 20;
+				m_progress_speed -= 20;
+				m_framal_booster = -1;
+			}
+		}
+		
 	}
 	
 	private void updateObjects()
@@ -327,19 +397,29 @@ public class Shaft
 			}
 		}
 		
-		// Update the health box
+		// Update the health box, and the booster
 		{
 			m_falling_health.update();
+			m_falling_booster.update();
+		}
+		
+		// Check the progress
+		{
+			m_progress += m_progress_speed;
+			if (m_progress > CM_MAX_PROGRESS)
+			{
+				Main.game_state = Main.states.enterscore;
+			}
 		}
 		
 	}
 	
 	private void drawFrame()
 	{
-		if (m_collision.fetchAndDisable())
-			Main.wnd.clear(new Color(255, 0, 0, 127));
+		if (m_framal_booster == -1)
+			Main.wnd.clear(new Color(m_framal_godmode + 30, 30, 30, 127));
 		else
-			Main.wnd.clear();
+			Main.wnd.clear(new Color(30, 30 + (m_framal_booster > 30 ? 30 : m_framal_booster), 30, 127));
 		for (FallingRock ref : m_falling_rocks)
 		{
 			Main.wnd.draw(ref);
