@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 
+import org.jsfml.audio.Music;
 import org.jsfml.graphics.*;
 import org.jsfml.system.Vector2f;
 import org.jsfml.window.*;
@@ -35,6 +36,10 @@ public class Core
 	private int	 			m_gameover_time = Main.framerate * 5;
 	private Text			m_gameover_text = new Text();
 	
+	private Music 			
+								m_distant_explosions,
+								m_background_music;
+	
 	private InfiniteBox 		m_lava;
 	private BottomOfTheWorld 	m_bedrock;
 	private HUD 				m_heads_up_display;
@@ -51,6 +56,12 @@ public class Core
 	
 	public Core() throws IOException
 	{
+		m_distant_explosions = Formulas.loadMusic("sfx/explosions_distant_02.ogg");
+		m_distant_explosions.play();
+		m_background_music = Formulas.loadMusic("sfx/ominous_sounds.ogg");
+		m_background_music.setLoop(true);
+		m_background_music.play();
+		
 		m_player = new Player();
 		m_player.setSize(new Vector2f(30, 30));
 		m_player.setTexture(PathedTextures.getTexture(Paths.get("res/drop2.png")));
@@ -97,8 +108,12 @@ public class Core
 //		run();
 	}
 	
-	public double run()
+	public TransmittableData run()
 	{
+		TransmittableData return_data = new TransmittableData();
+		return_data.hud = m_heads_up_display;
+		return_data.ship = m_player;
+		
 		while (Main.game_state == Main.states.core)
 		{
 			handleEvents();
@@ -110,14 +125,24 @@ public class Core
 			{
 				Main.wnd.setView(Main.wnd.getDefaultView());
 				Main.game_state = Main.states.shaft;
-				return 0.;
+				
+				// Sure would love to have RAII here :/ ~JustJavaThings~
+				m_distant_explosions.stop();
+				m_background_music.stop();
+				return_data.difficulty = 0.;
+				return_data.score = m_score_counter.getScore();
+				return return_data;
 			}
 		}
 		
 		// Calculate difficulty based on time left.
 		{
 			Main.wnd.setView(Main.wnd.getDefaultView());
-			return ((double)m_timer.getTimeLeft()) / ((double)m_timer.getMaxDuration());
+			m_distant_explosions.stop();
+			m_background_music.stop();
+			return_data.difficulty = ((double)m_timer.getTimeLeft()) / ((double)m_timer.getMaxDuration());
+			return_data.score = m_score_counter.getScore();
+			return return_data;
 		}
 	}
 	
@@ -145,8 +170,9 @@ public class Core
 						case Q:
 							m_player.fetchImpulse().z -= 1.f;
 							break;
-//						case H:
-//							m_heads_up_display.setActive(!m_heads_up_display.getActive());
+						case D:
+							m_heads_up_display.setDebugState(!m_heads_up_display.getDebugState());
+							break;
 						default:
 							break;
 					

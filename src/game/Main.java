@@ -63,7 +63,8 @@ public class Main
 	
 	private void run()
 	{
-		double difficulty = 0.;
+		TransmittableData data = new TransmittableData();
+		
 		try {
 		
 			// Run program until close
@@ -81,12 +82,10 @@ public class Main
 					case surface:
 						break;
 					case core:
-						difficulty = (new Core()).run();
-						System.out.println(difficulty);
-						System.out.println(game_state);
+						data = (new Core()).run();
 						break;
 					case shaft:
-						new Shaft(difficulty);
+						new Shaft(data);
 						break;
 					case enterscore:
 						new EnterScore();

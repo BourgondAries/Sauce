@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
-import org.jsfml.audio.Music;
 import org.jsfml.audio.Sound;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;

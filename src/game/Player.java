@@ -1,7 +1,9 @@
 package game;
 
 
-import engine.DynamicObject;
+import java.io.IOException;
+
+import engine.*;
 
 
 public class Player extends DynamicObject
@@ -12,10 +14,40 @@ public class Player extends DynamicObject
 	public static float CM_JUMPFORCE = -50.f;
 	private final static int CM_MAX_HEALTH = 5;
 	private int m_health = CM_MAX_HEALTH;
+	private SyncTrack 
+		m_impact_sound,
+		m_heal_sound;
 	
 	public Player()
-	{}
+	{
+		try 
+		{
+			m_impact_sound = Formulas.loadSound("sfx/explosion_punchy_impact_02.ogg");
+			m_heal_sound = Formulas.loadSound("sfx/heart_beat.ogg");
+		} 
+		catch (IOException exc_obj) 
+		{
+			exc_obj.printStackTrace();
+		}
+	}
 
+	public void setImpactSound(String str)
+	{
+		try 
+		{
+			m_impact_sound = Formulas.loadSound(str);
+		}
+		catch (IOException exc_obj) 
+		{
+			exc_obj.printStackTrace();
+		}
+	}
+	
+	public void setHealth(int health)
+	{
+		m_health = health;
+	}
+	
 	public String toString()
 	{
 		return "Player's position: (" + getPosition().x + ", " + getPosition().y + ", " + getRotation() + ")"; 
@@ -31,6 +63,16 @@ public class Player extends DynamicObject
 		if ( m_health == 0)
 			return;
 		--m_health;
+		m_impact_sound.play();
+	}
+	
+	public void takeDamage(boolean playsound)
+	{
+		if ( m_health == 0)
+			return;
+		--m_health;
+		if (playsound)
+			m_impact_sound.play();
 	}
 	
 	public void repairDamage()
@@ -38,6 +80,16 @@ public class Player extends DynamicObject
 		if ( m_health == CM_MAX_HEALTH )
 			return;
 		++m_health;
+		m_heal_sound.play();
+	}
+	
+	public void repairDamage(boolean playsound)
+	{
+		if ( m_health == CM_MAX_HEALTH )
+			return;
+		++m_health;
+		if (playsound)
+			m_heal_sound.play();
 	}
 	
 	public int getHealth()

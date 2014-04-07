@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import engine.*;
 import ttl.*;
 
+import org.jsfml.audio.*;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
 import org.jsfml.window.Keyboard;
@@ -41,6 +42,12 @@ public class Shaft
 		m_background = new RectangleShape(),
 		m_background_hue = new RectangleShape();
 	
+	private HUD
+		m_hud;
+	
+	private Music
+		m_background_music;
+	
 	private final int 
 		CM_MAX_PROGRESS = 90000;
 		
@@ -57,9 +64,21 @@ public class Shaft
 		m_rock_speed_uncertainty = 1.,
 		m_rock_size = 10.;
 		
-	public Shaft(double difficulty)
+	public Shaft(TransmittableData data)
 	{
-		m_difficulty = difficulty;
+		try 
+		{
+			m_background_music = Formulas.loadMusic("sfx/exciting_tune.ogg");
+		}
+		catch (IOException exc_obj)
+		{
+			exc_obj.printStackTrace();
+		}
+		m_background_music.setLoop(true);
+		m_background_music.play();
+		
+		m_ship.setImpactSound("sfx/vehicle_crash.ogg");
+		m_difficulty = data.difficulty;
 		try 
 		{
 			Texture tex = PathedTextures.getTexture(Paths.get("res/shaft/wall_back.tga"));
@@ -107,14 +126,17 @@ public class Shaft
 		m_layers.add(m_walls, 1);
 		m_layers.add(m_game_elements, 0);
 		
+		m_hud = data.hud;
+		m_walls.add(m_hud);
+		
 		CM_BORDER_SIZE = (int) m_wall_left.getSize().x;
 		
-		initShip();
+		initShip(data);
 		
 		run();
 	}
 	
-	private void initShip()
+	private void initShip(TransmittableData data)
 	{
 		m_ship.setSize(new Vector2f(30, 30));
 		try 
@@ -129,6 +151,8 @@ public class Shaft
 		m_ship.setPosition(Main.wnd.getSize().x / 2.1f, Main.wnd.getSize().y / 1.5f);
 		m_ship.rotate(180.f);
 		m_ship.setMass(10.f);
+		
+		m_ship.setHealth(data.ship.getHealth());
 	}
 	
 	private void run()
@@ -139,10 +163,14 @@ public class Shaft
 			runGameLogic();
 			updateObjects();
 			if (Main.game_state != Main.states.shaft)
+			{
+				m_background_music.stop();
 				return;
+			}
 			drawFrame();
 		}
 		while ( Main.game_state == Main.states.shaft );
+		m_background_music.stop();
 	}
 	
 	private void handleEvents()
@@ -156,14 +184,15 @@ public class Shaft
 					KeyEvent keyev = event.asKeyEvent();
 					switch (keyev.key)
 					{
-						case ESCAPE:
-							Main.game_state = Main.states.menu;
-							return;
 						case E:
 							m_ship.fetchImpulse().z += 1.f;
 							break;
 						case Q:
 							m_ship.fetchImpulse().z -= 1.f;
+							break;
+						case D:
+							m_hud.setDebugState(!m_hud.getDebugState());
+							break;
 						default:
 							break;
 					
@@ -198,14 +227,6 @@ public class Shaft
 		else if (Keyboard.isKeyPressed(Keyboard.Key.RIGHT)) 
 		{
 			m_ship.move(new Vector2f(10.f, 0.f));
-		}
-		else if (Keyboard.isKeyPressed(Keyboard.Key.SPACE)) 
-		{
-			m_ship.jump();
-		}
-		else if (Keyboard.isKeyPressed(Keyboard.Key.ESCAPE)) 
-		{
-			Main.game_state = Main.states.menu;
 		}
 	}
 	
@@ -313,7 +334,7 @@ public class Shaft
 				if (ref.isBoxNear(m_ship, 0))
 				{
 					m_collision.set(true);
-					m_ship.takeDamage();
+					m_ship.takeDamage(true);
 					m_framal_godmode += Main.framerate * 2;
 					break;
 				}
@@ -336,6 +357,7 @@ public class Shaft
 		{
 			if (m_falling_health.isBoxNear(m_ship, 0))
 			{
+				m_framal_godmode = -Main.framerate * 2;
 				m_ship.repairDamage();
 				m_falling_health.setPosition(new Vector2f((float) (Math.random() * ( Main.wnd.getSize().x - m_wall_left.getSize().x * 2) + m_wall_left.getSize().x), (float) -Main.wnd.getSize().y));
 			}
@@ -348,7 +370,7 @@ public class Shaft
 			{
 				if (Math.random() < m_difficulty)
 				{
-					m_falling_booster.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -Main.wnd.getSize().y));
+					m_falling_booster.setPosition(new Vector2f((float) (Math.random() * ( Main.wnd.getSize().x - m_wall_left.getSize().x * 2) + m_wall_left.getSize().x), (float) -Main.wnd.getSize().y));
 				}
 			}
 		}
@@ -376,6 +398,8 @@ public class Shaft
 		{
 			if (m_framal_godmode > 0)
 				--m_framal_godmode;
+			else if (m_framal_godmode < 0)
+				++m_framal_godmode;
 			if (m_framal_booster > 0)
 				--m_framal_booster;
 			else if (m_framal_booster == 0)
@@ -390,6 +414,23 @@ public class Shaft
 				m_framal_booster = -1;
 			}
 		}
+		
+		
+		// This block sets the text for the HUD, currently quite inefficient
+		{
+			m_hud.setText
+			(
+				"Player d^2y: " + m_ship.getImpulse().y
+				+ "\nPlayer dy: " + m_ship.getSpeed().y
+				+ "\nPlayer y: " + m_ship.getPosition().y
+				+ "\nPlayer health: " + m_ship.getHealth()
+				+ "\nPlayer Speed: " + m_ship.getSpeed()
+				+ "\nRock count: " + m_falling_rocks.size()
+				+ "\nHealth position: " + m_falling_health.getPosition()
+				+ "\nBooster position: " + m_falling_booster.getPosition()
+			);
+		}
+	
 		
 	}
 	
@@ -430,9 +471,19 @@ public class Shaft
 		// Set the appropriate color for the background hue.
 		{
 			if (m_framal_booster == -1)
-				m_background_hue.setFillColor(new Color(m_framal_godmode + 30, 30, 30, 127));
+			{
+				if (m_framal_godmode > 0)
+					m_background_hue.setFillColor(new Color(m_framal_godmode + 30, 30, 30, 127));
+				else if (m_framal_godmode < 0)
+					m_background_hue.setFillColor(new Color(30, 30 - m_framal_godmode, 30, 127));
+			}
 			else
 				m_background_hue.setFillColor(new Color(30, 30 + (m_framal_booster > 30 ? 30 : m_framal_booster), 30, 127));
+		}
+		
+		// Update the HUD's health display
+		{
+			m_hud.updateHealth(m_ship.getHealth());
 		}
 	}
 	

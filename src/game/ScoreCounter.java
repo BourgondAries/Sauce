@@ -47,6 +47,11 @@ public class ScoreCounter extends Absolute implements Drawable
 		m_text.setString ( "Score: " + String.valueOf(m_score) );
 	}
 	
+	public long getScore()
+	{
+		return m_score;
+	}
+	
 	public void draw(RenderTarget target, RenderStates states)
 	{
 		draw(target, m_text);

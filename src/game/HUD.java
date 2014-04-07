@@ -27,7 +27,7 @@ public class HUD extends Absolute implements Drawable
 	
 	private Font m_drawing_font;
 	private Text m_display_text;
-	private boolean m_active = true;
+	private boolean m_active = false;
 	
 	private Layer
 		m_layer = new Layer();
@@ -80,16 +80,29 @@ public class HUD extends Absolute implements Drawable
 		if (healthy > health)
 		{
 			m_health[healthy - 1].setTexture(m_bad_health);
-			healthy = health;
+			--healthy;
+		}
+		else if (healthy < health)
+		{
+			m_health[healthy].setTexture(m_good_health);
+			++healthy;
 		}
 	}
 	
-	public void setActive(boolean state)
+	public void setDebugState(boolean state)
 	{
+		if (m_active == false && state)
+		{
+			m_layer.add(m_display_text);
+		}
+		else if (m_active == true && state == false)
+		{
+			m_layer.remove(m_display_text);
+		}
 		m_active = state;
 	}
 	
-	public boolean getActive()
+	public boolean getDebugState()
 	{
 		return m_active;
 	}
@@ -101,9 +114,6 @@ public class HUD extends Absolute implements Drawable
 
 	public void draw(RenderTarget target, RenderStates states) 
 	{
-		if (m_active)
-		{
-			super.draw(target, m_layer);
-		}
+		super.draw(target, m_layer);
 	}
 }
