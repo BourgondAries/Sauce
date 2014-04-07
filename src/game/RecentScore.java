@@ -27,6 +27,18 @@ public class RecentScore implements Drawable
 		}
 	}
 	
+	public void pushScore(long score_value, Vector2f position, Color color)
+	{
+		Text tx = new Text();
+		tx.setString(String.valueOf(score_value));
+		tx.setPosition(position);
+		tx.setFont(m_font);
+		tx.setColor(color);
+		m_objects.add(tx);
+		m_layer.add(tx);
+		m_object_times.add(System.currentTimeMillis());
+	}
+	
 	public void pushScore(long score_value, Vector2f position)
 	{
 		Text tx = new Text();

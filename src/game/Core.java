@@ -314,7 +314,7 @@ public class Core
 				{
 					to_remove.add(x);
 					m_score_counter.addScore(x.getScore());
-					m_recent_score.pushScore(x.getScore(), m_player.getPosition());
+					m_recent_score.pushScore(x.getScore(), m_player.getPosition(), new Color( (int) ( 255.f * ((float) x.getScore()) / Malm.getMaxScore()), 0, 0) );
 				}
 				else if (m_player.isBoxNear(x, CM_ACCELERATION_DISTANCE))
 				{
@@ -351,7 +351,6 @@ public class Core
 		long maxtime = m_timer.getMaxDuration();
 		long inverse = maxtime - proximity;
 		float divergence = 10.f * ((float) inverse) / ((float) maxtime);
-		System.out.println(divergence);
 		v.move(m_rng.nextInt() % divergence - divergence / 2.f, m_rng.nextInt() % divergence - divergence / 2.f);
 		Main.wnd.setView(v);
 	}
