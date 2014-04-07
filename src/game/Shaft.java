@@ -41,22 +41,18 @@ public class Shaft
 	private RectangleShape 
 		m_background = new RectangleShape(),
 		m_background_hue = new RectangleShape();
-	
+	private ProgressBar
+		m_progress_bar = new ProgressBar();
 	private HUD
 		m_hud;
-	
 	private Music
 		m_background_music;
-	
 	private final int 
-		CM_MAX_PROGRESS = 90000;
-		
+		CM_MAX_PROGRESS = 180000;
 	private Bool 
 		m_collision = new Bool(false);
-	
 	private final int 
 		CM_BORDER_SIZE;
-	
 	private double // Clamped [0, 1], 0 = hardest, 1= doesn't spawn FallingRocks
 		m_difficulty = 0.1,
 		m_rock_start_speed = 20., // The rock spawn with a certain speed
@@ -66,6 +62,7 @@ public class Shaft
 		
 	public Shaft(TransmittableData data)
 	{
+		m_walls.add(m_progress_bar);
 		try 
 		{
 			m_background_music = Formulas.loadMusic("sfx/exciting_tune.ogg");
@@ -234,7 +231,7 @@ public class Shaft
 	{
 		for (DynamicObject x : m_wall_objects)
 		{
-			x.fetchSpeed().y = 100.3f;
+			x.fetchSpeed().y = 100.3f; // Rather redundant... Let's just hope the JVM optimizes this away.
 			if (x.getPosition().y > -x.fetchSpeed().y)
 			{
 				x.setPosition(x.getPosition().x, -x.getSize().y + Main.wnd.getSize().y);
@@ -484,6 +481,11 @@ public class Shaft
 		// Update the HUD's health display
 		{
 			m_hud.updateHealth(m_ship.getHealth());
+		}
+		
+		// Update the progress bar
+		{
+			m_progress_bar.update(m_progress, CM_MAX_PROGRESS);
 		}
 	}
 	
