@@ -100,6 +100,9 @@ public class Menu {
 	
 	// Skip menu
 	private boolean skip_intro = false;
+	private boolean exit_outro = false;
+	private boolean intro_in_progress = false;
+	private boolean outro_in_progress = false;
 	
 	public Menu() throws IOException, TextureCreationException {
 		Main.view.setCenter(Vector2f.div(new Vector2f(Main.wnd.getSize()),2));
@@ -432,6 +435,7 @@ public class Menu {
 		long skip_ahead = 0;
 		
 		// Setup start time
+		intro_in_progress = true;
 		long start_time = System.currentTimeMillis();
 		
 		while(true) {
@@ -674,6 +678,7 @@ public class Menu {
 						render_queue.remove(img_space_blur);
 						
 						// Head over to the interactive menu
+						intro_in_progress = false;
 						return diff_time;
 					}
 				}
@@ -796,18 +801,15 @@ public class Menu {
 					Mouse.isButtonPressed(Mouse.Button.LEFT));
 			
 			if (play_state) {
-				System.out.println("play");
 				Main.game_state = Main.states.tutorial;
 				return time_so_far+uptime;
 			}
 			
 			if (exit_state) {
-				System.out.println("exit");
 				Main.dispose();
 			}
 			
 			if (score_state) {
-				System.out.println("core");
 				Main.game_state = Main.states.core;
 				return time_so_far+uptime;
 			}
@@ -866,9 +868,13 @@ public class Menu {
 		float menu_loop_volume = aud_menu_loop.getVolume();
 		
 		// Start time
+		outro_in_progress = true;
 		long start_time = System.currentTimeMillis();
 		
 		while (true) {
+			
+			// Exit, maybe?
+			if (exit_outro) return;
 			
 			// Outro uptime
 			long uptime = System.currentTimeMillis() - start_time;
@@ -992,20 +998,14 @@ public class Menu {
 			}
 			
 			if (uptime-time_to_turn_closest_ship-rotation_time>=wait_before_fire) {
-				Main.wnd.clear(new Color(0,0,0));
-				Main.wnd.display();
-				Main.view.setRotation(0);
-				Main.wnd.setView(Main.view);
-				aud_pod_fire_close.play();
-				return;
+				exitOutro();
 			}
 			
 			// Draw frame
 			handleEvents();
+			if (exit_outro) continue;
 			drawFrame();
 		}
-		
-		//aud_menu_loop.stop();
 	}
 	
 	private void drawFrame()
@@ -1025,6 +1025,17 @@ public class Menu {
 		skip_intro = true;
 	}
 	
+	private void exitOutro() {
+		Main.wnd.clear(new Color(0,0,0));
+		Main.wnd.display();
+		Main.view.setRotation(0);
+		Main.wnd.setView(Main.view);
+		aud_pod_fire_close.play();
+		outro_in_progress = false;
+		exit_outro = true;
+		System.out.println("skipped");
+	}
+	
 	private void handleEvents() {
 		for (Event event : Main.wnd.pollEvents()) {
 			switch (event.type)
@@ -1035,7 +1046,11 @@ public class Menu {
 					switch (keyev.key)
 					{
 						case ESCAPE:
-							skipIntro();
+							if (intro_in_progress) {
+								skipIntro();
+							} else if (outro_in_progress) {
+								exitOutro();
+							}
 							return;
 						default:
 							break;

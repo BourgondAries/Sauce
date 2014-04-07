@@ -47,6 +47,8 @@ public class Tutorial
 	private float number_of_stars = 50;
 	private List<Sprite> stars = new ArrayList<>();
 	private Music aud_wind = new Music();
+	boolean exit_initiated = false;
+	boolean exit_started = false;
 	
 	Tutorial ( ) throws IOException
 	{
@@ -116,7 +118,7 @@ public class Tutorial
 					switch (keyev.key)
 					{
 						case UP:
-							soundfx.play();
+							exit();
 							break;
 						default:
 							break;
@@ -205,11 +207,18 @@ public class Tutorial
 			System.out.println("x: "+ship_move_to.x);
 		}
 		if (ship_move_completeness.y>=1) {
+			if (exit_started) Main.game_state = Main.states.core;
 			ship_move_completeness = new Vector2f(ship_move_completeness.x,0);
 			ship_move_from = new Vector2f(ship_move_from.x,ship_move_to.y);
 			
-			float rand_y = (float) ((Main.wnd.getSize().y-m_ship.getSize().y)/2+
-					(Math.random()*2-1)*ship_position_distance_from_center*Formulas.sinus_in(color_clamp));
+			float rand_y;
+			if (exit_initiated) {
+				rand_y = Main.wnd.getSize().y+m_ship.getSize().y/2;
+				exit_started = true;
+			} else {
+				rand_y = (float) ((Main.wnd.getSize().y-m_ship.getSize().y)/2+
+						(Math.random()*2-1)*ship_position_distance_from_center*Formulas.sinus_in(color_clamp));
+			}
 			ship_move_to = new Vector2f(ship_move_to.x,rand_y);
 			System.out.println("y: "+ship_move_to.y);
 		}
@@ -230,6 +239,10 @@ public class Tutorial
 			star.move(0, STAR_SCROLL_SPEED_PIX_PER_FRAME);
 			star.setColor(new Color(255,255,255,(int) (255*Formulas.slow_top_early_then_return(color_clamp))));
 		}
+	}
+	
+	private void exit() {
+		exit_initiated = true;
 	}
 	
 	private void drawFrame()
