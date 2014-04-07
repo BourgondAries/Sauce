@@ -64,8 +64,8 @@ public class Core
 		m_bedrock.generateTiles();
 		
 		m_lava = new InfiniteBox();
-		m_lava.setSize( new Vector2f(Main.wnd.getSize().x * 2, BottomOfTheWorld.getTileCountY()*BottomOfTheWorld.getTileHeight()) );
-		m_lava.setPosition(-Main.wnd.getSize().x, -Main.wnd.getSize().y + BottomOfTheWorld.getTileCountY()*BottomOfTheWorld.getTileHeight());
+		m_lava.setSize( new Vector2f(Main.wnd.getSize().x * 2, Main.wnd.getSize().y + BottomOfTheWorld.getTileCountY()*BottomOfTheWorld.getTileHeight()) );
+		m_lava.setPosition(-Main.wnd.getSize().x / 2, -Main.wnd.getSize().y + BottomOfTheWorld.getTileCountY()*BottomOfTheWorld.getTileHeight());
 		m_lava.setFillColor(new Color(255, 165, 0, 127));
 		
 		m_player.setPosition(new Vector2f(0.f, -100.f));
@@ -75,8 +75,9 @@ public class Core
 		
 		Layer player_layer = new Layer();
 		player_layer.add(m_player);
-		player_layer.add(m_bedrock);
 		player_layer.add(m_lava);
+		player_layer.add(m_bedrock);
+		
 		
 		Layer information_layer = new Layer();
 		information_layer.add(m_heads_up_display);
@@ -201,7 +202,7 @@ public class Core
 	
 		// This block removes a random tile at the top (per frame, with a chance of 1% per frame)
 		{
-			if (Math.random() > .95f) // random returns a float within [0, 1]
+			if (Math.random() > .25f) // random returns a float within [0, 1]
 			{
 				Vector2f position = m_bedrock.eraseRandomTileAtTheTop();
 				if ( position != null )
@@ -264,8 +265,12 @@ public class Core
 			{
 				if 
 				( 
-						m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
-						|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
+						m_player.getPosition().y > 0
+						&& 
+						(
+							m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
+							|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
+						)
 				)
 				{
 					m_player.fetchImpulse().y += Player.CM_JUMPFORCE / CM_GEYSER_INVERSE_JUMPFORCE;
