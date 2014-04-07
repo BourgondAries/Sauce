@@ -53,6 +53,11 @@ public class Player extends DynamicObject
 		// very good...
 	}
 	
+	public static int getMaxHealth()
+	{
+		return CM_MAX_HEALTH;
+	}
+	
 	public void jump() 
 	{
 		{

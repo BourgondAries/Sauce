@@ -34,7 +34,7 @@ public class BottomOfTheWorld implements Drawable
 	{
 		public RelativeMagma()
 		{
-			super.setSize(new Vector2f(Main.wnd.getSize().x * 2, Main.wnd.getSize().y));
+			super.setSize(new Vector2f(Main.wnd.getSize().x * 2, Main.wnd.getSize().y * 10));
 			super.setFillColor(new Color(220, 20, 60));
 		}
 	}

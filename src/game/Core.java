@@ -32,6 +32,8 @@ public class Core
 	private LayerCollection m_layers = new LayerCollection();
 	private Player 			m_player;
 	private int 			m_damage_frames = CM_RED_FLASH_FRAME_COUNT;
+	private int	 			m_gameover_time = Main.framerate * 5;
+	private Text			m_gameover_text = new Text();
 	
 	private InfiniteBox 		m_lava;
 	private BottomOfTheWorld 	m_bedrock;
@@ -88,6 +90,10 @@ public class Core
 		
 		m_score_counter.setAbsoluteView(Main.wnd.getView());
 		
+		m_gameover_text.setFont(PathedFonts.getFont(Paths.get("res/pixelmix.ttf")));
+		m_gameover_text.setString("GAME OVER");
+		m_gameover_text.setPosition(Main.wnd.getSize().x / 2 - m_gameover_text.getGlobalBounds().width / 2, Main.wnd.getSize().y / 2);
+		
 		run();
 	}
 	
@@ -96,7 +102,8 @@ public class Core
 		while (Main.game_state == Main.states.core)
 		{
 			handleEvents();
-			runGameLogic();
+			if (m_player.getHealth() != 0)
+				runGameLogic();
 			updateObjects();
 			drawFrame();
 			
@@ -339,6 +346,14 @@ public class Core
 		
 		m_score_counter.update();
 		m_recent_score.update();
+		
+		m_heads_up_display.updateHealth(m_player.getHealth());
+		
+		if (m_player.getHealth() == 0)
+			--m_gameover_time;
+		
+		if (!(m_gameover_time > 0))
+			Main.game_state = Main.states.menu;
 	}
 	
 	private void setViewToPlayer()
@@ -388,6 +403,15 @@ public class Core
 		
 		for ( DynamicObject x : m_malm_objects )
 			Main.wnd.draw(x);
+		
+		if (m_player.getHealth() == 0)
+		{
+			ConstView oldview = Main.wnd.getView();
+			Main.wnd.setView(Main.wnd.getDefaultView());
+			Main.wnd.draw(m_gameover_text);
+			Main.wnd.setView(oldview);
+		}
+		
 		Main.wnd.display();
 	}
 }

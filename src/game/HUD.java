@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 
 import org.jsfml.graphics.*;
+import org.jsfml.system.*;
 
 import engine.*;
 
@@ -21,12 +22,45 @@ import engine.*;
  */
 public class HUD extends Absolute implements Drawable
 {
+	private RectangleShape[]
+		m_health = new RectangleShape[Player.getMaxHealth()];
+	
 	private Font m_drawing_font;
 	private Text m_display_text;
 	private boolean m_active = true;
 	
+	private Layer
+		m_layer = new Layer();
+	
+	private Texture
+		m_good_health,
+		m_bad_health;
+	
+	private int 
+		healthy = m_health.length;
+	
 	public HUD (RenderWindow x)
 	{
+		try
+		{
+			m_good_health = PathedTextures.getTexture(Paths.get("res/hud/hud_gear_whole.tga"));
+			m_bad_health = PathedTextures.getTexture(Paths.get("res/hud/hud_gear_broken.tga"));
+		}
+		catch (IOException exc_obj)
+		{
+			exc_obj.printStackTrace();
+		}
+			
+		for (int i = 0; i < m_health.length; ++i)
+		{
+			m_health[i] = new RectangleShape();
+			m_health[i].setSize(new Vector2f(m_good_health.getSize()));
+			m_health[i].setTexture(m_good_health);
+			m_health[i].setPosition(Main.wnd.getSize().x / 2 - (m_health.length  - i) * m_good_health.getSize().x, 0);
+			
+			m_layer.add(m_health[i]);
+		}
+		
 		super.setAbsoluteView(x.getDefaultView());
 		try 
 		{
@@ -36,6 +70,17 @@ public class HUD extends Absolute implements Drawable
 		catch (IOException e) 
 		{
 			e.printStackTrace();
+		}
+		
+		m_layer.add(m_display_text);
+	}
+	
+	public void updateHealth(int health)
+	{
+		if (healthy > health)
+		{
+			m_health[healthy - 1].setTexture(m_bad_health);
+			healthy = health;
 		}
 	}
 	
@@ -58,7 +103,7 @@ public class HUD extends Absolute implements Drawable
 	{
 		if (m_active)
 		{
-			super.draw(target, m_display_text);
+			super.draw(target, m_layer);
 		}
 	}
 }
