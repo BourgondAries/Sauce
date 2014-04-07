@@ -57,8 +57,9 @@ public class Shaft
 		m_rock_speed_uncertainty = 1.,
 		m_rock_size = 10.;
 		
-	public Shaft()
+	public Shaft(double difficulty)
 	{
+		m_difficulty = difficulty;
 		try 
 		{
 			Texture tex = PathedTextures.getTexture(Paths.get("res/shaft/wall_back.tga"));

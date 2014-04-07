@@ -176,10 +176,10 @@ public class BottomOfTheWorld implements Drawable
 				m_tiles.get(x).add(temporary_rectangleshape);
 			}
 		}
-		
-		// Mark the leftmost tiles with a color pattern (for debugging):
-		m_tiles.get(0).get(0).setFillColor(new Color(255, 0, 0));
-		m_tiles.get(9).get(0).setFillColor(new Color(0, 0, 255));
+//		
+//		// Mark the leftmost tiles with a color pattern (for debugging):
+//		m_tiles.get(0).get(0).setFillColor(new Color(255, 0, 0));
+//		m_tiles.get(9).get(0).setFillColor(new Color(0, 0, 255));
 	}
 	
 	/**

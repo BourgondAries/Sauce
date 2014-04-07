@@ -94,10 +94,10 @@ public class Core
 		m_gameover_text.setString("GAME OVER");
 		m_gameover_text.setPosition(Main.wnd.getSize().x / 2 - m_gameover_text.getGlobalBounds().width / 2, Main.wnd.getSize().y / 2);
 		
-		run();
+//		run();
 	}
 	
-	public void run()
+	public double run()
 	{
 		while (Main.game_state == Main.states.core)
 		{
@@ -111,8 +111,14 @@ public class Core
 			{
 				Main.wnd.setView(Main.wnd.getDefaultView());
 				Main.game_state = Main.states.shaft;
-				return;
+				return 0.;
 			}
+		}
+		
+		// Calculate difficulty based on time left.
+		{
+			Main.wnd.setView(Main.wnd.getDefaultView());
+			return ((double)m_timer.getTimeLeft()) / ((double)m_timer.getMaxDuration());
 		}
 	}
 	
@@ -131,11 +137,8 @@ public class Core
 							if (m_jumped.fetchAndDisable())
 								m_player.jump();
 							break;
-						case RETURN:
-							m_bedrock.eraseRandomTileAtTheTop();
-							break;
 						case ESCAPE:
-							Main.game_state = Main.states.menu;
+							Main.game_state = Main.states.shaft;
 							return;
 						case E:
 							m_player.fetchImpulse().z += 1.f;

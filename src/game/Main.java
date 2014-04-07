@@ -63,6 +63,7 @@ public class Main
 	
 	private void run()
 	{
+		double difficulty = 0.;
 		try {
 		
 			// Run program until close
@@ -80,10 +81,11 @@ public class Main
 					case surface:
 						break;
 					case core:
-						new Core();
+						difficulty = (new Core()).run();
+						System.out.println(difficulty);
 						break;
 					case shaft:
-						new Shaft();
+						new Shaft(difficulty);
 						break;
 					case enterscore:
 						new EnterScore();
