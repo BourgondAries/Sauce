@@ -56,7 +56,7 @@ public class HUD extends Absolute implements Drawable
 			m_health[i] = new RectangleShape();
 			m_health[i].setSize(new Vector2f(m_good_health.getSize()));
 			m_health[i].setTexture(m_good_health);
-			m_health[i].setPosition(Main.wnd.getSize().x / 2 - (m_health.length  - i) * m_good_health.getSize().x, 0);
+			m_health[i].setPosition(Main.wnd.getSize().x / 1.3f - (m_health.length  - i) * m_good_health.getSize().x, Main.wnd.getSize().y / 25);
 			
 			m_layer.add(m_health[i]);
 		}
@@ -72,7 +72,7 @@ public class HUD extends Absolute implements Drawable
 			e.printStackTrace();
 		}
 		
-		m_layer.add(m_display_text);
+//		m_layer.add(m_display_text);
 	}
 	
 	public void updateHealth(int health)

@@ -34,6 +34,7 @@ public class ScoreCounter extends Absolute implements Drawable
 		}
 		m_text.setFont(m_font);
 		m_text.setString("Derp");
+		m_text.setPosition(Main.wnd.getSize().x / 4, Main.wnd.getSize().y / 25);
 	}
 	
 	public void addScore(long n)
@@ -43,7 +44,7 @@ public class ScoreCounter extends Absolute implements Drawable
 	
 	public void update()
 	{
-		m_text.setString ( String.valueOf(m_score) );
+		m_text.setString ( "Score: " + String.valueOf(m_score) );
 	}
 	
 	public void draw(RenderTarget target, RenderStates states)

@@ -102,8 +102,7 @@ public class Core
 		while (Main.game_state == Main.states.core)
 		{
 			handleEvents();
-			if (m_player.getHealth() != 0)
-				runGameLogic();
+			runGameLogic();
 			updateObjects();
 			drawFrame();
 			
@@ -146,8 +145,8 @@ public class Core
 						case Q:
 							m_player.fetchImpulse().z -= 1.f;
 							break;
-						case H:
-							m_heads_up_display.setActive(!m_heads_up_display.getActive());
+//						case H:
+//							m_heads_up_display.setActive(!m_heads_up_display.getActive());
 						default:
 							break;
 					
@@ -194,11 +193,13 @@ public class Core
 	
 	private void runGameLogic()
 	{
-		// Effect of gravity on the player
+		if (isGameOver() == false)
 		{
-			m_player.fetchImpulse().y += 1.f;
+			// Effect of gravity on the player
+			{
+				m_player.fetchImpulse().y += 1.f;
+			}
 		}
-		
 		// Re-position part of BottomOfTheWorld so that we have fake continuity
 		{ 
 			float xpos = m_player.getPosition().x;
@@ -207,79 +208,62 @@ public class Core
 			else if (xpos + Main.wnd.getSize().x > m_bedrock.getXBounds().second )
 				m_bedrock.generateRight();
 		}
-	
-		// This block removes a random tile at the top (per frame, with a chance of 1% per frame)
+		
+		if (isGameOver() == false)
 		{
-			if (Math.random() > .25f) // random returns a float within [0, 1]
+			// This block removes a random tile at the top (per frame, with a chance of 1% per frame)
 			{
-				Vector2f position = m_bedrock.eraseRandomTileAtTheTop();
-				if ( position != null )
+				if (Math.random() > .25f) // random returns a float within [0, 1]
 				{
-					m_malm_objects.add
-					(
-						new Malm
+					Vector2f position = m_bedrock.eraseRandomTileAtTheTop();
+					if ( position != null )
+					{
+						m_malm_objects.add
 						(
-							new Vector2f
+							new Malm
 							(
-								(float) (position.x + BottomOfTheWorld.getTileWidth() / 2.f)
-								, (float) (position.y + BottomOfTheWorld.getTileHeight() / 2.f)
-							)	
-						)
-					);
-					m_malm_objects.get(m_malm_objects.size() - 1).setFillColor(new Color(127, 127, 127));
+								new Vector2f
+								(
+									(float) (position.x + BottomOfTheWorld.getTileWidth() / 2.f)
+									, (float) (position.y + BottomOfTheWorld.getTileHeight() / 2.f)
+								)	
+							)
+						);
+						m_malm_objects.get(m_malm_objects.size() - 1).setFillColor(new Color(127, 127, 127));
+					}
 				}
 			}
-		}
-		
-		// This block sets the text for the HUD, currently quite inefficient
-		{
-			m_heads_up_display.setText
-			(
-				"Player d^2y: " + m_player.getImpulse().y
-				+ "\nPlayer dy: " + m_player.getSpeed().y
-				+ "\nPlayer y: " + m_player.getPosition().y
-				+ "\nCurrent bedrock column height: " + m_bedrock.getCollisionTilePosition((int) m_player.getPosition().x)
-				+ "\nSecond bedrock column height: " + m_bedrock.getCollisionTilePosition((int) (m_player.getPosition().x + m_player.getSize().x))
-				+ (!m_bedrock.doesATileExistHere(m_player.getPosition()) ? "\ncollision" : "\n")
-				+ "Player health: " + m_player.getHealth()
-				+ "\nPlayer Speed: " + m_player.getSpeed()
-			);
-		}
-		
-		// This block checks for collision against bedrock, if it's true, the player is "bounced" upwards!
-		// It also flashes the screen red 
-		{
-			// Check if player's bottom is below the top-most tile
-			if 
-			( 
-				(
-					!m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x - m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y)) 
-					|| !m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x + m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y))
-				)
-//				||
-//				( // Check for collision with a geyser!
-//					m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
-//					|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
-//				)
-			)
+			
+			// This block sets the text for the HUD, currently quite inefficient
 			{
-				m_player.fetchImpulse().y += Player.CM_JUMPFORCE / CM_GEYSER_INVERSE_JUMPFORCE;
-				m_collision_with_bedrock.set(true);
-				if ( m_damage_frames == CM_RED_FLASH_FRAME_COUNT)
-					m_player.takeDamage();
-				m_player.fetchImpulse().z += m_player.fetchSpeed().x * CM_ROTATIONAL_MULTIPLIER;
+				m_heads_up_display.setText
+				(
+					"Player d^2y: " + m_player.getImpulse().y
+					+ "\nPlayer dy: " + m_player.getSpeed().y
+					+ "\nPlayer y: " + m_player.getPosition().y
+					+ "\nCurrent bedrock column height: " + m_bedrock.getCollisionTilePosition((int) m_player.getPosition().x)
+					+ "\nSecond bedrock column height: " + m_bedrock.getCollisionTilePosition((int) (m_player.getPosition().x + m_player.getSize().x))
+					+ (!m_bedrock.doesATileExistHere(m_player.getPosition()) ? "\ncollision" : "\n")
+					+ "Player health: " + m_player.getHealth()
+					+ "\nPlayer Speed: " + m_player.getSpeed()
+				);
 			}
 			
-			else
+			// This block checks for collision against bedrock, if it's true, the player is "bounced" upwards!
+			// It also flashes the screen red 
 			{
+				// Check if player's bottom is below the top-most tile
 				if 
 				( 
-						m_player.getPosition().y > m_lava.getPosition().y
-						&& 
-						(
-							m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
-							|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
-						)
+					(
+						!m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x - m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y)) 
+						|| !m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x + m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y))
+					)
+	//				||
+	//				( // Check for collision with a geyser!
+	//					m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
+	//					|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
+	//				)
 				)
 				{
 					m_player.fetchImpulse().y += Player.CM_JUMPFORCE / CM_GEYSER_INVERSE_JUMPFORCE;
@@ -288,56 +272,67 @@ public class Core
 						m_player.takeDamage();
 					m_player.fetchImpulse().z += m_player.fetchSpeed().x * CM_ROTATIONAL_MULTIPLIER;
 				}
-			}
-		}
-		
-		
-		// Update the position of the crimson ( The magma under bedrock itself )
-		{
-			m_bedrock.updateCrimsonRelativeTo(m_player.getPosition().x);
-		}
-		
-		// Set lava position to be correct:
-		{
-			m_lava.updateViaX(m_player.getPosition().x);
-		}
-		
-		// For each malm object, slow it down and perform updates
-		{
-			for ( DynamicObject x : m_malm_objects )
-			{
-				// 1. Perform all relocations
-				x.update();
 				
-				// 2. Perform friction
-				x.fetchSpeed().x /= CM_FRICTIONAL_FORCE_DECAY;
-				x.fetchSpeed().y /= CM_FRICTIONAL_FORCE_DECAY;
-			}
-		}
-		
-		// Each malm object, if within a certain box, accelerates towards the player
-		{
-			ArrayList<DynamicObject> to_remove = new ArrayList<>();
-			for ( Malm x : m_malm_objects )
-			{
-				if (x.isBoxNear(m_player, CM_REMOVAL_DISTANCE))
+				else
 				{
-					to_remove.add(x);
-					m_score_counter.addScore(x.getScore());
-					m_recent_score.pushScore(x.getScore(), m_player.getPosition(), new Color( (int) ( 255.f * ((float) x.getScore()) / Malm.getMaxScore()), 0, 0) );
-				}
-				else if (m_player.isBoxNear(x, CM_ACCELERATION_DISTANCE))
-				{
-					x.accelerateTowards(m_player, CM_ACCELERATION_SPEED);
+					if 
+					( 
+						m_player.getPosition().y > m_lava.getPosition().y
+						&& 
+						(
+							m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
+							|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
+						)
+					)
+					{
+						m_player.fetchImpulse().y += Player.CM_JUMPFORCE / CM_GEYSER_INVERSE_JUMPFORCE;
+						m_collision_with_bedrock.set(true);
+						if ( m_damage_frames == CM_RED_FLASH_FRAME_COUNT)
+							m_player.takeDamage();
+						m_player.fetchImpulse().z += m_player.fetchSpeed().x * CM_ROTATIONAL_MULTIPLIER;
+					}
 				}
 			}
-			for ( DynamicObject x : to_remove )
+			
+			
+			// For each malm object, slow it down and perform updates
 			{
-				m_malm_objects.remove(x);
+				for ( DynamicObject x : m_malm_objects )
+				{
+					// 1. Perform all relocations
+					x.update();
+					
+					// 2. Perform friction
+					x.fetchSpeed().x /= CM_FRICTIONAL_FORCE_DECAY;
+					x.fetchSpeed().y /= CM_FRICTIONAL_FORCE_DECAY;
+				}
+			}
+			
+			// Each malm object, if within a certain box, accelerates towards the player
+			{
+				ArrayList<DynamicObject> to_remove = new ArrayList<>();
+				for ( Malm x : m_malm_objects )
+				{
+					if (x.isBoxNear(m_player, CM_REMOVAL_DISTANCE))
+					{
+						to_remove.add(x);
+						m_score_counter.addScore(x.getScore());
+						m_recent_score.pushScore(x.getScore(), m_player.getPosition(), new Color( (int) ( 255.f * ((float) x.getScore()) / Malm.getMaxScore()), 0, 0) );
+					}
+					else if (m_player.isBoxNear(x, CM_ACCELERATION_DISTANCE))
+					{
+						x.accelerateTowards(m_player, CM_ACCELERATION_SPEED);
+					}
+				}
+				for ( DynamicObject x : to_remove )
+				{
+					m_malm_objects.remove(x);
+				}
 			}
 		}
 	}
-
+	
+	
 	private void updateObjects() 
 	{
 		m_player.update();
@@ -352,7 +347,17 @@ public class Core
 		
 		m_heads_up_display.updateHealth(m_player.getHealth());
 		
-		if (m_player.getHealth() == 0)
+		// Update the position of the crimson ( The magma under bedrock itself )
+		{
+			m_bedrock.updateCrimsonRelativeTo(m_player.getPosition().x);
+		}
+		
+		// Set lava position to be correct:
+		{
+			m_lava.updateViaX(m_player.getPosition().x);
+		}
+		
+		if (isGameOver())
 			--m_gameover_time;
 		
 		if (!(m_gameover_time > 0))
@@ -373,7 +378,10 @@ public class Core
 		Main.wnd.setView(v);
 	}
 	
-	
+	public boolean isGameOver()
+	{
+		return m_player.getHealth() == 0;
+	}
 	
 	private void drawFrame ( )
 	{
@@ -407,7 +415,7 @@ public class Core
 		for ( DynamicObject x : m_malm_objects )
 			Main.wnd.draw(x);
 		
-		if (m_player.getHealth() == 0)
+		if (isGameOver())
 		{
 			ConstView oldview = Main.wnd.getView();
 			Main.wnd.setView(Main.wnd.getDefaultView());

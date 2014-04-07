@@ -34,20 +34,31 @@ public class SyncTrack {
 	public static void cleanList() {
 		for (int i = 0; i<sounds_playing.size(); i++) {
 			Sound sound = sounds_playing.get(i);
-			if (sound.getStatus()!=SoundSource.Status.PLAYING) {
+			if (sound.getStatus() != SoundSource.Status.PLAYING) 
+			{
+				System.out.println("Removed sound");
 				sounds_playing.remove(i);
 				i--;
 			}
 		}
 	}
 	
+	public static void forceClean()
+	{
+		sounds_playing.clear();
+	}
+	
 	public void play() {
+		if (sounds_playing.size() > 10)
+			forceClean();
 		Sound new_sound = new Sound(track);
 		sounds_playing.add(new_sound);
 		new_sound.play();
 	}
 	
 	public static void play(Sound sound) {
+		if (sounds_playing.size() > 10)
+			forceClean();
 		Sound new_sound = new Sound(sound);
 		sounds_playing.add(new_sound);
 		new_sound.play();

@@ -83,6 +83,7 @@ public class Main
 					case core:
 						difficulty = (new Core()).run();
 						System.out.println(difficulty);
+						System.out.println(game_state);
 						break;
 					case shaft:
 						new Shaft(difficulty);
