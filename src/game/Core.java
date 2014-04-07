@@ -59,8 +59,6 @@ public class Core
 		m_bedrock = new BottomOfTheWorld ( );
 		m_malm_objects = new ArrayList<>();
 		
-		System.out.println("CORE\n");
-		
 		m_bedrock.generateTiles();
 		
 		m_lava = new InfiniteBox();
@@ -104,10 +102,10 @@ public class Core
 			
 			if ( m_timer.hasEnded() )
 			{
+				Main.wnd.setView(Main.wnd.getDefaultView());
 				Main.game_state = Main.states.shaft;
 				return;
 			}
-			System.out.println("CORE");
 		}
 	}
 	
@@ -218,6 +216,7 @@ public class Core
 							)	
 						)
 					);
+					m_malm_objects.get(m_malm_objects.size() - 1).setFillColor(new Color(127, 127, 127));
 				}
 			}
 		}
@@ -244,7 +243,7 @@ public class Core
 			if 
 			( 
 				(
-					!m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x, m_player.getPosition().y + m_player.getSize().y)) 
+					!m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x - m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y)) 
 					|| !m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x + m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y))
 				)
 //				||
@@ -265,7 +264,7 @@ public class Core
 			{
 				if 
 				( 
-						m_player.getPosition().y > 0
+						m_player.getPosition().y > m_lava.getPosition().y
 						&& 
 						(
 							m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
@@ -348,7 +347,12 @@ public class Core
 		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
 		
 		// Scramble the view (Give the vibrating illusion), also topkek, magic numbers
-		v.move(m_rng.nextInt() % 2 - 1, m_rng.nextInt() % 2 - 1);
+		long proximity = m_timer.getTimeLeft();
+		long maxtime = m_timer.getMaxDuration();
+		long inverse = maxtime - proximity;
+		float divergence = 10.f * ((float) inverse) / ((float) maxtime);
+		System.out.println(divergence);
+		v.move(m_rng.nextInt() % divergence - divergence / 2.f, m_rng.nextInt() % divergence - divergence / 2.f);
 		Main.wnd.setView(v);
 	}
 	
@@ -356,7 +360,7 @@ public class Core
 	
 	private void drawFrame ( )
 	{
-		Main.wnd.clear();
+		Main.wnd.clear(new Color(30, 30, 30));
 		Main.wnd.draw(m_layers);
 		
 		// Red flashing when we have had collision with bedrock!

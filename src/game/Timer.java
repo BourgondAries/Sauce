@@ -69,6 +69,16 @@ public class Timer implements Drawable
 		return ( m_posix_time_at_start - System.currentTimeMillis() +  CM_TIME_DURATION_IN_MS < 0);
 	}
 	
+	public long getMaxDuration()
+	{
+		return CM_TIME_DURATION_IN_MS;
+	}
+	
+	public long getTimeLeft()
+	{
+		return m_posix_time_at_start - System.currentTimeMillis() +  CM_TIME_DURATION_IN_MS;
+	}
+	
 	public void draw ( RenderTarget target, RenderStates states )
 	{
 		ConstView oldview = target.getView();
