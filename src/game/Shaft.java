@@ -28,6 +28,8 @@ public class Shaft
 		m_wall_objects = new java.util.ArrayList<>();
 	private ArrayList<FallingRock>
 		m_falling_rocks = new ArrayList<>();
+	private FallingHealth 
+		m_falling_health = new FallingHealth();
 		
 	private Bool 
 		m_collision = new Bool(false);
@@ -36,7 +38,7 @@ public class Shaft
 		CM_BORDER_SIZE;
 	
 	private double // Clamped [0, 1], 0 = hardest, 1= doesn't spawn FallingRocks
-		m_difficulty = 0.0,
+		m_difficulty = 0.1,
 		m_rock_start_speed = 20., // The rock spawn with a certain speed
 		m_rock_speed_aberrant = 20., // A rock that is especially fast!
 		m_rock_speed_uncertainty = 1.,
@@ -67,6 +69,8 @@ public class Shaft
 		m_walls.add(m_wall_right);
 		
 		m_game_elements.add(m_ship);
+		m_game_elements.add(m_falling_health);
+		m_falling_health.setPosition(new Vector2f(0, Main.wnd.getSize().y));
 		
 		m_layers.add(m_walls, 1);
 		m_layers.add(m_game_elements, 0);
@@ -274,9 +278,34 @@ public class Shaft
 				if (ref.isBoxNear(m_ship, 0))
 				{
 					m_collision.set(true);
+					m_ship.takeDamage();
+					break;
 				}
 			}
 		}
+		
+		
+		// If the health is at a coord lower than the screen, try to put it atop again based on difficulty
+		{
+			if (m_falling_health.getPosition().y > Main.wnd.getSize().y)
+			{
+				if (Math.random() < m_difficulty)
+				{
+					m_falling_health.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -m_falling_health.getSize().y));
+				}
+			}
+		}
+		
+		// Check if there is collision with the health box!
+		{
+			if (m_falling_health.isBoxNear(m_ship, 0))
+			{
+				m_ship.repairDamage();
+				m_falling_health.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -Main.wnd.getSize().y));
+			}
+		}
+		
+		System.out.println(m_ship.getHealth());
 	}
 	
 	private void updateObjects()
@@ -296,6 +325,11 @@ public class Shaft
 			{
 				ref.update();
 			}
+		}
+		
+		// Update the health box
+		{
+			m_falling_health.update();
 		}
 		
 	}
