@@ -1,6 +1,6 @@
 package game;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -27,7 +27,7 @@ public class Main
 	// Entry point of the game
 	public Main()
 	{
-		game_state = states.core;
+		game_state = states.menu;
 		wnd = new RenderWindow(new VideoMode(1920, 1000, 32), "Shact");
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
@@ -40,7 +40,9 @@ public class Main
 	public static states 		game_state;
 	public static View 			view;
 	public static RenderWindow 	wnd;
-	public static int framerate = 60;
+	public static int 			framerate = 60;
+	public static java.util.ArrayList<engine.Pair<String, Long>>
+								score_collection = new java.util.ArrayList<>();
 
 	
 	public enum states
@@ -59,12 +61,63 @@ public class Main
 		shaft, // When we travel upward in the game, comes after core
 		enterscore
 	}
+	
+	
+	/**
+	 * Store the score into the score file.
+	 * 
+	 */
+	public static void storeScoreIntoFile()
+	{
+		try
+		{
+			FileWriter fstream = new FileWriter("score.txt");
+			BufferedWriter out = new BufferedWriter(fstream);
+			for (engine.Pair<String, Long> x : score_collection)
+			{
+				out.write(x.first + "\n" + x.second);
+			}
+			out.close();
+		}
+		catch (Exception exc_obj)
+		{
+			System.err.println("Error: " + exc_obj.getMessage());
+		}
+	}
 
+	
+	private static void loadScoreData() throws IOException
+	{
+		BufferedReader buff = new BufferedReader(new FileReader("score.txt"));
+		String line;
+		boolean is_name = true;
+		while ((line = buff.readLine()) != null) 
+		{
+			if (is_name)
+				score_collection.add(new engine.Pair<String, Long>(line, null));
+			else
+				score_collection.get(score_collection.size() - 1).second = Long.valueOf(line);
+			is_name = !is_name;
+		}
+		buff.close();
+	}
 	
 	private void run()
 	{
+		try 
+		{
+			loadScoreData();
+			for (engine.Pair<String, Long> x : score_collection)
+			{
+				System.out.println(x.first + ": " + x.second);
+			}
+		} 
+		catch (IOException exc_obj) 
+		{
+			exc_obj.printStackTrace();
+		}
 		TransmittableData data = new TransmittableData();
-		
+	
 		try {
 		
 			// Run program until close
@@ -88,7 +141,7 @@ public class Main
 						new Shaft(data);
 						break;
 					case enterscore:
-						new EnterScore();
+						new EnterScore(data);
 						break;
 					case scoreboard:
 						new Scoreboard();
@@ -108,6 +161,7 @@ public class Main
 	
 	public static void dispose() 
 	{
+		storeScoreIntoFile();
 		wnd.close();
 		System.exit(0);
 	}

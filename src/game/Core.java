@@ -9,7 +9,7 @@ import java.util.Random;
 
 import org.jsfml.audio.Music;
 import org.jsfml.graphics.*;
-import org.jsfml.system.Vector2f;
+import org.jsfml.system.*;
 import org.jsfml.window.*;
 import org.jsfml.window.event.*;
 
@@ -32,6 +32,9 @@ public class Core
 	
 	private LayerCollection m_layers = new LayerCollection();
 	private Player 			m_player;
+	private int 			m_escape_frames = Main.framerate * 3;
+	private boolean			m_escaping = false;
+	private Bool			m_first_escape = new Bool(false);
 	private int 			m_damage_frames = CM_RED_FLASH_FRAME_COUNT;
 	private int	 			m_gameover_time = Main.framerate * 5;
 	private Text			m_gameover_text = new Text();
@@ -39,6 +42,7 @@ public class Core
 	private Music 			
 								m_distant_explosions,
 								m_background_music;
+	private SyncTrack 			m_launch_sound;
 	
 	private InfiniteBox 		m_lava;
 	private BottomOfTheWorld 	m_bedrock;
@@ -121,7 +125,7 @@ public class Core
 			updateObjects();
 			drawFrame();
 			
-			if ( m_timer.hasEnded() )
+			if ( m_timer.hasEnded() || m_escape_frames == 0 )
 			{
 				Main.wnd.setView(Main.wnd.getDefaultView());
 				Main.game_state = Main.states.shaft;
@@ -129,7 +133,7 @@ public class Core
 				// Sure would love to have RAII here :/ ~JustJavaThings~
 				m_distant_explosions.stop();
 				m_background_music.stop();
-				return_data.difficulty = 0.;
+				return_data.difficulty = ((double)m_timer.getTimeLeft()) / ((double)m_timer.getMaxDuration());
 				return_data.score = m_score_counter.getScore();
 				return return_data;
 			}
@@ -162,7 +166,18 @@ public class Core
 								m_player.jump();
 							break;
 						case ESCAPE:
-							Main.game_state = Main.states.shaft;
+							m_escaping = true;
+							m_first_escape.set(true);
+							m_player.setRotation(180.f);
+							try 
+							{
+								m_launch_sound = Formulas.loadSound("sfx/loud_explosion.ogg");
+								m_launch_sound.play();
+							} 
+							catch (IOException exc_obj) 
+							{
+								exc_obj.printStackTrace();
+							}
 							return;
 						case E:
 							m_player.fetchImpulse().z += 1.f;
@@ -211,10 +226,6 @@ public class Core
 		{
 			m_bedrock.eraseRandomTileAtTheTop();
 		} 
-		else if (Keyboard.isKeyPressed(Keyboard.Key.ESCAPE)) 
-		{
-			Main.game_state = Main.states.menu;
-		}
 	}
 	
 	private void runGameLogic()
@@ -355,6 +366,12 @@ public class Core
 					m_malm_objects.remove(x);
 				}
 			}
+			
+			// If we're escaping, launch the ship!
+			{
+				if (m_escaping)
+					m_player.setSpeed(new Vector3f(m_player.getSpeed().x, -100.f, m_player.getSpeed().z));
+			}
 		}
 	}
 	
@@ -388,6 +405,9 @@ public class Core
 		
 		if (!(m_gameover_time > 0))
 			Main.game_state = Main.states.menu;
+		
+		if (m_escaping && m_escape_frames > 0)
+			--m_escape_frames;
 	}
 	
 	private void setViewToPlayer()
@@ -412,43 +432,63 @@ public class Core
 	private void drawFrame ( )
 	{
 		Main.wnd.clear(new Color(30, 30, 30));
-		Main.wnd.draw(m_layers);
 		
-		// Red flashing when we have had collision with bedrock!
-		if ( m_collision_with_bedrock.fetchAndDisable() )
-			m_damage_frames = CM_RED_FLASH_RESET_NUMBER;
-		if ( m_damage_frames < CM_RED_FLASH_FRAME_COUNT )
+		if (m_first_escape.fetchAndDisable() == false)
 		{
-			RectangleShape rs = new RectangleShape();
-			rs.setSize(new Vector2f(Main.wnd.getSize()));
-			// A little dark magic:
-			rs.setFillColor
-			(
-				new Color
+		
+			Main.wnd.draw(m_layers);
+			
+			// Red flashing when we have had collision with bedrock!
+			if ( m_collision_with_bedrock.fetchAndDisable() )
+				m_damage_frames = CM_RED_FLASH_RESET_NUMBER;
+			if ( m_damage_frames < CM_RED_FLASH_FRAME_COUNT )
+			{
+				RectangleShape rs = new RectangleShape();
+				rs.setSize(new Vector2f(Main.wnd.getSize()));
+				// A little dark magic:
+				rs.setFillColor
 				(
-					CM_INTEGER_COLOR_MAX,
-					0, 
-					0, 
-					CM_INTEGER_COLOR_MAX - ( (int) ((((float) m_damage_frames) / ((float) CM_RED_FLASH_FRAME_COUNT)) * ((float) CM_INTEGER_COLOR_MAX ))) )
-			);
-			ConstView view = Main.wnd.getView();
-			Main.wnd.setView(Main.wnd.getDefaultView());
-			Main.wnd.draw(rs);
-			Main.wnd.setView(view);
-			++m_damage_frames;
+					new Color
+					(
+						CM_INTEGER_COLOR_MAX,
+						0, 
+						0, 
+						CM_INTEGER_COLOR_MAX - ( (int) ((((float) m_damage_frames) / ((float) CM_RED_FLASH_FRAME_COUNT)) * ((float) CM_INTEGER_COLOR_MAX ))) )
+				);
+				ConstView view = Main.wnd.getView();
+				Main.wnd.setView(Main.wnd.getDefaultView());
+				Main.wnd.draw(rs);
+				Main.wnd.setView(view);
+				++m_damage_frames;
+			}
+			
+			for ( DynamicObject x : m_malm_objects )
+				Main.wnd.draw(x);
+			
+			if (isGameOver())
+			{
+				ConstView oldview = Main.wnd.getView();
+				Main.wnd.setView(Main.wnd.getDefaultView());
+				Main.wnd.draw(m_gameover_text);
+				Main.wnd.setView(oldview);
+			}
 		}
-		
-		for ( DynamicObject x : m_malm_objects )
-			Main.wnd.draw(x);
-		
-		if (isGameOver())
+		else
 		{
-			ConstView oldview = Main.wnd.getView();
-			Main.wnd.setView(Main.wnd.getDefaultView());
-			Main.wnd.draw(m_gameover_text);
-			Main.wnd.setView(oldview);
+			Main.wnd.clear(Color.WHITE);
 		}
 		
+		if (m_escaping)
+		{
+			RectangleShape entire_screen = new RectangleShape();
+			entire_screen.setFillColor(new Color(0, 0, 0, 255 - m_escape_frames));
+			entire_screen.setSize(new Vector2f(Main.wnd.getSize()));
+			
+			ConstView tmp = Main.wnd.getView();
+			Main.wnd.setView(Main.wnd.getDefaultView());
+			Main.wnd.draw(entire_screen);
+			Main.wnd.setView(tmp);
+		}
 		Main.wnd.display();
 	}
 }

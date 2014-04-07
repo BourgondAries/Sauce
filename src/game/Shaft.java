@@ -48,7 +48,7 @@ public class Shaft
 	private Music
 		m_background_music;
 	private final int 
-		CM_MAX_PROGRESS = 180000;
+		CM_MAX_PROGRESS = 0;
 	private Bool 
 		m_collision = new Bool(false);
 	private final int 
@@ -59,6 +59,10 @@ public class Shaft
 		m_rock_speed_aberrant = 20., // A rock that is especially fast!
 		m_rock_speed_uncertainty = 1.,
 		m_rock_size = 10.;
+	private int	 			
+		m_gameover_time = Main.framerate * 5;
+	private Text			
+		m_gameover_text = new Text();
 		
 	public Shaft(TransmittableData data)
 	{
@@ -128,9 +132,25 @@ public class Shaft
 		
 		CM_BORDER_SIZE = (int) m_wall_left.getSize().x;
 		
+		try 
+		{
+			m_gameover_text.setFont(PathedFonts.getFont(Paths.get("res/pixelmix.ttf")));
+		} 
+		catch (IOException exc_obj) 
+		{
+			exc_obj.printStackTrace();
+		}
+		m_gameover_text.setString("GAME OVER");
+		m_gameover_text.setPosition(Main.wnd.getSize().x / 2 - m_gameover_text.getGlobalBounds().width / 2, Main.wnd.getSize().y / 2);
+		
 		initShip(data);
 		
 		run();
+	}
+	
+	private boolean isGameOver()
+	{
+		return m_ship.getHealth() == 0;
 	}
 	
 	private void initShip(TransmittableData data)
@@ -156,8 +176,11 @@ public class Shaft
 	{
 		do
 		{
-			handleEvents();
-			runGameLogic();
+			if (isGameOver() == false)
+			{
+				handleEvents();
+				runGameLogic();
+			}
 			updateObjects();
 			if (Main.game_state != Main.states.shaft)
 			{
@@ -332,6 +355,18 @@ public class Shaft
 				{
 					m_collision.set(true);
 					m_ship.takeDamage(true);
+					m_hud.updateHealth(m_ship.getHealth());
+					if (isGameOver())
+						try 
+						{
+							Texture tex = PathedTextures.getTexture(Paths.get("res/shaft/explosion.tga"));
+							m_ship.setSize(new Vector2f(tex.getSize()));
+							m_ship.setTexture(tex);
+						} 
+						catch (IOException exc_obj) 
+						{
+							exc_obj.printStackTrace();
+						}
 					m_framal_godmode += Main.framerate * 2;
 					break;
 				}
@@ -433,60 +468,69 @@ public class Shaft
 	
 	private void updateObjects()
 	{
-		// Update both walls
-		for (DynamicObject x : m_wall_objects)
+		if (isGameOver() == false)
 		{
-			x.update();
-		}
-		
-		// Update the ship...
-		m_ship.update();
-		
-		// Update the falling rocks position
-		{
-			for (FallingRock ref : m_falling_rocks)
+			// Update both walls
+			for (DynamicObject x : m_wall_objects)
 			{
-				ref.update();
+				x.update();
+			}
+			
+			// Update the ship...
+			m_ship.update();
+			
+			// Update the falling rocks position
+			{
+				for (FallingRock ref : m_falling_rocks)
+				{
+					ref.update();
+				}
+			}
+			
+			// Update the health box, and the booster
+			{
+				m_falling_health.update();
+				m_falling_booster.update();
+			}
+			
+			// Check the progress
+			{
+				m_progress += m_progress_speed;
+				if (m_progress > CM_MAX_PROGRESS)
+				{
+					Main.game_state = Main.states.enterscore;
+				}
+			}
+			
+			// Set the appropriate color for the background hue.
+			{
+				if (m_framal_booster == -1)
+				{
+					if (m_framal_godmode > 0)
+						m_background_hue.setFillColor(new Color(m_framal_godmode + 30, 30, 30, 127));
+					else if (m_framal_godmode < 0)
+						m_background_hue.setFillColor(new Color(30, 30 - m_framal_godmode, 30, 127));
+				}
+				else
+					m_background_hue.setFillColor(new Color(30, 30 + (m_framal_booster > 30 ? 30 : m_framal_booster), 30, 127));
+			}
+			
+			// Update the HUD's health display
+			{
+				m_hud.updateHealth(m_ship.getHealth());
+			}
+			
+			// Update the progress bar
+			{
+				m_progress_bar.update(m_progress, CM_MAX_PROGRESS);
 			}
 		}
+		// Gameover stuff
+		if (isGameOver())
+			--m_gameover_time;
 		
-		// Update the health box, and the booster
-		{
-			m_falling_health.update();
-			m_falling_booster.update();
-		}
-		
-		// Check the progress
-		{
-			m_progress += m_progress_speed;
-			if (m_progress > CM_MAX_PROGRESS)
-			{
-				Main.game_state = Main.states.enterscore;
-			}
-		}
-		
-		// Set the appropriate color for the background hue.
-		{
-			if (m_framal_booster == -1)
-			{
-				if (m_framal_godmode > 0)
-					m_background_hue.setFillColor(new Color(m_framal_godmode + 30, 30, 30, 127));
-				else if (m_framal_godmode < 0)
-					m_background_hue.setFillColor(new Color(30, 30 - m_framal_godmode, 30, 127));
-			}
-			else
-				m_background_hue.setFillColor(new Color(30, 30 + (m_framal_booster > 30 ? 30 : m_framal_booster), 30, 127));
-		}
-		
-		// Update the HUD's health display
-		{
-			m_hud.updateHealth(m_ship.getHealth());
-		}
-		
-		// Update the progress bar
-		{
-			m_progress_bar.update(m_progress, CM_MAX_PROGRESS);
-		}
+		if (!(m_gameover_time > 0))
+			Main.game_state = Main.states.menu;
 	}
 	
 	private void drawFrame()
@@ -498,6 +542,15 @@ public class Shaft
 			Main.wnd.draw(ref);
 		}
 		Main.wnd.draw(m_layers);
+		
+		if (isGameOver())
+		{
+			ConstView oldview = Main.wnd.getView();
+			Main.wnd.setView(Main.wnd.getDefaultView());
+			Main.wnd.draw(m_gameover_text);
+			Main.wnd.setView(oldview);
+		}
+		
 		Main.wnd.display();
 	}
 	
