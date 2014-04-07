@@ -16,6 +16,7 @@ import org.jsfml.window.event.KeyEvent;
 public class Shaft
 {
 	private Layer 
+		m_background_layer = new Layer(),
 		m_walls = new Layer(),
 		m_game_elements = new Layer();
 	private LayerCollection m_layers = new LayerCollection();
@@ -36,9 +37,12 @@ public class Shaft
 		m_framal_booster = -1,
 		m_progress = 0,
 		m_progress_speed = 20;
+	private RectangleShape 
+		m_background = new RectangleShape(),
+		m_background_hue = new RectangleShape();
 	
 	private final int 
-		CM_MAX_PROGRESS = 60000;
+		CM_MAX_PROGRESS = 90000;
 		
 	private Bool 
 		m_collision = new Bool(false);
@@ -57,22 +61,30 @@ public class Shaft
 	{
 		try 
 		{
-			Texture tex = PathedTextures.getTexture(Paths.get("res/shaft/wall.tga"));
+			Texture tex = PathedTextures.getTexture(Paths.get("res/shaft/wall_back.tga"));
+			m_background.setSize(new Vector2f(tex.getSize()));
+			m_background.setTexture(tex);
+			
+			tex = PathedTextures.getTexture(Paths.get("res/shaft/wall_left.tga"));
 			m_wall_left.setSize(new Vector2f(tex.getSize()));
 			m_wall_left.setTexture(tex);
-			m_wall_right.setSize(m_wall_left.getSize());
+			
+			tex = PathedTextures.getTexture(Paths.get("res/shaft/wall_right.tga"));
+			m_wall_right.setSize(new Vector2f(tex.getSize()));
 			m_wall_right.setTexture(tex);
 		} catch (IOException exc_obj) 
 		{
 			exc_obj.printStackTrace();
 		}
-		m_wall_left.setOriginToMiddle();
-		m_wall_right.setOriginToMiddle();
-		m_wall_right.setRotation(180.f);
-		m_wall_right.setPosition(Main.wnd.getSize().x - m_wall_right.getSize().x / 2, 0);
+		m_wall_right.setPosition(Main.wnd.getSize().x - m_wall_right.getSize().x, -m_wall_right.getSize().y + Main.wnd.getSize().y);
 		m_wall_objects.add(m_wall_left);
 		m_wall_objects.add(m_wall_right);
-		m_wall_left.setPosition(new Vector2f(m_wall_left.getSize().x / 2, 0));
+		m_wall_left.setPosition(new Vector2f(0, -m_wall_left.getSize().y + Main.wnd.getSize().y));
+		
+		m_background_layer.add(m_background);
+		m_background_layer.add(m_background_hue);
+		m_background_hue.setSize(m_background.getSize());
+		m_background_hue.setFillColor(new Color(0, 0, 0, 255));
 		
 		m_walls.add(m_wall_left);
 		m_walls.add(m_wall_right);
@@ -89,6 +101,7 @@ public class Shaft
 			exc_obj.printStackTrace();
 		}
 		m_game_elements.add(m_falling_booster);
+		
 		
 		m_layers.add(m_walls, 1);
 		m_layers.add(m_game_elements, 0);
@@ -200,9 +213,9 @@ public class Shaft
 		for (DynamicObject x : m_wall_objects)
 		{
 			x.fetchSpeed().y = 100.3f;
-			if (x.getPosition().y - x.getOrigin().y > 0)
+			if (x.getPosition().y > -x.fetchSpeed().y)
 			{
-				x.setPosition(x.getPosition().x, 0);
+				x.setPosition(x.getPosition().x, -x.getSize().y + Main.wnd.getSize().y);
 			}
 		}
 		
@@ -244,7 +257,7 @@ public class Shaft
 			if (Math.random() > m_difficulty)
 			{ 
 				FallingRock falling_rock = new FallingRock();
-				falling_rock.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -m_rock_size));
+				falling_rock.setPosition(new Vector2f((float) (Math.random() * ( Main.wnd.getSize().x - m_wall_left.getSize().x * 2) + m_wall_left.getSize().x), (float) -m_rock_size));
 				falling_rock.setSize(new Vector2f((float)m_rock_size, (float) m_rock_size));
 				falling_rock.setFillColor(new Color(255, 255, 255));
 				falling_rock.setSpeed
@@ -313,7 +326,7 @@ public class Shaft
 			{
 				if (Math.random() < m_difficulty)
 				{
-					m_falling_health.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -m_falling_health.getSize().y));
+					m_falling_health.setPosition(new Vector2f((float) (Math.random() * ( Main.wnd.getSize().x - m_wall_left.getSize().x * 2) + m_wall_left.getSize().x), (float) -m_falling_health.getSize().y));
 				}
 			}
 		}
@@ -323,7 +336,7 @@ public class Shaft
 			if (m_falling_health.isBoxNear(m_ship, 0))
 			{
 				m_ship.repairDamage();
-				m_falling_health.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -Main.wnd.getSize().y));
+				m_falling_health.setPosition(new Vector2f((float) (Math.random() * ( Main.wnd.getSize().x - m_wall_left.getSize().x * 2) + m_wall_left.getSize().x), (float) -Main.wnd.getSize().y));
 			}
 		}
 		
@@ -369,6 +382,7 @@ public class Shaft
 				for (FallingRock x : m_falling_rocks)
 				{
 					x.setSpeed(new Vector3f(x.getSpeed().x, x.getSpeed().y - 20.f, x.getSpeed().z));
+					x.setOutlineColor(new Color(255, 127, 127));
 				}
 				m_rock_start_speed -= 20;
 				m_progress_speed -= 20;
@@ -412,14 +426,19 @@ public class Shaft
 			}
 		}
 		
+		// Set the appropriate color for the background hue.
+		{
+			if (m_framal_booster == -1)
+				m_background_hue.setFillColor(new Color(m_framal_godmode + 30, 30, 30, 127));
+			else
+				m_background_hue.setFillColor(new Color(30, 30 + (m_framal_booster > 30 ? 30 : m_framal_booster), 30, 127));
+		}
 	}
 	
 	private void drawFrame()
 	{
-		if (m_framal_booster == -1)
-			Main.wnd.clear(new Color(m_framal_godmode + 30, 30, 30, 127));
-		else
-			Main.wnd.clear(new Color(30, 30 + (m_framal_booster > 30 ? 30 : m_framal_booster), 30, 127));
+		Main.wnd.clear();
+		Main.wnd.draw(m_background_layer);
 		for (FallingRock ref : m_falling_rocks)
 		{
 			Main.wnd.draw(ref);

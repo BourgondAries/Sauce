@@ -73,7 +73,6 @@ public class EnterScore
 				case TEXT_ENTERED:
 				{
 					char c = event.asTextEvent().character;
-					
 					if ((int) c == CM_SPACE) 
 					{
 						if (m_name.getString().length() > 0)
