@@ -53,16 +53,20 @@ public class SyncTrack {
 	}
 	
 	public void play() {
-		if (sounds_playing.size() > 3)
+		if (sounds_playing.size() > 30)
 			forceClean();
+		else
+			cleanList();
 		Sound new_sound = new Sound(track);
 		sounds_playing.add(new_sound);
 		new_sound.play();
 	}
 	
 	public static void play(Sound sound) {
-		if (sounds_playing.size() > 3)
+		if (sounds_playing.size() > 30)
 			forceClean();
+		else
+			cleanList();
 		Sound new_sound = new Sound(sound);
 		sounds_playing.add(new_sound);
 		new_sound.play();

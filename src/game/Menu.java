@@ -111,7 +111,7 @@ public class Menu {
 		long time_used = playIntro();
 		time_used = runMenu(time_used);
 		playOutro(time_used);
-		SyncTrack.cleanList();
+//		SyncTrack.cleanList();
 	}
 
 	private void spashScreen() {

@@ -125,8 +125,6 @@ public class Core
 		m_gameover_text.setFont(PathedFonts.getFont(Paths.get("res/pixelmix.ttf")));
 		m_gameover_text.setString("GAME OVER");
 		m_gameover_text.setPosition(Main.wnd.getSize().x / 2 - m_gameover_text.getGlobalBounds().width / 2, Main.wnd.getSize().y / 2);
-		
-//		run();
 	}
 	
 	public TransmittableData run() throws IOException
@@ -314,11 +312,6 @@ public class Core
 						!m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x - m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y)) 
 						|| !m_bedrock.doesATileExistHere(new Vector2f(m_player.getPosition().x + m_player.getSize().x, m_player.getPosition().y + m_player.getSize().y))
 					)
-	//				||
-	//				( // Check for collision with a geyser!
-	//					m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x )
-	//					|| m_bedrock.thereIsACollisionWithGeyser ( m_player.getPosition().x + m_player.getSize().x ) 
-	//				)
 				)
 				{
 					m_player.fetchImpulse().y += Player.CM_JUMPFORCE / CM_GEYSER_INVERSE_JUMPFORCE;
