@@ -132,10 +132,10 @@ public class Main
 			loadScoreData();
 			
 			// Printns all scores retrieved from the file score.txt
-//			for (engine.Pair<String, Long> x : score_collection)
-//			{
-//				System.out.println(x.first + ": " + x.second);
-//			}
+			for (engine.Pair<String, Long> x : score_collection)
+			{
+				System.out.println(x.first + ": " + x.second);
+			}
 		} 
 		catch (IOException exc_obj) 
 		{
