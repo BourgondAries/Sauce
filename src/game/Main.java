@@ -62,9 +62,10 @@ public class Main
 	public static String encode(String x)
 	{
 		StringBuilder builder = new StringBuilder();
+		int i = 300;
 		for (char ch : x.toCharArray())
 		{
-			builder.append(((char)(ch + 300)));
+			builder.append(((char)(ch + ++i)));
 		}
 		return builder.toString();
 	}
@@ -72,9 +73,10 @@ public class Main
 	public static String decode(String x)
 	{
 		StringBuilder builder = new StringBuilder();
+		int i = 300;
 		for (char ch : x.toCharArray())
 		{
-			builder.append(((char)(ch - 300)));
+			builder.append(((char)(ch - ++i)));
 		}
 		return builder.toString();
 	}
@@ -128,10 +130,12 @@ public class Main
 		try 
 		{
 			loadScoreData();
-			for (engine.Pair<String, Long> x : score_collection)
-			{
-				System.out.println(x.first + ": " + x.second);
-			}
+			
+			// Printns all scores retrieved from the file score.txt
+//			for (engine.Pair<String, Long> x : score_collection)
+//			{
+//				System.out.println(x.first + ": " + x.second);
+//			}
 		} 
 		catch (IOException exc_obj) 
 		{
