@@ -118,6 +118,8 @@ public class Tutorial
 					switch (keyev.key)
 					{
 						case UP:
+						case ESCAPE:
+							Main.game_state = Main.states.core;
 							exit();
 							break;
 						default:

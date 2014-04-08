@@ -48,7 +48,7 @@ public class Shaft
 	private Music
 		m_background_music;
 	private final int 
-		CM_MAX_PROGRESS = 0;
+		CM_MAX_PROGRESS = 90000;
 	private Bool 
 		m_collision = new Bool(false);
 	private final int 

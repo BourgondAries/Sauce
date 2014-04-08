@@ -2,20 +2,12 @@ package game;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 
 import org.jsfml.graphics.*;
 import org.jsfml.system.Vector2f;
-import org.jsfml.system.Vector3f;
-import org.jsfml.window.Keyboard;
 import org.jsfml.window.event.Event;
-import org.jsfml.window.event.KeyEvent;
 
-import ttl.Bool;
-import engine.DynamicObject;
-import engine.Formulas;
 import engine.Layer;
-import engine.LayerCollection;
 import engine.PathedFonts;
 import engine.PathedTextures;
 

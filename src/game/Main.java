@@ -84,8 +84,11 @@ public class Main
 			System.err.println("Error: " + exc_obj.getMessage());
 		}
 	}
-
 	
+	/**
+	 * Load the score from the score file into "score_collection"
+	 * @throws IOException
+	 */
 	private static void loadScoreData() throws IOException
 	{
 		BufferedReader buff = new BufferedReader(new FileReader("score.txt"));

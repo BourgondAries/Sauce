@@ -83,7 +83,7 @@ public class Core
 		m_lava.setPosition(-Main.wnd.getSize().x / 2, -Main.wnd.getSize().y + BottomOfTheWorld.getTileCountY()*BottomOfTheWorld.getTileHeight());
 		m_lava.setFillColor(new Color(255, 165, 0, 127));
 		
-		m_player.setPosition(new Vector2f(0.f, -100.f));
+		m_player.setPosition(new Vector2f(0.f, -800.f));
 		m_player.setOrigin(m_player.getSize().x / 2, m_player.getSize().y / 2);
 		
 		m_heads_up_display = new HUD(Main.wnd);

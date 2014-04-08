@@ -3,12 +3,12 @@ package game;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
 
-import java.io.IOException;
-import java.nio.file.Paths;
+//import java.io.IOException;
+//import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import engine.Pair;
-import engine.PathedTextures;
+//import engine.PathedTextures;
 
 
 /**
@@ -42,8 +42,10 @@ public class BottomOfTheWorld implements Drawable
 		}
 	}
 	
-	private Texture
-		m_tile_texture;
+	// Apparently, using a texture. Even on my monstrous SLI laptop, causes lag.
+	// SFML isn't really optimized... OpenGL, I... let's wait for memristors! :D
+//	private Texture
+//		m_tile_texture;
 	
 	/**
 	 * C: Constant
@@ -138,8 +140,8 @@ public class BottomOfTheWorld implements Drawable
 		// of annoying me with adding THROWS or try-catch absolutely everywhere. Cancer.
 		// I mean, having main handle exceptions in MOST cases is very efficient for debugging. Other exceptions can be handled locally 
 		// to keep the program running correctly.
-		try{m_tile_texture = PathedTextures.getTexture(Paths.get("res/core/core_tile.tga"));}
-		catch (IOException exc_obj){exc_obj.printStackTrace();}
+//		try{m_tile_texture = PathedTextures.getTexture(Paths.get("res/core/core_tile.tga"));}
+//		catch (IOException exc_obj){exc_obj.printStackTrace();}
 		
 		m_crimson.setPosition(0, CM_TILE_HEIGHT * CM_TILE_COUNT_Y);
 		
@@ -229,7 +231,7 @@ public class BottomOfTheWorld implements Drawable
 	 * 
 	 * 1 2 3 4 5 6 7 8 9 -> 3 4 5 6 7 8 9 1 2 3
 	 * 
-	 * TODO: Implement premature decay thanks to time.
+	 * ~TODO: Implement premature decay thanks to time.~ Done
 	 */
 	public void generateLeft()
 	{
