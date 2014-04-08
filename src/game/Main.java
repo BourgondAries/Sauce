@@ -17,13 +17,7 @@ public class Main
 	{	
 		new Main();
 	}
-	
-	
-	
-	
-	
-	
-	
+
 	// Entry point of the game
 	public Main()
 	{
