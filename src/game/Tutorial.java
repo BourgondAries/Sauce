@@ -6,12 +6,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsfml.audio.Music;
+import org.jsfml.audio.Sound;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
 import org.jsfml.window.event.Event;
 import org.jsfml.window.event.KeyEvent;
 
 import engine.Formulas;
+import engine.PathedSounds;
 import engine.PathedTextures;
 import game.SpeechBox.StatusBox;
 
@@ -20,6 +22,8 @@ public class Tutorial
 	RectangleShape 
 		m_ship, 
 		m_sky;
+	
+	private HUD hud = new HUD(Main.wnd);
 	
 	private final float 
 			TEXTURE_HEIGHT_MULTIPLIER = 30.f,
@@ -46,8 +50,44 @@ public class Tutorial
 	private boolean exit_initiated = false;
 	private boolean exit_started = false;
 	private boolean box_not_opened = true;
+	private float time_to_fade_in_music = 3000;
+	private float displacement_crash_textures = 50;
 	private long start_time;
+	private long start_end_time;
+	private boolean end_precache_done = false;
 	private SpeechBox box;
+	private Music background_music = new Music();
+	private boolean fase_1 = true;
+	private boolean fase_2 = false;
+	private boolean fase_3 = false;
+	private float fase_2_scale = 0.2f;
+	private Sprite img_mountains;
+	private Sprite img_grass;
+	private List<Sprite> speedness = new ArrayList<>();
+	private boolean init_after_crach = true;
+	private float duration_of_shake = 1000;
+	private float duration_of_wait = 2000;
+	private float when_to_play_sound = 2500;
+	private boolean sound_is_played = false;
+	private Sound aud_before_expl;
+	private Sound aud_expl;
+	private Sound aud_impact;
+	private Sound aud_digging;
+	private float fase_2_wind_pitch = 3;
+	private RectangleShape flash = new RectangleShape();
+	
+	private Texture to_core_rand_1;
+	private Texture to_core_rand_2;
+	private Texture to_core_rand_3;
+	private Texture to_core_rand_4;
+	private Texture to_core_rand_5;
+	
+	private float fase_2_ground_height = 200;
+	private Vector2f background_position;
+	private float fase_2_ship_speed = 20f;
+	private float time_to_dig = 1000;
+
+	private int ammount_of_stuff = 50;
 	
 	Tutorial ( ) throws IOException
 	{	
@@ -56,6 +96,12 @@ public class Tutorial
 		aud_wind.setVolume(0);
 		aud_wind.setLoop(true);
 		aud_wind.play();
+		
+		// Load music
+		background_music.openFromFile(Paths.get("sfx/tutorial_music.ogg"));
+		background_music.setLoop(true);
+		background_music.setVolume(0);
+		background_music.play();
 		
 		// We need a sky background, ship in the middle.
 		// Sky must be moving.
@@ -71,11 +117,31 @@ public class Tutorial
 		ship_move_to = new Vector2f(Main.wnd.getSize().x / 2 - m_ship.getSize().x / 2,0);
 		ship_move_from = new Vector2f(Main.wnd.getSize().x / 2 - m_ship.getSize().x / 2, - m_ship.getSize().y);
 		
+		flash.setSize(new Vector2f(Main.wnd.getSize()));
+		flash.setPosition(0,0);
+		flash.setFillColor(new Color(255,255,255,0));
+		
 		m_sky = new RectangleShape ( );
 		try 
 		{
+			// Load sounds
+			aud_before_expl = new Sound(PathedSounds.getSound(Paths.get("sfx/crash_right_before_launch.ogg")));
+			aud_expl = new Sound(PathedSounds.getSound(Paths.get("sfx/crash_launch.ogg")));
+			aud_impact = new Sound(PathedSounds.getSound(Paths.get("sfx/crash.ogg")));
+			aud_digging = new Sound(PathedSounds.getSound(Paths.get("sfx/crash_through_earth.ogg")));
+			aud_digging.setLoop(true);
+			
+			// Load stuff
+			to_core_rand_1 = PathedTextures.getTexture(Paths.get("res/tutorial/to_core_rand_1.tga"));
+			to_core_rand_2 = PathedTextures.getTexture(Paths.get("res/tutorial/to_core_rand_2.tga"));
+			to_core_rand_3 = PathedTextures.getTexture(Paths.get("res/tutorial/to_core_rand_3.tga"));
+			to_core_rand_4 = PathedTextures.getTexture(Paths.get("res/tutorial/to_core_rand_4.tga"));
+			to_core_rand_5 = PathedTextures.getTexture(Paths.get("res/tutorial/to_core_rand_5.tga"));
+			
 			box = new SpeechBox();
 			star = PathedTextures.getTexture(Paths.get("res/tutorial/star.tga"));
+			img_mountains = new Sprite(PathedTextures.getTexture(Paths.get("res/tutorial/crash_back.tga")));
+			img_grass = new Sprite(PathedTextures.getTexture(Paths.get("res/tutorial/crash_front.tga")));
 			Texture tex = PathedTextures.getTexture(Paths.get("res/tutorial/sky.tga"));
 			tex.setRepeated ( true );
 			TEXTURE_WIDTH = tex.getSize().x;
@@ -86,7 +152,14 @@ public class Tutorial
 		catch ( IOException exc_obj ) 
 		{
 			exc_obj.printStackTrace();
+			Main.dispose();
 		}
+		
+		// Set position for background
+		background_position = new Vector2f((Main.wnd.getSize().x-img_mountains.getGlobalBounds().width)/2,
+				Main.wnd.getSize().y+displacement_crash_textures-img_mountains.getGlobalBounds().height);
+		img_mountains.setPosition(background_position);
+		img_grass.setPosition(img_mountains.getPosition());
 		
 		// Write tutorial text
 		box.changePosition(new Vector2f(
@@ -143,7 +216,9 @@ public class Tutorial
 		{
 			handleEvents();
 			runGameLogic();
-			updateObjects();
+			if (fase_1) faseOne();
+			else if (fase_2) faseTwo();
+			else faseThree();
 			drawFrame();
 		}
 		while ( Main.game_state == Main.states.tutorial );
@@ -203,29 +278,35 @@ public class Tutorial
 	
 	private void runGameLogic()
 	{
-		// Change the sky's color to be more earthly in this frame.
-		if (color_clamp < 1.f)
-			color_clamp += COLOR_SPECTRUM_DELTA;
-		
-		// Set the new color:
-		clear_color = new Color((int) (189 * color_clamp * color_clamp), (int) (230 * color_clamp * color_clamp), (int) (255 * color_clamp));
-		m_sky.setFillColor(new Color(255,255,255,(int) (255*color_clamp)));
-		
-		// Move the sky texture upwards.
-		// If the end has been reached, we return the position to (0, 0).
-		// We also randomize the x-axis so that each iteration looks semi-random.
-		{
-			m_sky.move(new Vector2f(0.f, SKY_SCROLL_SPEED_PIX_PER_FRAME));
-			if ( m_sky.getPosition().y < -m_sky.getSize().y + Main.wnd.getSize().y )
+		if (fase_2) {
+			clear_color = new Color(189,230,255);
+		} else if (fase_3) {
+			clear_color = new Color(109,92,85);
+		} else {
+			// Change the sky's color to be more earthly in this frame.
+			if (color_clamp < 1.f)
+				color_clamp += COLOR_SPECTRUM_DELTA;
+			
+			// Set the new color:
+			clear_color = new Color((int) (189 * color_clamp * color_clamp), (int) (230 * color_clamp * color_clamp), (int) (255 * color_clamp));
+			m_sky.setFillColor(new Color(255,255,255,(int) (255*color_clamp)));
+			
+			// Move the sky texture upwards.
+			// If the end has been reached, we return the position to (0, 0).
+			// We also randomize the x-axis so that each iteration looks semi-random.
 			{
-				m_sky.setPosition 
-				( 
-					new Vector2f
+				m_sky.move(new Vector2f(0.f, SKY_SCROLL_SPEED_PIX_PER_FRAME));
+				if ( m_sky.getPosition().y < -m_sky.getSize().y + Main.wnd.getSize().y )
+				{
+					m_sky.setPosition 
 					( 
-						(float) (-Math.random()) * m_sky.getSize().x / 2.f
-						, Main.wnd.getSize().y
-					) 
-				);
+						new Vector2f
+						( 
+							(float) (-Math.random()) * m_sky.getSize().x / 2.f
+							, Main.wnd.getSize().y
+						) 
+					);
+				}
 			}
 		}
 	}
@@ -240,7 +321,63 @@ public class Tutorial
 		return new_sprite;
 	}
 	
-	private void updateObjects()
+	private Sprite makeSpeedThing() {
+		double likeliness = Math.random();
+		Texture random_tex = 
+			likeliness>0.8?to_core_rand_1:
+			likeliness>0.6?to_core_rand_2:
+			likeliness>0.4?to_core_rand_3:
+			likeliness>0.2?to_core_rand_4:
+			to_core_rand_5;
+		Sprite new_sprite = new Sprite(random_tex);
+		new_sprite.setOrigin(new_sprite.getLocalBounds().width/2, new_sprite.getLocalBounds().height/2);
+		new_sprite.setPosition((float) (Math.random()*Main.wnd.getSize().x),
+				(float) (Math.random()*Main.wnd.getSize().y));
+		return new_sprite;
+	}
+	
+	private void faseTwo() {
+		if (Main.wnd.getSize().y - m_ship.getPosition().y>fase_2_ground_height) {
+			m_ship.move(0, fase_2_ship_speed);
+		} else if (init_after_crach) {
+			aud_wind.stop();
+			init_after_crach = false;
+			start_time = System.currentTimeMillis();
+			aud_impact.play();
+		} else if (System.currentTimeMillis()-start_time<duration_of_shake) {
+			float x = 1-(System.currentTimeMillis()-start_time)/duration_of_shake;
+			img_mountains.setPosition( (float) (background_position.x+(Math.random()*2-1)*displacement_crash_textures*x),
+					(float) (background_position.y+(Math.random()*2-1)*displacement_crash_textures*x));
+			img_grass.setPosition((float) (background_position.x+(Math.random()*2-1)*displacement_crash_textures*x),
+					(float) (background_position.y+(Math.random()*2-1)*displacement_crash_textures*x));
+			flash.setFillColor(new Color(255,255,255,(int) (255*x)));
+		} else if (System.currentTimeMillis()-start_time<duration_of_shake+duration_of_wait) {
+			if (System.currentTimeMillis()-start_time<when_to_play_sound && !sound_is_played) {
+				aud_before_expl.play();
+				sound_is_played = true;
+			}
+		} else {
+			aud_before_expl.stop();
+			aud_expl.play();
+			aud_digging.play();
+			fase_2 = false;
+			fase_3 = true;
+			start_time = System.currentTimeMillis();
+		}
+	}
+	
+	private void faseThree() {
+		speedness.clear();
+		for (int i = 0; i < ammount_of_stuff ; i++) {
+			speedness.add(makeSpeedThing());
+		}
+		if (System.currentTimeMillis()-start_time>=time_to_dig) {
+			aud_digging.stop();
+			Main.game_state = Main.states.core;
+		}
+	}
+	
+	private void faseOne()
 	{
 		// Handle textbox
 		if (box_not_opened && System.currentTimeMillis() - start_time >= TIME_TO_OPEN_BOX) {
@@ -255,7 +392,19 @@ public class Tutorial
 		box.update();
 		
 		// Update music
-		aud_wind.setVolume(100*Formulas.slow_stop(color_clamp));
+		aud_wind.setVolume(100*Formulas.very_slow_stop(color_clamp));
+		float volume;
+		if (!exit_initiated) {
+			volume = (System.currentTimeMillis() - start_time)/time_to_fade_in_music;
+		} else {
+			if (!end_precache_done) {
+				start_end_time = System.currentTimeMillis();
+				end_precache_done = true;
+			}
+			volume = 1-(System.currentTimeMillis() - start_end_time)/time_to_fade_in_music;
+		}
+		volume = volume > 1 ? 1 : volume < 0 ? 0 : volume;
+		background_music.setVolume(100*volume);
 		
 		// Update move to position
 		if (ship_move_completeness.x>=1) {
@@ -268,7 +417,16 @@ public class Tutorial
 //			System.out.println("x: "+ship_move_to.x);
 		}
 		if (ship_move_completeness.y>=1) {
-			if (exit_started) Main.game_state = Main.states.core;
+			if (exit_started) {
+				aud_wind.setPitch(fase_2_wind_pitch);
+				aud_wind.setVolume(100);
+				background_music.stop();
+				fase_2 = true;
+				fase_1 = false;
+				m_ship.setScale(fase_2_scale, fase_2_scale);
+				m_ship.setPosition(Main.wnd.getSize().x/2, -m_ship.getSize().y);
+				return;
+			}
 			ship_move_completeness = new Vector2f(ship_move_completeness.x,0);
 			ship_move_from = new Vector2f(ship_move_from.x,ship_move_to.y);
 			
@@ -300,22 +458,29 @@ public class Tutorial
 			star.move(0, STAR_SCROLL_SPEED_PIX_PER_FRAME);
 			star.setColor(new Color(255,255,255,(int) (255*Formulas.slow_top_early_then_return(color_clamp))));
 		}
+		
 	}
 	
 	private void exit() {
 		exit_initiated = true;
-		aud_wind.stop();
 	}
 	
 	private void drawFrame()
 	{
 		Main.wnd.clear ( clear_color );
-		if (color_clamp<1f)	for (Sprite star : stars) {
+		if (color_clamp<1f && fase_1)	for (Sprite star : stars) {
 			Main.wnd.draw ( star );
 		}
-		Main.wnd.draw ( m_sky );
+		if (fase_3) for (Sprite thing : speedness) {
+			Main.wnd.draw ( thing );
+		}
+		if (fase_1) Main.wnd.draw ( m_sky );
+		if (fase_2) Main.wnd.draw ( img_mountains );
 		Main.wnd.draw ( m_ship );
-		Main.wnd.draw ( box );
+		if (fase_2) Main.wnd.draw ( img_grass );
+		if (fase_1) Main.wnd.draw ( box );
+		Main.wnd.draw(hud);
+		if (fase_2) Main.wnd.draw( flash );
 		Main.wnd.display ( );
 	}
 }
