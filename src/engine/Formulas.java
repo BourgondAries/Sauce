@@ -1,5 +1,11 @@
 package engine;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+
+import org.jsfml.audio.Music;
+import org.jsfml.audio.Sound;
+
 public class Formulas {
 	private Formulas() {}
 	
@@ -29,5 +35,17 @@ public class Formulas {
 	
 	public static float sinus_in(float x) {
 		return 1-sinus_out(x);
+	}
+	
+	public static Music loadMusic(String path) throws IOException {
+		Music new_sound = new Music();
+		new_sound.openFromFile(Paths.get(path));
+		return new_sound;
+	}
+	
+	public static SyncTrack loadSound(String path) throws IOException {
+		Sound new_sound = new Sound();
+		new_sound.setBuffer(PathedSounds.getSound(Paths.get(path)));
+		return new SyncTrack(new_sound);
 	}
 }

@@ -1,6 +1,6 @@
 package game;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -12,17 +12,13 @@ import org.jsfml.window.*;
 
 public class Main
 {
+	
 	// Entry point of the program
 	public static void main ( String[] args ) throws IOException
 	{	
 		new Main();
 	}
-	
-	
-	
-	
-	
-	
+
 	
 	// Entry point of the game
 	public Main()
@@ -40,8 +36,10 @@ public class Main
 	public static states 		game_state;
 	public static View 			view;
 	public static RenderWindow 	wnd;
-	public static int framerate = 60;
-
+	public static int 			framerate = 60;
+	public static java.util.ArrayList<engine.Pair<String, Long>>
+								score_collection = new java.util.ArrayList<>();
+							
 	
 	public enum states
 	{
@@ -59,10 +57,92 @@ public class Main
 		shaft, // When we travel upward in the game, comes after core
 		enterscore
 	}
-
+	
+	
+	public static String encode(String x)
+	{
+		StringBuilder builder = new StringBuilder();
+		int i = 300;
+		for (char ch : x.toCharArray())
+		{
+			builder.append(((char)(ch + ++i)));
+		}
+		return builder.toString();
+	}
+	
+	public static String decode(String x)
+	{
+		StringBuilder builder = new StringBuilder();
+		int i = 300;
+		for (char ch : x.toCharArray())
+		{
+			builder.append(((char)(ch - ++i)));
+		}
+		return builder.toString();
+	}
+	
+	/**
+	 * Store the score into the score file.
+	 * 
+	 */
+	public static void storeScoreIntoFile()
+	{
+		try
+		{
+			FileWriter fstream = new FileWriter("score.txt");
+			BufferedWriter out = new BufferedWriter(fstream);
+			for (engine.Pair<String, Long> x : score_collection)
+			{
+				out.write(encode(x.first) + "\n" + encode(String.valueOf(x.second)) + "\n");
+			}
+			out.close();
+		}
+		catch (Exception exc_obj)
+		{
+			System.err.println("Error: " + exc_obj.getMessage());
+		}
+	}
+	
+	
+	/**
+	 * Load the score from the score file into "score_collection"
+	 * @throws IOException
+	 */
+	private static void loadScoreData() throws IOException
+	{
+		BufferedReader buff = new BufferedReader(new FileReader("score.txt"));
+		String line;
+		boolean is_name = true;
+		while ((line = buff.readLine()) != null) 
+		{
+			if (is_name)
+				score_collection.add(new engine.Pair<String, Long>(decode(line), null));
+			else
+				score_collection.get(score_collection.size() - 1).second = Long.valueOf(decode(line));
+			is_name = !is_name;
+		}
+		buff.close();
+	}
+	
 	
 	private void run()
 	{
+		try 
+		{
+			loadScoreData();
+			
+			// Printns all scores retrieved from the file score.txt
+			for (engine.Pair<String, Long> x : score_collection)
+			{
+				System.out.println(x.first + ": " + x.second);
+			}
+		} 
+		catch (IOException exc_obj) 
+		{
+			exc_obj.printStackTrace();
+		}
+		TransmittableData data = new TransmittableData();
+	
 		try {
 		
 			// Run program until close
@@ -80,13 +160,13 @@ public class Main
 					case surface:
 						break;
 					case core:
-						new Core();
+						data = (new Core()).run();
 						break;
 					case shaft:
-						new Shaft();
+						new Shaft(data);
 						break;
 					case enterscore:
-						new EnterScore();
+						new EnterScore(data);
 						break;
 					case scoreboard:
 						new Scoreboard();
@@ -106,6 +186,7 @@ public class Main
 	
 	public static void dispose() 
 	{
+		storeScoreIntoFile();
 		wnd.close();
 		System.exit(0);
 	}

@@ -3,9 +3,12 @@ package game;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
 
+//import java.io.IOException;
+//import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import engine.Pair;
+//import engine.PathedTextures;
 
 
 /**
@@ -34,12 +37,15 @@ public class BottomOfTheWorld implements Drawable
 	{
 		public RelativeMagma()
 		{
-			super.setSize(new Vector2f(Main.wnd.getSize().x * 2, Main.wnd.getSize().y));
+			super.setSize(new Vector2f(Main.wnd.getSize().x * 2, Main.wnd.getSize().y * 10));
 			super.setFillColor(new Color(220, 20, 60));
 		}
 	}
 	
-	
+	// Apparently, using a texture. Even on my monstrous SLI laptop, causes lag.
+	// SFML isn't really optimized... OpenGL, I... let's wait for memristors! :D
+//	private Texture
+//		m_tile_texture;
 	
 	/**
 	 * C: Constant
@@ -130,6 +136,13 @@ public class BottomOfTheWorld implements Drawable
 	 */
 	public BottomOfTheWorld ( )
 	{
+		// Freaking "Checked Exceptions". Why does Java have this crap?! just let the exceptions propagate to the lowest level where they can print their stack trace instead
+		// of annoying me with adding THROWS or try-catch absolutely everywhere. Cancer.
+		// I mean, having main handle exceptions in MOST cases is very efficient for debugging. Other exceptions can be handled locally 
+		// to keep the program running correctly.
+//		try{m_tile_texture = PathedTextures.getTexture(Paths.get("res/core/core_tile.tga"));}
+//		catch (IOException exc_obj){exc_obj.printStackTrace();}
+		
 		m_crimson.setPosition(0, CM_TILE_HEIGHT * CM_TILE_COUNT_Y);
 		
 		for ( int i = 0; i < CM_TILE_COUNT_X; ++i )
@@ -173,13 +186,15 @@ public class BottomOfTheWorld implements Drawable
 				);
 				temporary_rectangleshape.setOutlineColor(new Color(1, 0, 255));
 				temporary_rectangleshape.setOutlineThickness(1.f);
+				// Shit, that's slow!
+//				temporary_rectangleshape.setTexture(m_tile_texture);
 				m_tiles.get(x).add(temporary_rectangleshape);
 			}
 		}
-		
-		// Mark the leftmost tiles with a color pattern (for debugging):
-		m_tiles.get(0).get(0).setFillColor(new Color(255, 0, 0));
-		m_tiles.get(9).get(0).setFillColor(new Color(0, 0, 255));
+//		
+//		// Mark the leftmost tiles with a color pattern (for debugging):
+//		m_tiles.get(0).get(0).setFillColor(new Color(255, 0, 0));
+//		m_tiles.get(9).get(0).setFillColor(new Color(0, 0, 255));
 	}
 	
 	/**
@@ -216,7 +231,7 @@ public class BottomOfTheWorld implements Drawable
 	 * 
 	 * 1 2 3 4 5 6 7 8 9 -> 3 4 5 6 7 8 9 1 2 3
 	 * 
-	 * TODO: Implement premature decay thanks to time.
+	 * ~TODO: Implement premature decay thanks to time.~ Done
 	 */
 	public void generateLeft()
 	{

@@ -3,6 +3,8 @@ package game;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
+
+import org.jsfml.audio.Sound;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
 import engine.*;
@@ -13,6 +15,7 @@ public class RecentScore implements Drawable
 	private Layer m_layer = new Layer();
 	private ArrayList<Text> m_objects = new ArrayList<>();
 	private ArrayList<Long> m_object_times = new ArrayList<>();
+	private SyncTrack m_push_sound;
 	
 	private static final long 
 		CM_LIFETIME_IN_MILLIS = 2000,
@@ -20,11 +23,34 @@ public class RecentScore implements Drawable
 	
 	public RecentScore()
 	{
-		try {
+		try 
+		{
 			m_font = PathedFonts.getFont(Paths.get("res/pixelmix.ttf"));
-		} catch (IOException exc_obj) {
+			m_push_sound = loadSound("sfx/acquire_ore.ogg");
+		} 
+		catch (IOException exc_obj)
+		{
 			exc_obj.printStackTrace();
 		}
+	}
+	
+	private SyncTrack loadSound(String path) throws IOException {
+		Sound new_sound = new Sound();
+		new_sound.setBuffer(PathedSounds.getSound(Paths.get(path)));
+		return new SyncTrack(new_sound);
+	}
+	
+	public void pushScore(long score_value, Vector2f position, Color color)
+	{
+		Text tx = new Text();
+		tx.setString(String.valueOf(score_value));
+		tx.setPosition(position);
+		tx.setFont(m_font);
+		tx.setColor(color);
+		m_objects.add(tx);
+		m_layer.add(tx);
+		m_object_times.add(System.currentTimeMillis());
+		m_push_sound.play();
 	}
 	
 	public void pushScore(long score_value, Vector2f position)
@@ -36,6 +62,7 @@ public class RecentScore implements Drawable
 		m_objects.add(tx);
 		m_layer.add(tx);
 		m_object_times.add(System.currentTimeMillis());
+		m_push_sound.play();
 	}
 	
 	public void update()
