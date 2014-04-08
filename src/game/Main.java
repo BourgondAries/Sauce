@@ -66,7 +66,6 @@ public class Main
 		{
 			builder.append(((char)(ch + 300)));
 		}
-		System.out.println("Encoded string: " + builder);
 		return builder.toString();
 	}
 	
@@ -92,7 +91,7 @@ public class Main
 			BufferedWriter out = new BufferedWriter(fstream);
 			for (engine.Pair<String, Long> x : score_collection)
 			{
-				out.write(encode(x.first) + "\n" + encode(String.valueOf(x.second)));
+				out.write(encode(x.first) + "\n" + encode(String.valueOf(x.second)) + "\n");
 			}
 			out.close();
 		}

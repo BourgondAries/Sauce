@@ -192,7 +192,9 @@ public class Core
 							m_player.setRotation(180.f);
 							try 
 							{
+								
 								m_launch_sound = Formulas.loadSound("sfx/loud_explosion.ogg");
+								m_launch_sound.fetchTrack().setVolume(20.f);
 								m_launch_sound.play();
 							} 
 							catch (IOException exc_obj) 
