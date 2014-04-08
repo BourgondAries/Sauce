@@ -37,6 +37,7 @@ public class Core
 	private boolean			m_below_20_secs = false;
 	private Bool			m_first_escape = new Bool(false);
 	private int 			m_damage_frames = CM_RED_FLASH_FRAME_COUNT;
+	private int 			m_framal_fade = (int) (Main.framerate * 0.5f);
 	private int	 			m_gameover_time = Main.framerate * 5;
 	private Text			m_gameover_text = new Text();
 	
@@ -87,7 +88,7 @@ public class Core
 		m_player.setSize(new Vector2f(30, 30));
 		m_player.setTexture(PathedTextures.getTexture(Paths.get("res/drop2.png")));
 		m_player.setOrigin(5, 5);
-		m_player.setPosition(Main.wnd.getSize().x / 2, Main.wnd.getSize().y);
+		m_player.setPosition(Main.wnd.getSize().x / 2, Main.wnd.getSize().y - 100.f);
 		m_player.setMass(10.f);
 		m_player.fetchSpeed().y = 10.f;
 		
@@ -512,6 +513,27 @@ public class Core
 		else
 		{
 			Main.wnd.clear(Color.WHITE);
+		}
+		
+		if (m_framal_fade > 0)
+		{
+			--m_framal_fade;
+			RectangleShape rs = new RectangleShape();
+			rs.setSize(new Vector2f(Main.wnd.getSize()));
+			rs.setFillColor
+			(
+				new Color
+				(
+					0,
+					0, 
+					0, 
+					(m_framal_fade * 4)
+				)
+			);
+			ConstView view = Main.wnd.getView();
+			Main.wnd.setView(Main.wnd.getDefaultView());
+			Main.wnd.draw(rs);
+			Main.wnd.setView(view);
 		}
 		
 		if (m_escaping)
