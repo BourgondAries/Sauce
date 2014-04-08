@@ -112,8 +112,11 @@ public class Player extends DynamicObject
 	
 	public void jump() 
 	{
-		{
-			fetchImpulse().y += CM_JUMPFORCE;
-		}
+		fetchImpulse().y += CM_JUMPFORCE;
+	}
+	
+	public void jumpDown() 
+	{
+		fetchImpulse().y -= CM_JUMPFORCE;
 	}
 }

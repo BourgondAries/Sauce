@@ -34,6 +34,7 @@ public class Core
 	private Player 			m_player;
 	private int 			m_escape_frames = Main.framerate * 3;
 	private boolean			m_escaping = false;
+	private boolean			m_below_20_secs = false;
 	private Bool			m_first_escape = new Bool(false);
 	private int 			m_damage_frames = CM_RED_FLASH_FRAME_COUNT;
 	private int	 			m_gameover_time = Main.framerate * 5;
@@ -41,15 +42,23 @@ public class Core
 	
 	private Music 			
 								m_distant_explosions,
-								m_background_music;
-	private SyncTrack 			m_launch_sound;
+								m_background_music,
+								m_meltdown_music;
+	private SyncTrack 			
+		m_launch_sound;
+	
+	private org.jsfml.audio.SoundBuffer
+		m_tick_soundbuffer;
+	private org.jsfml.audio.Sound
+		m_tick_sound;
 	
 	private InfiniteBox 		m_lava;
 	private BottomOfTheWorld 	m_bedrock;
 	private HUD 				m_heads_up_display;
 	private Bool 				m_collision_with_bedrock = new Bool(false);
 	private Timer 				m_timer = new Timer(Main.wnd);
-	private Bool				m_jumped = new Bool(true);
+	private Bool				m_jumped = new Bool(true),
+								m_jumped_down = new Bool(true);
 	private ScoreCounter		m_score_counter = new ScoreCounter();
 	private RecentScore			m_recent_score = new RecentScore();
 	
@@ -64,7 +73,15 @@ public class Core
 		m_distant_explosions.play();
 		m_background_music = Formulas.loadMusic("sfx/ominous_sounds.ogg");
 		m_background_music.setLoop(true);
+		m_background_music.setVolume(20);
 		m_background_music.play();
+		
+		m_tick_soundbuffer = new org.jsfml.audio.SoundBuffer();
+		m_tick_soundbuffer.loadFromFile(Paths.get("sfx/core_good_time.ogg"));
+		m_tick_sound = new org.jsfml.audio.Sound();
+		m_tick_sound.setBuffer(m_tick_soundbuffer);
+		m_tick_sound.setLoop(true);
+		m_tick_sound.play();
 		
 		m_player = new Player();
 		m_player.setSize(new Vector2f(30, 30));
@@ -112,7 +129,7 @@ public class Core
 //		run();
 	}
 	
-	public TransmittableData run()
+	public TransmittableData run() throws IOException
 	{
 		TransmittableData return_data = new TransmittableData();
 		return_data.hud = m_heads_up_display;
@@ -133,6 +150,7 @@ public class Core
 				// Sure would love to have RAII here :/ ~JustJavaThings~
 				m_distant_explosions.stop();
 				m_background_music.stop();
+				m_tick_sound.stop();
 				return_data.difficulty = ((double)m_timer.getTimeLeft()) / ((double)m_timer.getMaxDuration());
 				return_data.score = m_score_counter.getScore();
 				return return_data;
@@ -144,6 +162,7 @@ public class Core
 			Main.wnd.setView(Main.wnd.getDefaultView());
 			m_distant_explosions.stop();
 			m_background_music.stop();
+			m_tick_sound.stop();
 			return_data.difficulty = ((double)m_timer.getTimeLeft()) / ((double)m_timer.getMaxDuration());
 			return_data.score = m_score_counter.getScore();
 			return return_data;
@@ -165,6 +184,10 @@ public class Core
 							if (m_jumped.fetchAndDisable())
 								m_player.jump();
 							break;
+						case DOWN:
+							if (m_jumped_down.fetchAndDisable())
+								m_player.jumpDown();
+							break;
 						case ESCAPE:
 							m_escaping = true;
 							m_first_escape.set(true);
@@ -180,10 +203,10 @@ public class Core
 							}
 							return;
 						case E:
-							m_player.fetchImpulse().z += 1.f;
+							m_player.fetchImpulse().z += 30.f;
 							break;
 						case Q:
-							m_player.fetchImpulse().z -= 1.f;
+							m_player.fetchImpulse().z -= 30.f;
 							break;
 						case D:
 							m_heads_up_display.setDebugState(!m_heads_up_display.getDebugState());
@@ -200,6 +223,9 @@ public class Core
 					{
 						case UP:
 							m_jumped.set(true);
+							break;
+						case DOWN:
+							m_jumped_down.set(true);
 							break;
 						default:
 							break;
@@ -218,14 +244,6 @@ public class Core
 		{
 			m_player.fetchSpeed().x += 1.f;
 		}
-		else if (Keyboard.isKeyPressed(Keyboard.Key.SPACE)) 
-		{
-			m_player.jump();
-		} 
-		else if (Keyboard.isKeyPressed(Keyboard.Key.RETURN)) 
-		{
-			m_bedrock.eraseRandomTileAtTheTop();
-		} 
 	}
 	
 	private void runGameLogic()
@@ -376,7 +394,7 @@ public class Core
 	}
 	
 	
-	private void updateObjects() 
+	private void updateObjects() throws IOException 
 	{
 		m_player.update();
 		m_player.fetchSpeed().x /= 1.02f;
@@ -408,6 +426,19 @@ public class Core
 		
 		if (m_escaping && m_escape_frames > 0)
 			--m_escape_frames;
+		
+		if (m_timer.getTimeLeft() < 20000 && m_below_20_secs == false)
+		{
+			m_tick_sound.stop();
+			m_tick_soundbuffer = new org.jsfml.audio.SoundBuffer();
+			m_tick_sound = new org.jsfml.audio.Sound();
+			
+			m_tick_soundbuffer.loadFromFile(Paths.get("sfx/core_bad_time.ogg"));
+			m_tick_sound.setBuffer(m_tick_soundbuffer);
+			m_tick_sound.setLoop(true);
+			m_tick_sound.play();
+			m_below_20_secs = true;
+		}
 	}
 	
 	private void setViewToPlayer()
