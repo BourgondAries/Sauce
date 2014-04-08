@@ -58,7 +58,9 @@ public class Shaft
 		m_rock_start_speed = 20., // The rock spawn with a certain speed
 		m_rock_speed_aberrant = 20., // A rock that is especially fast!
 		m_rock_speed_uncertainty = 1.,
-		m_rock_size = 10.;
+		m_rock_size = 10.,
+		m_booster_increase = 30.,
+		m_booster_decrease = -20.;
 	private int	 			
 		m_gameover_time = Main.framerate * 5;
 	private Text			
@@ -83,6 +85,8 @@ public class Shaft
 		
 		m_rock_start_speed = (1.1 - m_difficulty) * m_rock_start_speed;
 		m_rock_speed_aberrant = (1.1 - m_difficulty) * m_rock_speed_aberrant;
+		m_booster_increase = (1.1 - m_difficulty) * m_booster_increase;
+		m_booster_decrease = (1.1 - m_difficulty) * m_booster_decrease;
 		
 		try 
 		{
@@ -421,10 +425,10 @@ public class Shaft
 				// Set the speeds to be higher
 				for (FallingRock x : m_falling_rocks)
 				{
-					x.setSpeed(new Vector3f(x.getSpeed().x, x.getSpeed().y + 30.f, x.getSpeed().z));
+					x.setSpeed(new Vector3f(x.getSpeed().x, (float) (x.getSpeed().y + m_booster_increase), x.getSpeed().z));
 				}
-				m_rock_start_speed += 30;
-				m_progress_speed += 30;
+				m_rock_start_speed += m_booster_increase;
+				m_progress_speed += m_booster_increase;
 				
 				m_falling_booster.setPosition(new Vector2f((float) (Math.random() * Main.wnd.getSize().x), (float) -Main.wnd.getSize().y));
 			}
@@ -442,11 +446,11 @@ public class Shaft
 			{
 				for (FallingRock x : m_falling_rocks)
 				{
-					x.setSpeed(new Vector3f(x.getSpeed().x, x.getSpeed().y - 20.f, x.getSpeed().z));
+					x.setSpeed(new Vector3f(x.getSpeed().x, (float) (x.getSpeed().y + m_booster_decrease), x.getSpeed().z));
 					x.setOutlineColor(new Color(255, 127, 127));
 				}
-				m_rock_start_speed -= 20;
-				m_progress_speed -= 20;
+				m_rock_start_speed += m_booster_decrease;
+				m_progress_speed += m_booster_decrease;
 				m_framal_booster = -1;
 			}
 		}
