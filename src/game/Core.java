@@ -41,9 +41,9 @@ public class Core
 	private Text			m_gameover_text = new Text();
 	
 	private Music 			
-								m_distant_explosions,
-								m_background_music,
-								m_meltdown_music;
+							m_distant_explosions,
+							m_background_music,
+							m_meltdown_music;
 	private SyncTrack 			
 		m_launch_sound;
 	
@@ -89,6 +89,7 @@ public class Core
 		m_player.setOrigin(5, 5);
 		m_player.setPosition(Main.wnd.getSize().x / 2, Main.wnd.getSize().y);
 		m_player.setMass(10.f);
+		m_player.fetchSpeed().y = 10.f;
 		
 		m_bedrock = new BottomOfTheWorld ( );
 		m_malm_objects = new ArrayList<>();
@@ -140,7 +141,7 @@ public class Core
 			updateObjects();
 			drawFrame();
 			
-			if ( m_timer.hasEnded() || m_escape_frames == 0 )
+			if ( m_escape_frames == 0 )
 			{
 				Main.wnd.setView(Main.wnd.getDefaultView());
 				Main.game_state = Main.states.shaft;
@@ -167,6 +168,23 @@ public class Core
 		}
 	}
 	
+	private void escape()
+	{
+		m_escaping = true;
+		m_first_escape.set(true);
+		m_player.setRotation(180.f);
+		try 
+		{
+			m_launch_sound = Formulas.loadSound("sfx/loud_explosion.ogg");
+			m_launch_sound.fetchTrack().setVolume(20.f);
+			m_launch_sound.play();
+		} 
+		catch (IOException exc_obj) 
+		{
+			exc_obj.printStackTrace();
+		}
+	}
+	
 	private void handleEvents()
 	{
 		for (Event event : Main.wnd.pollEvents())
@@ -187,19 +205,7 @@ public class Core
 								m_player.jumpDown();
 							break;
 						case ESCAPE:
-							m_escaping = true;
-							m_first_escape.set(true);
-							m_player.setRotation(180.f);
-							try 
-							{
-								m_launch_sound = Formulas.loadSound("sfx/loud_explosion.ogg");
-								m_launch_sound.fetchTrack().setVolume(20.f);
-								m_launch_sound.play();
-							} 
-							catch (IOException exc_obj) 
-							{
-								exc_obj.printStackTrace();
-							}
+							escape();
 							return;
 						case E:
 							m_player.fetchImpulse().z += 30.f;
@@ -247,6 +253,11 @@ public class Core
 	
 	private void runGameLogic()
 	{
+		if (m_escaping == false && m_timer.hasEnded())
+		{
+			escape();
+		}
+		
 		if (isGameOver() == false)
 		{
 			// Effect of gravity on the player

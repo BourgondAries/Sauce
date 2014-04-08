@@ -172,13 +172,13 @@ public class Tutorial
 				  "Welcome to another mission, solider!\n\n"
 				+ "You are currently breaching through the atmosphere of a planet\n"
 				+ "which is said to contain no life. However, our scanners show a large\n"
-				+ "consentration of valuables deep inside the core.\n\n"
+				+ "concentration of valuables deep inside the core.\n\n"
 				+ "We need you to go there, release a chemical compound to compact the material\n"
 				+ "and make it gatherable before gathering it and getting it out.");
 		
 		box.queueText(
 				  "In order to do such, you will need to learn the basics of the process.\n"
-				+ "You use the WASD keys to move your ship around.\n"
+				+ "You use the arrow keys to move your ship around.\n"
 				+ "Try to gather as much valuables as possible while in the core.\n"
 				+ "When the core becomes unstable, the shockwave will launch you\n"
 				+ "towards the surface.\n"
@@ -192,6 +192,10 @@ public class Tutorial
 				+ "Lastly, the numbers representate your payment at the end of the mission.\n"
 				+ "If your ships gets high damage, you use long time and pick up few\n"
 				+ "valuables, the payment will be bad. Remember that!");
+		
+		box.queueText(
+				"To exit the core prematurely, press the \"escape\" button.\n"
+				+ "Your journey will be much easier if you get out of there quickly!");
 		
 		box.queueText(
 				  "The only thing left to say now is good luck!\n\nCaptain out!");
