@@ -12,12 +12,14 @@ import org.jsfml.window.*;
 
 public class Main
 {
+	
 	// Entry point of the program
 	public static void main ( String[] args ) throws IOException
 	{	
 		new Main();
 	}
 
+	
 	// Entry point of the game
 	public Main()
 	{
@@ -37,7 +39,7 @@ public class Main
 	public static int 			framerate = 60;
 	public static java.util.ArrayList<engine.Pair<String, Long>>
 								score_collection = new java.util.ArrayList<>();
-
+							
 	
 	public enum states
 	{
@@ -57,6 +59,27 @@ public class Main
 	}
 	
 	
+	public static String encode(String x)
+	{
+		StringBuilder builder = new StringBuilder();
+		for (char ch : x.toCharArray())
+		{
+			builder.append(((char)(ch + 300)));
+		}
+		System.out.println("Encoded string: " + builder);
+		return builder.toString();
+	}
+	
+	public static String decode(String x)
+	{
+		StringBuilder builder = new StringBuilder();
+		for (char ch : x.toCharArray())
+		{
+			builder.append(((char)(ch - 300)));
+		}
+		return builder.toString();
+	}
+	
 	/**
 	 * Store the score into the score file.
 	 * 
@@ -69,7 +92,7 @@ public class Main
 			BufferedWriter out = new BufferedWriter(fstream);
 			for (engine.Pair<String, Long> x : score_collection)
 			{
-				out.write(x.first + "\n" + x.second);
+				out.write(encode(x.first) + "\n" + encode(String.valueOf(x.second)));
 			}
 			out.close();
 		}
@@ -78,6 +101,7 @@ public class Main
 			System.err.println("Error: " + exc_obj.getMessage());
 		}
 	}
+	
 	
 	/**
 	 * Load the score from the score file into "score_collection"
@@ -91,13 +115,14 @@ public class Main
 		while ((line = buff.readLine()) != null) 
 		{
 			if (is_name)
-				score_collection.add(new engine.Pair<String, Long>(line, null));
+				score_collection.add(new engine.Pair<String, Long>(decode(line), null));
 			else
-				score_collection.get(score_collection.size() - 1).second = Long.valueOf(line);
+				score_collection.get(score_collection.size() - 1).second = Long.valueOf(decode(line));
 			is_name = !is_name;
 		}
 		buff.close();
 	}
+	
 	
 	private void run()
 	{
