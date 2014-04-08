@@ -56,7 +56,7 @@ public class MenuShip implements Drawable {
 	public static final float SHIP_RELATIVE_DISTANCE = 10; // How much longer the ship farthest back must travel
 	public static final float SHIP_MAX_SIZE_MULTIPLIER = 0.5f; // Maximum scale of the sprite
 	public static final float SHIP_MIN_SIZE_MULTIPLIER = 0.05f; // Minimum scale of the sprite
-	public static final float SHIP_TIME_BEFORE_STOP_TO_PLAY_SOUND = 1000; // Milliseconds before sound
+	public static final float SHIP_TIME_BEFORE_STOP_TO_PLAY_SOUND = 500; // Milliseconds before sound
 	public static final float SHIP_TURN_DURATION = 1500; // Time ship uses to turn
 	public static final float SHIP_WAIT_AFTER_TURN = 3000; // Time the ship should wait after turning
 	public static final float SHIP_POD_SPEED = 2; // Speed in relative pixels per milliseconds

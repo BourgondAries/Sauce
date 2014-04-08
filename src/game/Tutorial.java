@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.jsfml.audio.Music;
-import org.jsfml.audio.Sound;
-import org.jsfml.audio.SoundBuffer;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
 import org.jsfml.window.event.Event;
@@ -15,14 +13,10 @@ import org.jsfml.window.event.KeyEvent;
 
 import engine.Formulas;
 import engine.PathedTextures;
-import engine.SyncTrack;
+import game.SpeechBox.StatusBox;
 
 public class Tutorial
-{
-	private SoundBuffer buff = new SoundBuffer();
-	private Sound sound = new Sound();
-	private SyncTrack soundfx;
-	
+{	
 	RectangleShape 
 		m_ship, 
 		m_sky;
@@ -30,7 +24,8 @@ public class Tutorial
 	private final float 
 			TEXTURE_HEIGHT_MULTIPLIER = 30.f,
 			SKY_SCROLL_SPEED_PIX_PER_FRAME = -70.f,
-			STAR_SCROLL_SPEED_PIX_PER_FRAME = -5;
+			STAR_SCROLL_SPEED_PIX_PER_FRAME = -5,
+			TIME_TO_OPEN_BOX = 5000;
 	private float TEXTURE_WIDTH;
 	private float color_clamp = 0.f;
 	private Vector2f ship_move_to;
@@ -44,11 +39,15 @@ public class Tutorial
 	private Texture star;
 	private float star_max_size = 1;
 	private float star_min_size = 0.2f;
+	private float textbox_spacing_bottom = 30;
 	private float number_of_stars = 50;
 	private List<Sprite> stars = new ArrayList<>();
 	private Music aud_wind = new Music();
-	boolean exit_initiated = false;
-	boolean exit_started = false;
+	private boolean exit_initiated = false;
+	private boolean exit_started = false;
+	private boolean box_not_opened = true;
+	private long start_time;
+	private SpeechBox box;
 	
 	Tutorial ( ) throws IOException
 	{
@@ -71,6 +70,7 @@ public class Tutorial
 		m_sky = new RectangleShape ( );
 		try 
 		{
+			box = new SpeechBox();
 			star = PathedTextures.getTexture(Paths.get("res/tutorial/star.tga"));
 			Texture tex = PathedTextures.getTexture(Paths.get("res/tutorial/sky.tga"));
 			tex.setRepeated ( true );
@@ -84,11 +84,50 @@ public class Tutorial
 			exc_obj.printStackTrace();
 		}
 		
+		// Write tutorial text
+		box.changePosition(new Vector2f(
+				(Main.wnd.getSize().x-box.getSize().x)/2,
+				Main.wnd.getSize().y - box.getSize().y - textbox_spacing_bottom));
+		
+		box.lockBox();
+		
+		box.queueText(
+				  "Welcome to another mission, solider!\n\n"
+				+ "You are currently breaching through the atmosphere of a planet\n"
+				+ "which is said to contain no life. However, our scanners show a large\n"
+				+ "consentration of valuables deep inside the core.\n\n"
+				+ "We need you to go there, release a chemical compound to compact the material\n"
+				+ "and make it gatherable before gathering it and getting it out.");
+		
+		box.queueText(
+				  "In order to do such, you will need to learn the basics of the process.\n"
+				+ "You use the WASD keys to move your ship around.\n"
+				+ "Try to gather as much valuables as possible while in the core.\n"
+				+ "When the core becomes unstable, the shockwave will launch you\n"
+				+ "towards the surface.\n"
+				+ "Here you must dodge debris and get powerups to get through the shaft alive.");
+		
+		box.queueText(
+				  "The heads up display will tell you all you need to know about your ships status.\n"
+				+ "The gears shows how much more damage your ship can sustain.\n"
+				+ "The horisontal bar shows how much of your boost that is remaining.\n"
+				+ "The vertical bar shows the distance between you and the surface.\n"
+				+ "Lastly, the numbers representate your payment at the end of the mission.\n"
+				+ "If your ships gets high damage, you use long time and pick up few\n"
+				+ "valuables, the payment will be bad. Remember that!");
+		
+		box.queueText(
+				  "The only thing left to say now is good luck!\n\nCaptain out!");
+		
+		box.updateHeader("Tutorial");
+		box.updateFooter("Press (LEFT) to advance, (RIGHT) to view previous and (ESCAPE) to skip");
+		
 		// Make stars
 		for (int i = 0; i < number_of_stars; i++) {
 			stars.add(makeStar());
 		}
 		
+		start_time = System.currentTimeMillis();
 		run();
 	}
 	
@@ -117,8 +156,14 @@ public class Tutorial
 					KeyEvent keyev = event.asKeyEvent();
 					switch (keyev.key)
 					{
-						case UP:
-							exit();
+						case RIGHT:
+							box.nextText();
+							break;
+						case LEFT:
+							box.previousText();
+							break;
+						case ESCAPE:
+							box.closeBox();
 							break;
 						default:
 							break;
@@ -193,6 +238,18 @@ public class Tutorial
 	
 	private void updateObjects()
 	{
+		// Handle textbox
+		if (box_not_opened && System.currentTimeMillis() - start_time >= TIME_TO_OPEN_BOX) {
+			box.unlockBox();
+			box.openBox();
+			box_not_opened = false;
+		} else if (!box_not_opened && box.getBoxState() == StatusBox.closed) {
+			exit();
+		}
+		
+		// Update textbox
+		box.update();
+		
 		// Update music
 		aud_wind.setVolume(100*Formulas.slow_stop(color_clamp));
 		
@@ -243,6 +300,7 @@ public class Tutorial
 	
 	private void exit() {
 		exit_initiated = true;
+		aud_wind.stop();
 	}
 	
 	private void drawFrame()
@@ -253,6 +311,7 @@ public class Tutorial
 		}
 		Main.wnd.draw ( m_sky );
 		Main.wnd.draw ( m_ship );
+		Main.wnd.draw ( box );
 		Main.wnd.display ( );
 	}
 }

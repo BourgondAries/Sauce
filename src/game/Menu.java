@@ -65,6 +65,7 @@ public class Menu {
 	
 	// Tilable graphic
 	private final static int SPACE_EXTRA_SIZE = 100;
+	private final static int SPACE_OVERFLOW_SIZE = (int) (Main.wnd.getSize().x<Main.wnd.getSize().y ? Main.wnd.getSize().y*1.5 : Main.wnd.getSize().x*1.5);
 	private Sprite img_space;
 	private Sprite img_space_blur;
 	private Sprite img_button_middle;
@@ -140,9 +141,9 @@ public class Menu {
 		fon_button = loadFont("res/pixelmix.ttf");
 		
 		// Textures
-		img_planet = loadImage("res/menu/planet.tga");
-		img_planet_atmosphere = loadImage("res/menu/planet_atmosphere.tga");
-		img_planet_dark = loadImage("res/menu/planet_dark.tga");
+		img_planet = loadImage("res/menu/planet3.tga");
+		img_planet_atmosphere = loadImage("res/menu/planet3_atmos.tga");
+		img_planet_dark = loadImage("res/menu/planet3_dark.tga");
 		img_sun = loadImage("res/menu/sun.tga");
 		img_close_ship = loadImage("res/menu/close_ship.tga");
 		img_close_ship_red = loadImage("res/menu/close_ship_red.tga");
@@ -158,8 +159,8 @@ public class Menu {
 		
 		img_anim_ship = loadAnimatedImage("res/menu/ship.tga",9);
 		
-		img_space = loadTilableImage("res/menu/space.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
-		img_space_blur = loadTilableImage("res/menu/space_blur.tga", Main.wnd.getSize().x + SPACE_EXTRA_SIZE, Main.wnd.getSize().y + SPACE_EXTRA_SIZE);
+		img_space = loadTilableImage("res/menu/space2.tga", SPACE_EXTRA_SIZE + SPACE_OVERFLOW_SIZE, SPACE_EXTRA_SIZE + SPACE_OVERFLOW_SIZE);
+		img_space_blur = loadTilableImage("res/menu/space2blur.tga", SPACE_EXTRA_SIZE + SPACE_OVERFLOW_SIZE, SPACE_EXTRA_SIZE + SPACE_OVERFLOW_SIZE);
 		img_button_middle = loadTilableImage("res/menu/holo/small/button_middle.tga", 1, 124);
 		img_button_middle_white = loadTilableImage("res/menu/holo/small/button_middle_white.tga", 1, 124);
 		
@@ -239,9 +240,9 @@ public class Menu {
 		float time_to_stop_move_planets = 9500; // 16000
 		float time_to_start_spawn_ships = 1000; // 4000
 		float time_to_stop_spawn_ships = 8500; // 14000
-		float time_to_teleport_closest_ship = 9000; // 14700
+		float time_to_teleport_closest_ship = 9500; // 14700
 		float duration_of_teleport_effect_on_closest_ship = 1000; // 1000
-		float time_to_spawn_menu = 9500; // 15500
+		float time_to_spawn_menu = 10000; // 15500
 		float duration_of_menu_flickering = 500; // 500
 		float where_to_start_menu_loop = 29000; // 29000
 		
@@ -256,6 +257,7 @@ public class Menu {
 		float menu_loop_volume = 40;
 		float menu_button_volume = 10;
 		float menu_switch_volume = 50;
+		float move_planet_backwards = 400;
 		
 		// Probability
 		float likeliness_of_spawning_ship = 0.03f; // 0.02f
@@ -320,11 +322,17 @@ public class Menu {
 		
 		Vector2f space_start = Vector2f.add(
 				coordinates_top_right,
-				new Vector2f(-img_space.getGlobalBounds().width,0));
+				new Vector2f(-img_space.getGlobalBounds().width +
+						-(Main.wnd.getSize().x - img_space.getGlobalBounds().width)/2,
+						(Main.wnd.getSize().y - img_space.getGlobalBounds().height)/2));
 		
 		Vector2f planet_start = Vector2f.add(
 				coordinates_left_bottom,
-				new Vector2f(0,-img_planet.getGlobalBounds().height));
+				new Vector2f(-move_planet_backwards,move_planet_backwards-img_planet.getGlobalBounds().height));
+		
+		Vector2f sun_start = new Vector2f(
+				planet_start.x + img_planet.getGlobalBounds().width - img_sun.getGlobalBounds().width,
+				planet_start.y);
 		
 		Vector2f closest_ship_start = new Vector2f(
 				coordinates_top_right.x/2, coordinates_left_bottom.y/2);
@@ -479,7 +487,7 @@ public class Menu {
 				img_planet_dark.setPosition(img_planet.getPosition());
 				
 				img_sun.setPosition(Vector2f.add(
-						planet_start,
+						sun_start,
 						Vector2f.mul(sun_move, Formulas.slow_stop(x))));
 				
 				img_space.setPosition(Vector2f.add(
@@ -665,7 +673,7 @@ public class Menu {
 						img_close_ship.setPosition(closest_ship_start);
 						img_planet.setPosition(Vector2f.add(planet_start,planet_move));
 						img_planet_atmosphere.setPosition(Vector2f.add(planet_start,planet_move));
-						img_sun.setPosition(Vector2f.add(planet_start,sun_move));
+						img_sun.setPosition(Vector2f.add(sun_start,sun_move));
 						img_space.setPosition(Vector2f.add(space_start,space_move));
 						
 						// Remove invisible stuff
@@ -831,8 +839,8 @@ public class Menu {
 	private void playOutro(long time_so_far) {
 		
 		// Timings
-		float time_to_activate_all_ships = 2000;
-		float time_to_turn_closest_ship = 2500;
+		float time_to_activate_all_ships = 4000;
+		float time_to_turn_closest_ship = 4500;
 		float rotation_time = MenuShip.SHIP_TURN_DURATION;
 		float time_before_stop_turning_play_flame = MenuShip.SHIP_TIME_BEFORE_STOP_TO_PLAY_SOUND;
 		float rotation_angle = 65;
