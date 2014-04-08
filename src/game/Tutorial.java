@@ -51,7 +51,7 @@ public class Tutorial
 	boolean exit_started = false;
 	
 	Tutorial ( ) throws IOException
-	{
+	{	
 		// Load windsound
 		aud_wind.openFromFile(Paths.get("sfx/wind.ogg"));
 		aud_wind.setVolume(0);
@@ -62,7 +62,11 @@ public class Tutorial
 		// Sky must be moving.
 		
 		m_ship = new RectangleShape ( );
-		m_ship.setSize(new Vector2f(200, 200));
+		{
+			Texture tex = PathedTextures.getTexture(Paths.get("res/drop2.png"));
+			m_ship.setSize(new Vector2f(tex.getSize()));
+			m_ship.setTexture(tex);
+		}
 		//m_ship.setPosition(Main.wnd.getSize().x / 2 - m_ship.getSize().x / 2, Main.wnd.getSize().y / 2 - m_ship.getSize().y / 2);
 		//m_ship.setPosition(Main.wnd.getSize().x / 2 - m_ship.getSize().x / 2, - m_ship.getSize().y);
 		ship_move_to = new Vector2f(Main.wnd.getSize().x / 2 - m_ship.getSize().x / 2,0);
@@ -206,7 +210,7 @@ public class Tutorial
 			float rand_x = (float) ((Main.wnd.getSize().x-m_ship.getSize().x)/2+
 					(Math.random()*2-1)*ship_position_distance_from_center*Formulas.sinus_in(color_clamp));
 			ship_move_to = new Vector2f(rand_x,ship_move_to.y);
-			System.out.println("x: "+ship_move_to.x);
+//			System.out.println("x: "+ship_move_to.x);
 		}
 		if (ship_move_completeness.y>=1) {
 			if (exit_started) Main.game_state = Main.states.core;
@@ -222,7 +226,7 @@ public class Tutorial
 						(Math.random()*2-1)*ship_position_distance_from_center*Formulas.sinus_in(color_clamp));
 			}
 			ship_move_to = new Vector2f(ship_move_to.x,rand_y);
-			System.out.println("y: "+ship_move_to.y);
+//			System.out.println("y: "+ship_move_to.y);
 		}
 		
 		// Move ship to position
