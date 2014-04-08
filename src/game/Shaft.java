@@ -80,6 +80,10 @@ public class Shaft
 		
 		m_ship.setImpactSound("sfx/vehicle_crash.ogg");
 		m_difficulty = data.difficulty;
+		
+		m_rock_start_speed = (1.1 - m_difficulty) * m_rock_start_speed;
+		m_rock_speed_aberrant = (1.1 - m_difficulty) * m_rock_speed_aberrant;
+		
 		try 
 		{
 			Texture tex = PathedTextures.getTexture(Paths.get("res/shaft/wall_back.tga"));

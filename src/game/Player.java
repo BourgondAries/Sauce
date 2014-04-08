@@ -23,6 +23,7 @@ public class Player extends DynamicObject
 		try 
 		{
 			m_impact_sound = Formulas.loadSound("sfx/explosion_punchy_impact_02.ogg");
+			m_impact_sound.fetchTrack().setVolume(35.f);
 			m_heal_sound = Formulas.loadSound("sfx/heart_beat.ogg");
 		} 
 		catch (IOException exc_obj) 
