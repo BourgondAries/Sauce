@@ -20,6 +20,14 @@ public class Main
 		new Main();
 	}
 
+	public static long getMaxScore()
+	{
+		Long u = 0L;
+		for (engine.Pair<String, Long> x : score_collection)
+			if ( x.second > u )
+				u = x.second;
+		return u;
+	}
 	
 	// Entry point of the game
 	public Main()

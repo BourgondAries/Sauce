@@ -3,6 +3,7 @@ package game;
 import java.io.*;
 import java.nio.file.Paths;
 
+import org.jsfml.audio.Music;
 import org.jsfml.graphics.*;
 import org.jsfml.system.Vector2f;
 import org.jsfml.window.event.Event;
@@ -18,7 +19,8 @@ public class EnterScore
 	private Text 
 		m_description = new Text(),
 		m_name = new Text(),
-		m_score = new Text();
+		m_score = new Text(),
+		m_max_score = null;
 	private Sprite
 		m_background = new Sprite();
 	private RectangleShape m_textbox = new RectangleShape();
@@ -27,9 +29,13 @@ public class EnterScore
 		CM_ENTER = 13;
 	private long 
 		m_score_value;
+	Boolean[]
+		flipflop = new Boolean[3];
 	
+	private Music
+		m_music = new Music();
 	
-	public EnterScore(TransmittableData data)
+	public EnterScore(TransmittableData data) throws IOException
 	{
 		m_score_value = data.score;
 		try 
@@ -68,6 +74,36 @@ public class EnterScore
 		m_layer.add(m_textbox);
 		m_layer.add(m_name);
 		
+		
+		if (Main.getMaxScore() < m_score_value)
+		{
+			m_max_score = new Text();
+			m_music.openFromFile(Paths.get("sfx/xXxTurnDown4(Hwut)20DankScopeFazeClanTryoutsxXx.flac"));
+			m_max_score.setString("You're the new #1 [[MLG 420 erryday]] 1337 #swag #NoScOpE pro!");
+			m_max_score.setFont(PathedFonts.getFont(Paths.get("res/pixelmix.ttf")));
+			m_max_score.setPosition(Main.wnd.getSize().x / 2 - m_max_score.getGlobalBounds().width / 2, Main.wnd.getSize().y / 2);
+			
+			
+			Text tx = new Text();
+			tx.setString(m_max_score.getString());
+			tx.setFont(m_max_score.getFont());
+			tx.setPosition(m_max_score.getPosition());
+			tx.move(new Vector2f(-3.f, -3.f));
+			tx.setColor(Color.BLACK);
+			m_layer.add(tx);
+			
+			m_layer.add(m_max_score);
+			
+			for (int i = 0; i < flipflop.length; ++i)
+				flipflop[i] = new Boolean(false);
+		}
+		else
+		{
+			m_music.openFromFile(Paths.get("sfx/core_meltdown.ogg"));
+		}
+		m_music.setLoop(true);
+		m_music.play();
+		
 		run();
 	}
 	
@@ -81,6 +117,7 @@ public class EnterScore
 			if (Main.game_state != Main.states.enterscore)
 			{
 				Main.score_collection.add(new engine.Pair<String, Long>(m_name.getString(), m_score_value));
+				m_music.stop();
 				return;
 			}
 			drawFrame();
@@ -130,7 +167,33 @@ public class EnterScore
 	
 	private void updateObjects()
 	{
-		
+		if (m_max_score != null)
+		{
+			Color c = m_max_score.getColor();
+			if (c.r >= 250 )
+				flipflop[0] = false;
+			if (c.g >= 250)
+				flipflop[1] = false;
+			if (c.b >= 250)
+				flipflop[2] = false;
+			
+			if (c.r <= 127 )
+				flipflop[0] = true;
+			if (c.g <= 127)
+				flipflop[1] = true;
+			if (c.b <= 127)
+				flipflop[2] = true;
+			
+			m_max_score.setColor
+			(
+				new Color
+				(
+					(flipflop[0]) ? m_max_score.getColor().r + 1 : m_max_score.getColor().r - (int)(1 + Math.random() * 5)
+					, (flipflop[1]) ? m_max_score.getColor().g + 2 : m_max_score.getColor().g - (int)(2 + Math.random() * 5)
+					, (flipflop[2]) ? m_max_score.getColor().b + 3 : m_max_score.getColor().b - (int)(3 + Math.random() * 5)
+				)
+			);
+		}
 	}
 	
 	private void drawFrame()

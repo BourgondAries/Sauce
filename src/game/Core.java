@@ -40,11 +40,14 @@ public class Core
 	private int 			m_framal_fade = (int) (Main.framerate * 0.5f);
 	private int	 			m_gameover_time = Main.framerate * 5;
 	private Text			m_gameover_text = new Text();
+	private boolean 		m_passed_38_mark = false;
 	
 	private Music 			
-							m_distant_explosions,
-							m_background_music;
+							m_distant_explosions;
+//							m_background_music;
 //							m_meltdown_music;
+	
+	private MusicManager 	m_background_music = new MusicManager();
 	private SyncTrack 			
 		m_launch_sound;
 	
@@ -72,8 +75,7 @@ public class Core
 	{
 		m_distant_explosions = Formulas.loadMusic("sfx/explosions_distant_02.ogg");
 		m_distant_explosions.play();
-		m_background_music = Formulas.loadMusic("sfx/ominous_sounds.ogg");
-		m_background_music.setLoop(true);
+		m_background_music.fade("sfx/ominous_sounds.ogg");
 		m_background_music.setVolume(20);
 		m_background_music.play();
 		
@@ -150,6 +152,7 @@ public class Core
 				// Sure would love to have RAII here :/ ~JustJavaThings~
 				m_distant_explosions.stop();
 				m_background_music.stop();
+				m_background_music.setVolume(0.f);
 				m_tick_sound.stop();
 				return_data.difficulty = ((double)m_timer.getTimeLeft()) / ((double)m_timer.getMaxDuration());
 				return_data.score = m_score_counter.getScore();
@@ -162,6 +165,7 @@ public class Core
 			Main.wnd.setView(Main.wnd.getDefaultView());
 			m_distant_explosions.stop();
 			m_background_music.stop();
+			m_background_music.setVolume(0.f);
 			m_tick_sound.stop();
 			return_data.difficulty = ((double)m_timer.getTimeLeft()) / ((double)m_timer.getMaxDuration());
 			return_data.score = m_score_counter.getScore();
@@ -444,6 +448,13 @@ public class Core
 			m_tick_sound.setLoop(true);
 			m_tick_sound.play();
 			m_below_20_secs = true;
+		}
+		
+		if (m_timer.getTimeLeft() < 32000 && m_passed_38_mark == false)
+		{
+			m_background_music.fade("sfx/core_meltdown.ogg");
+			m_background_music.setVolume(80.f);
+			m_passed_38_mark = true;
 		}
 	}
 	

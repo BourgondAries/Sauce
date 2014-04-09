@@ -65,6 +65,7 @@ public class MusicManager implements Runnable
 	public void stop()
 	{
 		m_ms[(which_is_playing ? 1 : 0)].stop();
+		m_ms[(which_is_playing ? 0 : 1)].stop();
 	}
 	
 	public void setFadeSpeed(int fadespeed_ms)
