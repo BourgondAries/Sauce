@@ -99,7 +99,7 @@ public class EnterScore
 		}
 		else
 		{
-			m_music.openFromFile(Paths.get("sfx/core_meltdown.ogg"));
+			m_music.openFromFile(Paths.get("sfx/core_background.ogg"));
 		}
 		m_music.setLoop(true);
 		m_music.play();

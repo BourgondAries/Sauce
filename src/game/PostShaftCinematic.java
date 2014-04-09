@@ -76,7 +76,7 @@ public class PostShaftCinematic
 			exc_obj.printStackTrace();
 		}
 		m_data.ship.setOrigin(m_data.ship.getSize().x / 2, m_data.ship.getSize().y / 2);
-		m_data.ship.rotate(180.f);
+//		m_data.ship.rotate(180.f);
 		m_data.ship.setMass(10.f);
 		
 	}
