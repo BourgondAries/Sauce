@@ -21,6 +21,7 @@ public class Core
 {
 	// Constants
 	private final static int CM_RED_FLASH_FRAME_COUNT = 30;
+	private final static float CM_VIEW_LAG = 8;
 	private final static int CM_RED_FLASH_RESET_NUMBER = 0;
 	private final static int CM_INTEGER_COLOR_MAX = 255;
 	private final static int CM_REMOVAL_DISTANCE = 0;
@@ -42,8 +43,7 @@ public class Core
 	
 	private Music 			
 							m_distant_explosions,
-							m_background_music,
-							m_meltdown_music;
+							m_background_music;
 	private SyncTrack 			
 		m_launch_sound;
 	
@@ -73,7 +73,7 @@ public class Core
 		m_distant_explosions.play();
 		m_background_music = Formulas.loadMusic("sfx/ominous_sounds.ogg");
 		m_background_music.setLoop(true);
-		m_background_music.setVolume(20);
+		m_background_music.setVolume(100);
 		m_background_music.play();
 		
 		m_tick_soundbuffer = new org.jsfml.audio.SoundBuffer();
@@ -103,6 +103,9 @@ public class Core
 		
 		m_player.setPosition(new Vector2f(0.f, -800.f));
 		m_player.setOrigin(m_player.getSize().x / 2, m_player.getSize().y / 2);
+		
+		Main.view = new View(m_player.getPosition(),Main.wnd.getDefaultView().getSize());
+		Main.wnd.setView(Main.view);
 		
 		m_heads_up_display = new HUD(Main.wnd);
 		
@@ -448,16 +451,16 @@ public class Core
 	
 	private void setViewToPlayer()
 	{
-		View v = Main.view;
-		v = new View(m_player.getPosition(), Main.wnd.getDefaultView().getSize());
+		//View v = Main.view;
+		Main.view = new View(Vector2f.add(Main.view.getCenter(),Vector2f.div(Vector2f.sub(m_player.getPosition(),Main.view.getCenter()),CM_VIEW_LAG)), Main.wnd.getDefaultView().getSize());
 		
 		// Scramble the view (Give the vibrating illusion), also topkek, magic numbers
 		long proximity = m_timer.getTimeLeft();
 		long maxtime = m_timer.getMaxDuration();
 		long inverse = maxtime - proximity;
 		float divergence = 10.f * ((float) inverse) / ((float) maxtime);
-		v.move(m_rng.nextInt() % divergence - divergence / 2.f, m_rng.nextInt() % divergence - divergence / 2.f);
-		Main.wnd.setView(v);
+		Main.view.move(m_rng.nextInt() % divergence - divergence / 2.f, m_rng.nextInt() % divergence - divergence / 2.f);
+		Main.wnd.setView(Main.view);
 	}
 	
 	public boolean isGameOver()

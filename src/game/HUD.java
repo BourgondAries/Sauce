@@ -32,9 +32,12 @@ public class HUD extends Absolute implements Drawable
 	private Layer
 		m_layer = new Layer();
 	
+	
 	private Texture
 		m_good_health,
-		m_bad_health;
+		m_bad_health,
+		m_hud_under,
+		m_hud_over;
 	
 	private int 
 		healthy = m_health.length;
@@ -45,6 +48,8 @@ public class HUD extends Absolute implements Drawable
 		{
 			m_good_health = PathedTextures.getTexture(Paths.get("res/hud/hud_gear_whole.tga"));
 			m_bad_health = PathedTextures.getTexture(Paths.get("res/hud/hud_gear_broken.tga"));
+			m_hud_under = PathedTextures.getTexture(Paths.get("res/hud/hud_bottom.tga"));
+			m_hud_over = PathedTextures.getTexture(Paths.get("res/hud/hud_top.tga"));
 		}
 		catch (IOException exc_obj)
 		{
@@ -61,18 +66,30 @@ public class HUD extends Absolute implements Drawable
 			m_layer.add(m_health[i]);
 		}
 		
+		{
+			Sprite hud_under = new Sprite(m_hud_under);
+			hud_under.setPosition(0, Main.wnd.getSize().y);
+			m_layer.add(hud_under);
+		}
+		
+		{
+			Sprite hud_over = new Sprite(m_hud_over);
+			hud_over.setPosition(0, Main.wnd.getSize().y);
+			m_layer.add(hud_over);
+		}
+		
 		super.setAbsoluteView(x.getDefaultView());
 		try 
 		{
 			m_drawing_font = PathedFonts.getFont(Paths.get("res/pixelmix.ttf"));
-			m_display_text = new Text("DERP", m_drawing_font, 12);
+			m_display_text = new Text("DERP", m_drawing_font, 10);
 		} 
 		catch (IOException e) 
 		{
 			e.printStackTrace();
 		}
 		
-//		m_layer.add(m_display_text);
+		//m_layer.add(m_display_text);
 	}
 	
 	public void updateHealth(int health)

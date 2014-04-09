@@ -48,7 +48,7 @@ public class Shaft
 	private Music
 		m_background_music;
 	private final int 
-		CM_MAX_PROGRESS = 0;//90000;
+		CM_MAX_PROGRESS = 90000;//90000;
 	private Bool 
 		m_collision = new Bool(false);
 	private final int 
@@ -71,7 +71,7 @@ public class Shaft
 		m_walls.add(m_progress_bar);
 		try 
 		{
-			m_background_music = Formulas.loadMusic("sfx/exciting_tune.ogg");
+			m_background_music = Formulas.loadMusic("sfx/flight.ogg"); //use exciting_tune
 		}
 		catch (IOException exc_obj)
 		{
