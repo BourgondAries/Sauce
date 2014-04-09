@@ -49,7 +49,7 @@ public class Shaft
 		m_background_music,
 		m_flame_ambient;
 	private final int 
-		CM_MAX_PROGRESS = 90000;
+		CM_MAX_PROGRESS = 0;//90000;
 	private Bool 
 		m_collision = new Bool(false);
 	private final int 
