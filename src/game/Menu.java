@@ -61,6 +61,8 @@ public class Menu {
 	private Sprite img_ship_flames_forward;
 	private Sprite img_ship_flames_backward;
 	
+	private SpeechBox box = new SpeechBox();
+	
 	// Animated graphic
 	private AnimatedSprite img_anim_ship;
 	
@@ -763,7 +765,7 @@ public class Menu {
 				2*button_distance_from_sides;
 		
 		// Make textbox
-		SpeechBox box = new SpeechBox();
+//		box = new SpeechBox();
 		
 		box.changePosition(new Vector2f(
 				button_distance_from_sides,
@@ -782,6 +784,7 @@ public class Menu {
 			place++;
 			if ( place > 45 ) break;
 			str += place +". Place: " + pair.first + " with the score: " + pair.second + "\n";
+			
 		}
 			
 		box.queueText(str);
@@ -1127,6 +1130,7 @@ public class Menu {
 					switch (keyev.key)
 					{
 						case ESCAPE:
+							box.skipWrite();
 							if (intro_in_progress) {
 								skipIntro();
 							} else if (outro_in_progress) {
