@@ -103,7 +103,7 @@ public class Main
 	{
 		try
 		{
-			FileWriter fstream = new FileWriter("score.txt");
+			PrintWriter fstream = new PrintWriter(new File("score.txt"), "UTF-8");
 			BufferedWriter out = new BufferedWriter(fstream);
 			for (engine.Pair<String, Long> x : score_collection)
 			{
@@ -124,7 +124,7 @@ public class Main
 	 */
 	private static void loadScoreData() throws IOException
 	{
-		BufferedReader buff = new BufferedReader(new FileReader("score.txt"));
+		BufferedReader buff = new BufferedReader(new InputStreamReader(new FileInputStream("score.txt"), "UTF-8"));
 		String line;
 		boolean is_name = true;
 		while ((line = buff.readLine()) != null) 
