@@ -26,9 +26,15 @@ public class Main
 		Long u = 0L;
 		for (engine.Pair<String, Long> x : score_collection)
 			if (x != null)
-				if (x.second != null)
-					if ( x.second > u )
-						u = x.second;
+				if 
+				(
+					!x.first.equals("God Tier") 
+					&& !x.first.equals("Alexander The Great Tier") 
+					&& !x.first.equals("Legendary Tier")
+				)
+					if (x.second != null)
+						if ( x.second > u )
+							u = x.second;
 		return u;
 	}
 	
@@ -161,10 +167,23 @@ public class Main
 		boolean is_name = true;
 		while ((line = buff.readLine()) != null) 
 		{
+			if (line.length() == 0)
+				continue;
 			if (is_name)
+			{
 				score_collection.add(new engine.Pair<String, Long>(decode(line), null));
+			}
 			else
-				score_collection.get(score_collection.size() - 1).second = Long.valueOf(decode(line));
+			{
+				try
+				{
+					score_collection.get(score_collection.size() - 1).second = Long.valueOf(decode(line));
+				}
+				catch (Exception exc_obj)
+				{
+					score_collection.remove(score_collection.size() - 1);
+				}
+			}
 			is_name = !is_name;
 		}
 		buff.close();

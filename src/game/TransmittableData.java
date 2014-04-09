@@ -13,7 +13,7 @@ public class TransmittableData
 {
 	public TransmittableData()
 	{
-		score = 0;
+		score = 0L;
 		difficulty = 0.;
 	}
 	
