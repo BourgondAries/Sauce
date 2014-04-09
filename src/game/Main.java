@@ -76,7 +76,7 @@ public class Main
 	public static String encode(String x)
 	{
 		StringBuilder builder = new StringBuilder();
-		int i = 15;
+		int i = 300;
 		for (char ch : x.toCharArray())
 		{
 			builder.append(((char)(ch + ++i)));
@@ -87,7 +87,7 @@ public class Main
 	public static String decode(String x)
 	{
 		StringBuilder builder = new StringBuilder();
-		int i = 15;
+		int i = 300;
 		for (char ch : x.toCharArray())
 		{
 			builder.append(((char)(ch - ++i)));

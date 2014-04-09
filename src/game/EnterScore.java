@@ -63,7 +63,7 @@ public class EnterScore
 		m_name.move(m_textbox.getSize().x / 10, m_textbox.getSize().y / 4);
 		
 		m_score.setString("Your Score: " + data.score + " / (Damage) " + ((Player.getMaxHealth() + 1) - data.ship.getHealth()) + " = " + data.score / ((Player.getMaxHealth() + 1) - data.ship.getHealth()) );
-		data.score = data.score / ((Player.getMaxHealth() + 1) - data.ship.getHealth());
+		m_score_value = data.score / ((Player.getMaxHealth() + 1) - data.ship.getHealth());
 		m_description.setString("Huzzah, The Fun Has Been Doubled! Enter your alias!");
 		
 		m_description.setPosition(new Vector2f(Main.wnd.getSize().x / 2 - m_description.getGlobalBounds().width / 2, m_description.getGlobalBounds().height / 2));
