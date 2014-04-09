@@ -128,7 +128,7 @@ public class Core
 		m_layers.add(player_layer, 0);
 		m_layers.add(information_layer, 1);
 		
-		m_score_counter.setAbsoluteView(Main.wnd.getView());
+		m_score_counter.setAbsoluteView(Main.wnd.getDefaultView());
 		
 		m_gameover_text.setFont(PathedFonts.getFont(Paths.get("res/pixelmix.ttf")));
 		m_gameover_text.setString("GAME OVER");
