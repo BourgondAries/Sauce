@@ -30,10 +30,13 @@ public class Main
 	}
 	
 	// Entry point of the game
-	public Main()
+	public Main() throws IOException
 	{
-		game_state = states.core;
+		game_state = states.menu;
 		wnd = new RenderWindow(new VideoMode(1920, 1000, 32), "Shact");
+		Image img = new Image();
+		img.loadFromFile(Paths.get("res/logo.png"));
+		wnd.setIcon(img);
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
 		wnd.setView(view);

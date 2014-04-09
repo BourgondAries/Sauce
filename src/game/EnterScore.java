@@ -62,7 +62,8 @@ public class EnterScore
 		m_name.setPosition(m_textbox.getPosition());
 		m_name.move(m_textbox.getSize().x / 10, m_textbox.getSize().y / 4);
 		
-		m_score.setString("Your Score: " + data.score);
+		m_score.setString("Your Score: " + data.score + " / (Damage) " + ((Player.getMaxHealth() + 1) - data.ship.getHealth()) + " = " + data.score / ((Player.getMaxHealth() + 1) - data.ship.getHealth()) );
+		data.score = data.score / ((Player.getMaxHealth() + 1) - data.ship.getHealth());
 		m_description.setString("Huzzah, The Fun Has Been Doubled! Enter your alias!");
 		
 		m_description.setPosition(new Vector2f(Main.wnd.getSize().x / 2 - m_description.getGlobalBounds().width / 2, m_description.getGlobalBounds().height / 2));
@@ -117,6 +118,7 @@ public class EnterScore
 			if (Main.game_state != Main.states.enterscore)
 			{
 				Main.score_collection.add(new engine.Pair<String, Long>(m_name.getString(), m_score_value));
+				Main.storeScoreIntoFile();
 				m_music.stop();
 				return;
 			}
