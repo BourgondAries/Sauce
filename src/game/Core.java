@@ -295,7 +295,7 @@ public class Core
 								)	
 							)
 						);
-						m_malm_objects.get(m_malm_objects.size() - 1).setFillColor(new Color(127, 127, 127));
+						m_malm_objects.get(m_malm_objects.size() - 1).setFillColor((new Color((int) (Math.random() * 127.f) + 127, (int) (Math.random() * 127.f) + 127, (int) (Math.random() * 70.f) + 180)));
 					}
 				}
 			}

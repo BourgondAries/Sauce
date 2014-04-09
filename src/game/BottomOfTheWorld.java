@@ -168,7 +168,7 @@ public class BottomOfTheWorld implements Drawable
 			{
 				RectangleShape temporary_rectangleshape = new RectangleShape();
 				temporary_rectangleshape.setSize(new Vector2f(CM_TILE_WIDTH, CM_TILE_HEIGHT));
-				temporary_rectangleshape.setFillColor(new Color((int) Math.random() % 5 + 127, 127, 180));
+				temporary_rectangleshape.setFillColor(new Color((int) (Math.random() * 127.f) + 127, (int) (Math.random() * 127.f) + 127, (int) (Math.random() * 70.f) + 180));
 				
 				/*
 				 * Start the tile at the m_x_bound.first coordinate;

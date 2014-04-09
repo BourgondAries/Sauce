@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Random;
 
+import org.jsfml.audio.Music;
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
 import org.jsfml.window.event.Event;
@@ -29,6 +30,9 @@ public class PostShaftCinematic
 	
 	private Layer 
 		m_earth = new Layer();
+	
+	private Music
+		m_explosion = new Music();
 	
 	private Random m_rng = new Random();
 	
@@ -77,7 +81,7 @@ public class PostShaftCinematic
 		
 	}
 	
-	public void run()
+	public void run() throws IOException
 	{
 		do
 		{
@@ -88,6 +92,7 @@ public class PostShaftCinematic
 		}
 		while (Main.game_state == Main.states.postshaft);
 		Main.wnd.setView(Main.wnd.getDefaultView());
+		m_explosion.stop();
 	}
 	
 	private void handleEvents()
@@ -119,13 +124,17 @@ public class PostShaftCinematic
 		m_data.ship.fetchSpeed().y = -15.f;
 	}
 	
-	private void update()
+	private void update() throws IOException
 	{
 		m_data.ship.update();
 		
 		if (m_explode == false && m_data.ship.getPosition().y < -m_data.ship.getSize().y)
 		{
 			m_start_time = System.currentTimeMillis();
+			
+			m_explosion.openFromFile(Paths.get("sfx/teleport_close.ogg"));
+			m_explosion.play();
+			
 			m_explode = true;
 		}
 		if (m_explode)

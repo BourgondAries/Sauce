@@ -506,7 +506,7 @@ public class Shaft
 				m_progress += m_progress_speed;
 				if (m_progress > CM_MAX_PROGRESS)
 				{
-					Main.game_state = Main.states.enterscore;
+					Main.game_state = Main.states.postshaft;
 				}
 			}
 			
