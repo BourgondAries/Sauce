@@ -46,7 +46,8 @@ public class Shaft
 	private HUD
 		m_hud;
 	private Music
-		m_background_music;
+		m_background_music,
+		m_flame_ambient;
 	private final int 
 		CM_MAX_PROGRESS = 90000;
 	private Bool 
@@ -61,13 +62,21 @@ public class Shaft
 		m_rock_size = 10.,
 		m_booster_increase = 30.,
 		m_booster_decrease = -20.;
+	private final static float
+		CM_STANDARD_PITCH = 1.f,
+		CM_TURBO_PITCH = 3.f;
 	private int	 			
 		m_gameover_time = Main.framerate * 5;
 	private Text			
 		m_gameover_text = new Text();
 		
-	public Shaft(TransmittableData data)
+	public Shaft(TransmittableData data) throws IOException
 	{
+		m_flame_ambient = new Music();
+		m_flame_ambient.openFromFile(Paths.get("sfx/flame_ambient.ogg"));
+		m_flame_ambient.setLoop(true);
+		m_flame_ambient.play();
+		
 		m_walls.add(m_progress_bar);
 		try 
 		{
@@ -193,12 +202,14 @@ public class Shaft
 			if (Main.game_state != Main.states.shaft)
 			{
 				m_background_music.stop();
+				m_flame_ambient.stop();
 				return;
 			}
 			drawFrame();
 		}
 		while ( Main.game_state == Main.states.shaft );
 		m_background_music.stop();
+		m_flame_ambient.stop();
 	}
 	
 	private void handleEvents()
@@ -419,6 +430,7 @@ public class Shaft
 		{
 			if (m_falling_booster.isBoxNear(m_ship, 0))
 			{
+				m_flame_ambient.setPitch(CM_TURBO_PITCH);
 				m_framal_godmode = Main.framerate * 5;
 				m_framal_booster = m_framal_godmode;
 				
@@ -452,6 +464,7 @@ public class Shaft
 				m_rock_start_speed += m_booster_decrease;
 				m_progress_speed += m_booster_decrease;
 				m_framal_booster = -1;
+				m_flame_ambient.setPitch(CM_STANDARD_PITCH);
 			}
 		}
 		

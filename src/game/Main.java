@@ -32,6 +32,7 @@ public class Main
 	// Entry point of the game
 	public Main() throws IOException
 	{
+		System.setProperty("line.separator", "\n");
 		game_state = states.menu;
 		wnd = new RenderWindow(new VideoMode(1920, 1000, 32), "Shact");
 		Image img = new Image();
