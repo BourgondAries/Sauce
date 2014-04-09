@@ -48,7 +48,7 @@ public class Shaft
 	private Music
 		m_background_music;
 	private final int 
-		CM_MAX_PROGRESS = 90000;//90000;
+		CM_MAX_PROGRESS = 90000;
 	private Bool 
 		m_collision = new Bool(false);
 	private final int 
@@ -506,7 +506,7 @@ public class Shaft
 				m_progress += m_progress_speed;
 				if (m_progress > CM_MAX_PROGRESS)
 				{
-					Main.game_state = Main.states.enterscore;
+					Main.game_state = Main.states.postshaft;
 				}
 			}
 			
