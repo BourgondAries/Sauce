@@ -21,8 +21,8 @@ public class EnterScore
 		m_name = new Text(),
 		m_score = new Text(),
 		m_max_score = null;
-	private Sprite
-		m_background = new Sprite();
+	private RectangleShape
+		m_background = new RectangleShape();
 	private RectangleShape m_textbox = new RectangleShape();
 	private final int 
 		CM_BACKSPACE = 8,
@@ -44,9 +44,11 @@ public class EnterScore
 			m_score.setFont(m_name.getFont());
 			m_description.setFont(m_name.getFont());
 			
-			Texture tex = PathedTextures.getTexture(Paths.get("res/end/splodin_planet.tga"));
-			m_background.setTexture(tex, true);
-			m_background.setScale(((float)Main.wnd.getSize().x) / ((float)tex.getSize().x), ((float)Main.wnd.getSize().y) / ((float)tex.getSize().y));
+			Texture tex = PathedTextures.getTexture(Paths.get("res/end/giant_wheel.tga"));
+			m_background.setSize(new Vector2f(tex.getSize()));
+			m_background.setTexture(tex);
+			m_background.setOrigin(m_background.getSize().x / 2, m_background.getSize().y / 2);
+			m_background.setPosition(new Vector2f(Main.wnd.getSize().x / 2, Main.wnd.getSize().y / 2));
 		} 
 		catch (IOException exc_obj) 
 		{
@@ -118,6 +120,7 @@ public class EnterScore
 			if (Main.game_state != Main.states.enterscore)
 			{
 				Main.score_collection.add(new engine.Pair<String, Long>(m_name.getString(), m_score_value));
+				Main.sortScores();
 				Main.storeScoreIntoFile();
 				m_music.stop();
 				return;
@@ -169,8 +172,12 @@ public class EnterScore
 	
 	private void updateObjects()
 	{
+		m_background.rotate(4.f);
+		
 		if (m_max_score != null)
 		{
+			m_background.rotate(20.f);
+			
 			Color c = m_max_score.getColor();
 			if (c.r >= 250 )
 				flipflop[0] = false;

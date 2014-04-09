@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import org.jsfml.graphics.*;
 import org.jsfml.window.*;
@@ -24,9 +25,40 @@ public class Main
 	{
 		Long u = 0L;
 		for (engine.Pair<String, Long> x : score_collection)
-			if ( x.second > u )
-				u = x.second;
+			if (x != null)
+				if (x.second != null)
+					if ( x.second > u )
+						u = x.second;
 		return u;
+	}
+	
+	public static void sortScores()
+	{
+		ArrayList<engine.Pair<String, Long>> copy = new ArrayList<>();
+		
+		while (score_collection.size() > 0)
+		{	
+			int index = -1;
+			engine.Pair<String, Long> max = new engine.Pair<String, Long>("", -1L);
+			for (int i = 0; i < score_collection.size(); ++i)
+			{
+				if (score_collection.get(i) == null)
+				{
+					score_collection.remove(i);
+					break;
+				}
+				if (score_collection.get(i).second > max.second)
+				{
+					max = score_collection.get(i);
+					index = i;
+				}
+			}
+			if (index >= 0)
+				score_collection.remove(index);
+			copy.add(max);
+		}
+		
+		score_collection = copy;
 	}
 	
 	// Entry point of the game
