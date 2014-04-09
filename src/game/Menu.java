@@ -780,6 +780,7 @@ public class Menu {
 		int place = 0;
 		for (Pair<String, Long> pair : Main.score_collection) {
 			place++;
+			if (place>10) break;
 			str += place +". Place: " + pair.first + " with the score: " + pair.second + "\n";
 		}
 			
