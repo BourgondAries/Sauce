@@ -22,7 +22,8 @@ public class EnterScore
 		m_score = new Text(),
 		m_max_score = null;
 	private RectangleShape
-		m_background = new RectangleShape();
+		m_background = new RectangleShape(),
+		m_overlay = new RectangleShape();
 	private RectangleShape m_textbox = new RectangleShape();
 	private final int 
 		CM_BACKSPACE = 8,
@@ -49,6 +50,11 @@ public class EnterScore
 			m_background.setTexture(tex);
 			m_background.setOrigin(m_background.getSize().x / 2, m_background.getSize().y / 2);
 			m_background.setPosition(new Vector2f(Main.wnd.getSize().x / 2, Main.wnd.getSize().y / 2));
+			
+			tex = PathedTextures.getTexture(Paths.get("res/end/giant_wheel_overlay.tga"));
+			m_overlay.setSize(new Vector2f(tex.getSize()));
+			m_overlay.setTexture(tex);
+			m_overlay.move(new Vector2f(0.f, -200.f));
 		} 
 		catch (IOException exc_obj) 
 		{
@@ -72,6 +78,7 @@ public class EnterScore
 		m_score.setPosition(new Vector2f(Main.wnd.getSize().x / 2 - m_score.getGlobalBounds().width / 2, 2*(m_description.getGlobalBounds().height + m_description.getGlobalBounds().top)));
 		
 		m_layer.add(m_background);
+		m_layer.add(m_overlay);
 		m_layer.add(m_description);
 		m_layer.add(m_score);
 		m_layer.add(m_textbox);
@@ -84,7 +91,7 @@ public class EnterScore
 			m_music.openFromFile(Paths.get("sfx/xXxTurnDown4(Hwut)20DankScopeFazeClanTryoutsxXx.flac"));
 			m_max_score.setString("You're the new #1 [[MLG 420 erryday]] 1337 #swag #NoScOpE pro!");
 			m_max_score.setFont(PathedFonts.getFont(Paths.get("res/pixelmix.ttf")));
-			m_max_score.setPosition(Main.wnd.getSize().x / 2 - m_max_score.getGlobalBounds().width / 2, Main.wnd.getSize().y / 2);
+			m_max_score.setPosition(Main.wnd.getSize().x / 2 - m_max_score.getGlobalBounds().width / 2, Main.wnd.getSize().y / 1.5f);
 			
 			
 			Text tx = new Text();
