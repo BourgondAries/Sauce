@@ -21,7 +21,7 @@ public class ProgressBar extends Absolute implements Drawable
 		m_border = new RectangleShape();
 		m_fill = new RectangleShape();
 		
-		m_border.setOutlineColor(Color.BLUE);
+		m_border.setOutlineColor(new Color(139, 69, 19));
 		m_border.setOutlineThickness(3);
 		m_border.setFillColor(Color.TRANSPARENT); // top kek, transparent "color"
 		m_border.setSize(new Vector2f(Main.wnd.getSize().x, 20));

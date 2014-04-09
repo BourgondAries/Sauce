@@ -6,6 +6,8 @@ import java.util.Random;
 
 import org.jsfml.graphics.*;
 import org.jsfml.system.*;
+import org.jsfml.window.event.Event;
+import org.jsfml.window.event.KeyEvent;
 
 import engine.Layer;
 import engine.PathedTextures;
@@ -90,7 +92,26 @@ public class PostShaftCinematic
 	
 	private void handleEvents()
 	{
-		// No need
+		for (Event event : Main.wnd.pollEvents())
+		{
+			switch (event.type)
+			{
+				case KEY_PRESSED:
+				{
+					KeyEvent keyev = event.asKeyEvent();
+					switch (keyev.key)
+					{
+						case ESCAPE:
+							Main.game_state = Main.states.enterscore;
+							return;
+						default:
+							break;
+					}
+				} break;
+				default:
+					break;
+			}
+		}
 	}
 	
 	private void runLogic()
