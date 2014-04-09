@@ -23,6 +23,7 @@ import org.jsfml.window.event.KeyEvent;
 import engine.AnimatedSprite;
 import engine.Button;
 import engine.Formulas;
+import engine.Pair;
 import engine.PathedFonts;
 import engine.PathedSounds;
 import engine.PathedTextures;
@@ -693,7 +694,7 @@ public class Menu {
 		}
 	}
 	
-	private long runMenu(long time_so_far) {
+	private long runMenu(long time_so_far) throws IOException {
 		
 		// Update flicker-values
 		float max_distort = 2;
@@ -740,6 +741,12 @@ public class Menu {
 		float button_distance_from_top = 0; // 100
 		float number_of_button_places = 3;
 		
+		// Menu settings
+		boolean menu_score = false;
+		float box_spacing_top = 35;
+		float back_button_spacing_bottom = 35;
+		float spacing_between_button_and_box = 35;
+		
 		float button_placement_space_y =
 				Main.wnd.getSize().y -
 				scr_menu_underline_left_left.fetchSprite().getPosition().y -
@@ -755,6 +762,33 @@ public class Menu {
 				Main.wnd.getSize().x -
 				2*button_distance_from_sides;
 		
+		// Make textbox
+		SpeechBox box = new SpeechBox();
+		
+		box.changePosition(new Vector2f(
+				button_distance_from_sides,
+				button_placement_start_y +
+				box_spacing_top));
+		
+		box.changeSize(new Vector2f(button_width,
+				Main.wnd.getSize().y-button_placement_start_y-box_spacing_top-back_button_spacing_bottom-
+				Button.img_button_middle.getLocalBounds().height-spacing_between_button_and_box));
+		
+		box.updateHeader("HIGHSCORES");
+		
+		String str = "";
+		int place = 0;
+		for (Pair<String, Long> pair : Main.score_collection) {
+			place++;
+			str += place +". Place: " + pair.first + " with the score: " + pair.second + "\n";
+		}
+			
+		box.queueText(str);
+		
+		render_queue.add(box);
+		
+		boolean have_resat = true;
+		
 		// Make buttons
 		Button btn_play = new Button(new Vector2f(
 				button_distance_from_sides,
@@ -766,13 +800,23 @@ public class Menu {
 		btn_play.doPlayStart();
 		render_queue.add(btn_play);
 		
+		Button btn_back = new Button(new Vector2f(
+				button_distance_from_sides,
+				Main.wnd.getSize().y -
+				back_button_spacing_bottom -
+				Button.img_button_middle.getLocalBounds().height),
+				button_width,
+				"BACK");
+		btn_back.doPlayStart();
+		render_queue.add(btn_back);
+		
 		Button btn_score = new Button(new Vector2f(
 				button_distance_from_sides,
 				button_placement_start_y +
 				space_between_buttons*2 -
 				Button.img_button_middle.getLocalBounds().height/2),
 				button_width,
-				"CORE");
+				"SCORES");
 		btn_score.doPlayStart();
 		render_queue.add(btn_score);
 		
@@ -794,29 +838,60 @@ public class Menu {
 			// Menu uptime
 			long uptime = System.currentTimeMillis() - start_time;
 			
-			// Update buttons
-			boolean play_state = btn_play.update(
-					new Vector2f(Mouse.getPosition(Main.wnd)),
-					Mouse.isButtonPressed(Mouse.Button.LEFT));
-			boolean score_state = btn_score.update(
-					new Vector2f(Mouse.getPosition(Main.wnd)),
-					Mouse.isButtonPressed(Mouse.Button.LEFT));
-			boolean exit_state = btn_exit.update(
-					new Vector2f(Mouse.getPosition(Main.wnd)),
-					Mouse.isButtonPressed(Mouse.Button.LEFT));
+			if (!menu_score) {
+				
+				if (!have_resat) {
+					btn_play.resetButton();
+					btn_play.doPlayStart();
+					btn_score.resetButton();
+					btn_score.doPlayStart();
+					btn_exit.resetButton();
+					btn_exit.doPlayStart();
+					have_resat = true;
+				}
+				
+				// Update buttons
+				box.update();
+				boolean play_state = btn_play.update(
+						new Vector2f(Mouse.getPosition(Main.wnd)),
+						Mouse.isButtonPressed(Mouse.Button.LEFT));
+				boolean score_state = btn_score.update(
+						new Vector2f(Mouse.getPosition(Main.wnd)),
+						Mouse.isButtonPressed(Mouse.Button.LEFT));
+				boolean exit_state = btn_exit.update(
+						new Vector2f(Mouse.getPosition(Main.wnd)),
+						Mouse.isButtonPressed(Mouse.Button.LEFT));
 			
-			if (play_state) {
-				Main.game_state = Main.states.tutorial;
-				return time_so_far+uptime;
-			}
-			
-			if (exit_state) {
-				Main.dispose();
-			}
-			
-			if (score_state) {
-				Main.game_state = Main.states.core;
-				return time_so_far+uptime;
+				if (play_state) {
+					Main.game_state = Main.states.tutorial;
+					return time_so_far+uptime;
+				}
+				
+				if (exit_state) {
+					Main.dispose();
+				}
+				
+				if (score_state) {
+					menu_score = true;
+				}
+			} else {
+				if (have_resat) {
+					box.openBox();
+					btn_back.resetButton();
+					btn_back.doPlayStart();
+					have_resat = false;
+				}
+				
+				box.update();
+				
+				boolean back_state = btn_back.update(
+						new Vector2f(Mouse.getPosition(Main.wnd)),
+						Mouse.isButtonPressed(Mouse.Button.LEFT));
+				
+				if (back_state) {
+					box.closeBox();
+					menu_score = false;
+				}
 			}
 			
 			// Flicker effect on menu

@@ -158,6 +158,14 @@ public class Button implements Drawable {
 		exit = true;
 	}
 	
+	public void resetButton() {
+		first_time = true;
+		activated = false;
+		button_right.setTexture(img_button_right.getTexture());
+		button_middle.setTexture(img_button_middle.getTexture());
+		button_left.setTexture(img_button_left.getTexture());
+	}
+	
 	public boolean update(Vector2f mouse_position, boolean mouse_down) {
 		if (first_time) { exit = false; first_time = false; }
 		
