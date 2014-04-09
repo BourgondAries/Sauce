@@ -85,7 +85,7 @@ public class Tutorial
 	private float fase_2_ground_height = 200;
 	private Vector2f background_position;
 	private float fase_2_ship_speed = 20f;
-	private float time_to_dig = 1000;
+	private float time_to_dig = 5000;
 
 	private int ammount_of_stuff = 50;
 	
@@ -169,36 +169,34 @@ public class Tutorial
 		box.lockBox();
 		
 		box.queueText(
-				  "Welcome to another mission, solider!\n\n"
+				  "Welcome to this mission, private!\n\n"
 				+ "You are currently breaching through the atmosphere of a planet\n"
-				+ "which is said to contain no life. However, our scanners show a large\n"
-				+ "concentration of valuables deep inside the core.\n\n"
-				+ "We need you to go there, release a chemical compound to compact the material\n"
-				+ "and make it gatherable before gathering it and getting it out.");
+				+ "which contains no intelligible life. However, our scanners show a large\n"
+				+ "amount of valuable ore deep inside its core!\n\n"
+				+ "We need you to go there, to gather this mineral!\n");
 		
 		box.queueText(
-				  "In order to do such, you will need to learn the basics of the process.\n"
+				  "In order to do such, you will need to learn the basics of controlling your ship.\n"
 				+ "You use the arrow keys to move your ship around.\n"
-				+ "Try to gather as much valuables as possible while in the core.\n"
-				+ "When the core becomes unstable, the shockwave will launch you\n"
+				+ "Press escape to launch out of the core prematurely.\n"
+				+ "The ship will take care of gathering items for you.\n\n"
+				+ "Try to gather as much valuable ore as fast as possible while you're in the core.\n"
+				+ "When the core explodes, the shockwave will launch you\n"
 				+ "towards the surface.\n"
-				+ "Here you must dodge debris and get powerups to get through the shaft alive.");
+				+ "Here you must dodge debris and get powerups to get back alive.");
 		
 		box.queueText(
-				  "The heads up display will tell you all you need to know about your ships status.\n"
-				+ "The gears shows how much more damage your ship can sustain.\n"
-				+ "The horisontal bar shows how much of your boost that is remaining.\n"
-				+ "The vertical bar shows the distance between you and the surface.\n"
-				+ "Lastly, the numbers representate your payment at the end of the mission.\n"
-				+ "If your ships gets high damage, you use long time and pick up few\n"
-				+ "valuables, the payment will be bad. Remember that!");
+				  "The heads up display will tell you all you need to know about your ship's status.\n"
+				+ "The gears shows your ship's health.\n"
+				+ "The horisontal bar shows how far you're from the surface.\n"
+				+ "Lastly, the score represents your payment at the end of the mission.\n"
+				+ "Remember, we'll need some cut if your ship is damaged!");
 		
 		box.queueText(
-				"To exit the core prematurely, press the \"escape\" button.\n"
-				+ "Your journey will be much easier if you get out of there quickly!");
+				"Your journey will be much easier if you get out of there quickly!\nTrust me...");
 		
 		box.queueText(
-				  "The only thing left to say now is good luck!\n\nCaptain out!");
+				  "Well,... the only thing left to say is good luck!\n\nCaptain out!");
 		
 		box.updateHeader("Tutorial");
 		box.updateFooter("Press (LEFT) to advance, (RIGHT) to view previous and (ESCAPE) to skip");
@@ -465,6 +463,26 @@ public class Tutorial
 		
 	}
 	
+	private void fade(long start_time2, float time_to_dig2)
+	{
+		RectangleShape rs = new RectangleShape();
+		rs.setSize(new Vector2f(Main.wnd.getSize()));
+		rs.setFillColor
+		(
+			new Color
+			(
+				0,
+				0, 
+				0, 
+				(int) (((float) 255.f * (System.currentTimeMillis()-start_time2)) / ((float)time_to_dig2))
+			)
+		);
+		ConstView view = Main.wnd.getView();
+		Main.wnd.setView(Main.wnd.getDefaultView());
+		Main.wnd.draw(rs);
+		Main.wnd.setView(view);
+	}
+	
 	private void exit() {
 		exit_initiated = true;
 	}
@@ -475,8 +493,10 @@ public class Tutorial
 		if (color_clamp<1f && fase_1)	for (Sprite star : stars) {
 			Main.wnd.draw ( star );
 		}
-		if (fase_3) for (Sprite thing : speedness) {
-			Main.wnd.draw ( thing );
+		if (fase_3) {
+			for (Sprite thing : speedness) {
+				Main.wnd.draw ( thing );
+			}
 		}
 		if (fase_1) Main.wnd.draw ( m_sky );
 		if (fase_2) Main.wnd.draw ( img_mountains );
@@ -485,6 +505,7 @@ public class Tutorial
 		if (fase_1) Main.wnd.draw ( box );
 		Main.wnd.draw(hud);
 		if (fase_2) Main.wnd.draw( flash );
+		if (fase_3) fade(start_time, time_to_dig);
 		Main.wnd.display ( );
 	}
 }

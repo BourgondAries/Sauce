@@ -43,8 +43,8 @@ public class Core
 	
 	private Music 			
 							m_distant_explosions,
-							m_background_music,
-							m_meltdown_music;
+							m_background_music;
+//							m_meltdown_music;
 	private SyncTrack 			
 		m_launch_sound;
 	

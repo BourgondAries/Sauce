@@ -10,6 +10,7 @@ import org.jsfml.graphics.*;
 import org.jsfml.window.*;
 
 
+
 public class Main
 {
 	
@@ -23,7 +24,7 @@ public class Main
 	// Entry point of the game
 	public Main()
 	{
-		game_state = states.core;
+		game_state = states.tutorial;
 		wnd = new RenderWindow(new VideoMode(1920, 1000, 32), "Shact");
 		view = new View ( wnd.getDefaultView().getCenter(), wnd.getDefaultView().getSize() );
 		wnd.setFramerateLimit(60);
@@ -55,6 +56,7 @@ public class Main
 		surface, // We've reached the surface, commence downward travel
 		core, // Core gameplay
 		shaft, // When we travel upward in the game, comes after core
+		postshaft,
 		enterscore
 	}
 	
@@ -165,6 +167,9 @@ public class Main
 						break;
 					case shaft:
 						new Shaft(data);
+						break;
+					case postshaft:
+						new PostShaftCinematic(data);
 						break;
 					case enterscore:
 						new EnterScore(data);
